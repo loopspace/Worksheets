@@ -1,0 +1,100 @@
+body {
+    background: #8b1a1a;
+}
+
+#content {
+    max-width: 210mm;
+    min-height: calc(100vh - 4em - 12pt);
+    margin: 0 auto;
+    background: #fff;
+    padding: 2em;
+    border-radius: 5pt;
+}
+
+.columns {
+    -webkit-column-count: 2;
+    -moz-column-count: 2;
+    column-count: 2;
+    -webkit-column-gap: 2em;
+    -moz-column-gap: 2em;
+    column-gap: 2em;
+}
+
+.separator {
+    padding-right: 1ex;
+}
+
+.linebreak {
+    overflow-wrap: break-word;
+}
+
+.rule {
+    white-space: nowrap;
+}
+
+.explanation {
+    margin-bottom: 1em;
+}
+
+.LaTeX {
+    display: none;
+}
+
+.configuration {
+    font-size: 71%;
+    margin-bottom: 1em;
+}
+
+.question, .answer {
+    display: inline-block;
+}
+
+.exlist, .sollist {
+    counter-reset: exlist-counter;
+    list-style-type: none;
+    margin-top: 0px;
+}
+
+.exlist li, .sollist li {
+    padding-bottom: .5ex;
+}
+
+.exlist li:before, .sollist li:before {
+    content: counter(exlist-counter, lower-alpha) ". ";
+    counter-increment: exlist-counter;
+    font-style: italic;
+    padding-right: 1ex;
+    display: inline-block;
+    width: 3ex;
+    text-align: right;
+}
+
+.rule {
+    padding-right: 1ex;
+}
+
+button {
+    font-family: inherit;
+    font-size: inherit;
+}
+
+@media print {
+    #options, #type {
+	display: none;
+    }
+
+    #worksheet {
+	break-after: always;
+	page-break-after: always;
+    }
+
+    body {
+	background: #fff;
+    }
+
+    #content {
+	min-height: 0px;
+	padding: 0pt;
+	border-radius: 0pt;
+    }
+}
