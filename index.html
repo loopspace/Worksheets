@@ -12,6 +12,15 @@
 	    crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/seedrandom/2.4.0/seedrandom.min.js">
     </script>
+    <script>
+        if(navigator.userAgent.toLowerCase().indexOf('firefox') == -1)
+	{
+	document.write(
+	'<script type="text/javascript"	src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=MML_HTMLorMML"></sc' +'ript>'
+	);
+      }
+    </script>
+
     <script type="text/javascript" src="js/math.min.js"></script>
     <script type="text/javascript" src="js/main.js"></script>
     <script type="text/javascript" src="js/questions.js"></script>

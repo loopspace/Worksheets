@@ -18,12 +18,7 @@ var qs = (function(a) {
 
 
 function init() {
-    if(navigator.userAgent.toLowerCase().indexOf('firefox') == -1)
-      {
-	  document.write(
-      '<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=MML_HTMLorMML"></sc' +
-      'ript>');
-      }
+
     var types = {
 	seq0: new SeqNextTerms(),
 	seq1: new SeqTermToTerm(),
@@ -35,18 +30,23 @@ function init() {
     var typesel = $('#typeSelect');
     if (qs.type) {
 	typesel.val(qs.type);
+    } else {
+	typesel.val('seq0');
     }
+    var opt = typesel.val() || 'seq0';
     
-    typesel.change(
+    typesel.on('change',
 	function() {
 	    setOptions($('#options'),$('#worksheet'), $('#answers'),$(this).val(),types[$(this).val()],qs);
 	}
     );
-    setOptions($('#options'),$('#worksheet'), $('#answers'),typesel.val(),types[typesel.val()],qs);
+
+    setOptions($('#options'),$('#worksheet'), $('#answers'),opt,types[opt],qs);
 
     math.config({
 	number: 'Fraction'
     });
+
 }
 
 function setOptions (formdiv,workdiv,ansdiv,type,obj,params) {
@@ -177,7 +177,7 @@ function addQuestions(workdiv,ansdiv,type,obj) {
     ansdiv.append(soltxt);
 }
 
-$(document).ready(init);
+$(window).on('load',init);
 
 function tomml(s) {
     var mml = mmlelt('math').attr('display','inline');
@@ -189,7 +189,7 @@ function tommlelt(s) {
     var melt;
     if (typeof(s) == "number") {
 	if (s < 0) {
-	    melt = mmlelt('mgroup');
+	    melt = mmlelt('mrow');
 	    var mselt = mmlelt('mo').attr('lspace',"verythinmathspace").attr('rspace',"0em");
 	    mselt.html('&minus;');
 	    melt.append(mselt)
@@ -205,7 +205,7 @@ function tommlelt(s) {
 	    melt = mmlelt('mn');
 	    melt.html(s.s * s.n);
 	} else {
-	    melt = mmlelt('mgroup');
+	    melt = mmlelt('mrow');
 	    var mselt;
 	    if (s.s == -1) {
 		mselt = mmlelt('mo').attr('lspace',"verythinmathspace").attr('rspace',"0em");
