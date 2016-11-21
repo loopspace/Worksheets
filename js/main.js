@@ -15,9 +15,25 @@ var qs = (function(a) {
     return b;
 })(window.location.search.substr(1).split('&'));
 
+// Based on http://stackoverflow.com/a/21059677
 
+var px_per_cm;
+function init_px2cm() {
+    var d = $("<div/>").css({ position: 'absolute', top : '-1000cm', left : '-1000cm', height : '1000cm', width : '1000cm' }).appendTo('body');
+    px_per_cm = d.height() / 1000;
+    d.remove();
+}
+
+function px2cm(px) {
+    return px / px_per_cm;
+}
+
+function cm2px(cm) {
+    return cm * px_per_cm;
+}
 
 function init() {
+    init_px2cm();
 
     var types = {
 	seq0: new SeqNextTerms(),
@@ -125,7 +141,7 @@ function addQuestions(workdiv,ansdiv,type,obj) {
     
     var soltxt = $('<div>').addClass('configuration');
     var solul = $('<ul>');
-    var solurl = window.location.pathname + '?type=' + type;
+    var solurl = [location.protocol, '//', location.host, location.pathname].join('') + '?type=' + type;
 
     for (var i = 0; i < obj.options.length; i++) {
 	solul.append($('<li>').html(obj.options[i].text + ': ' + obj.options[i].value));
@@ -134,16 +150,23 @@ function addQuestions(workdiv,ansdiv,type,obj) {
     soltxt.append(solul);
 
     var soltex = $('<div>').addClass('LaTeX');
+    var extex = $('<div>').addClass('LaTeX');
     var cpyform = $('<form>');
-    var cpybtn = $('<button>').attr('type','button');
-    cpyform.append(cpybtn);
-    cpybtn.html('Copy LaTeX to clipboard');
-    cpybtn.click(function() {
+    var cpysolbtn = $('<button>').attr('type','button').addClass('LaTeXbtn');
+    var cpyexbtn = $('<button>').attr('type','button').addClass('LaTeXbtn');
+    cpyform.append(cpysolbtn);
+    cpyform.append(cpyexbtn);
+    cpysolbtn.html('Copy answers to clipboard as LaTeX');
+    cpysolbtn.click(function() {
 	copyToClipboard(soltex[0]);
+    });
+    cpyexbtn.html('Copy questions to clipboard as LaTeX');
+    cpyexbtn.click(function() {
+	copyToClipboard(extex[0]);
     });
     soltxt.append(soltex);
     soltxt.append(cpyform);
-    soltxt.append($('<a>').attr('href',solurl).text(solurl));
+    soltxt.append($('<a>').attr('href',solurl).text(solurl).addClass('srcURL'));
     
     var exlist = $('<ol>').addClass('exlist');
     var sollist = $('<ol>').addClass('sollist');
@@ -158,18 +181,35 @@ function addQuestions(workdiv,ansdiv,type,obj) {
 	sollist.append(
 	    $('<li>').append(qn[1])
 	);
-	soltex.append(
+	extex.append(
 	    $('<div>').text('\n\\item ' + qn[2])
+	);
+	soltex.append(
+	    $('<div>').text('\n\\item ' + qn[3])
 	);
 	qn = obj.makeQuestion();
     } while (qn);
 
     workdiv.html('');
 
-    for (var i = 0; i < obj.repeat; i++) {
-	workdiv.append(exhdr.clone());
-	workdiv.append(extxt.clone());
-	workdiv.append($('<div>').addClass('columns').append(exlist.clone()));
+    workdiv.append(exhdr.clone());
+    workdiv.append(extxt.clone());
+    workdiv.append($('<div>').addClass('columns').append(exlist.clone()));
+    
+    if (obj.repeat) {
+	var h = workdiv.outerHeight(true);
+	var hdrelt, txtelt, colelt;
+	while (workdiv.outerHeight(true) < cm2px(29.7)) {
+	    hdrelt = exhdr.clone();
+	    txtelt = extxt.clone();
+	    colelt = $('<div>').addClass('columns').append(exlist.clone());
+	    workdiv.append(hdrelt);
+	    workdiv.append(txtelt);
+	    workdiv.append(colelt);
+	}
+	hdrelt.remove();
+	txtelt.remove();
+	colelt.remove();
     }
     ansdiv.html('');
     ansdiv.append(solhdr);
@@ -265,7 +305,7 @@ function int_to_words(int) {
   if (int === 0) return 'zero';
 
   var ONES  = ['','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen'];
-  var TENS  = ['','','twenty','thirty','fourty','fifty','sixty','seventy','eighty','ninety'];
+  var TENS  = ['','','twenty','thirty','forty','fifty','sixty','seventy','eighty','ninety'];
   var SCALE = ['','thousand','million','billion','trillion','quadrillion','quintillion','sextillion','septillion','octillion','nonillion'];
 
   // Return string of first three digits, padded with zeros if needed
@@ -348,3 +388,8 @@ function copyToClipboard(elem) {
     }
     return succeed;
 }
+
+function makeInt(s,d) {
+    return parseInt(s,10) || d;
+}
+

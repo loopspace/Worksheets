@@ -97,4 +97,12 @@ button {
 	padding: 0pt;
 	border-radius: 0pt;
     }
+
+    .LaTeXbtn {
+	display: none;
+    }
+
+    .srcURL {
+	display: none;
+    }
 }

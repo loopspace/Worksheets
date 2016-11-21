@@ -1,3 +1,7 @@
+/*
+TODO: need suitable defaults and option type checking
+*/
+
 
 /*
 Question Type: Sequences
@@ -96,8 +100,8 @@ function SeqNextTerms() {
 	    name: "repeat",
 	    text: "Repeat Questions",
 	    shortcut: "r",
-	    type: "integer",
-	    default: 1
+	    type: "boolean",
+	    default: false
 	}
     ];
 
@@ -109,7 +113,7 @@ function SeqNextTerms() {
     this.setOptions = function() {
 	for (var i = 0; i < this.options.length; i++) {
 	    if (this.options[i].type == "integer") {
-		this.options[i].value = parseInt(this.options[i].element.val());
+		this.options[i].value = makeInt(this.options[i].element.val(),this.options[i].default);
 	    } else if (this.options[i].type == "boolean") {
 		this.options[i].value = this.options[i].element.is(':checked');
 	    } else {
@@ -295,8 +299,8 @@ function SeqTermToTerm() {
 	    name: "repeat",
 	    text: "Repeat Questions",
 	    shortcut: "r",
-	    type: "integer",
-	    default: 1
+	    type: "boolean",
+	    default: false
 	}
     ];
 
@@ -308,7 +312,7 @@ function SeqTermToTerm() {
     this.setOptions = function() {
 	for (var i = 0; i < this.options.length; i++) {
 	    if (this.options[i].type == "integer") {
-		this.options[i].value = parseInt(this.options[i].element.val());
+		this.options[i].value = makeInt(this.options[i].element.val(),this.options[i].default);
 	    } else if (this.options[i].type == "boolean") {
 		this.options[i].value = this.options[i].element.is(':checked');
 	    } else {
@@ -464,8 +468,8 @@ function SeqnthTerm() {
 	    name: "repeat",
 	    text: "Repeat Questions",
 	    shortcut: "r",
-	    type: "integer",
-	    default: 1
+	    type: "boolean",
+	    default: false
 	}
     ];
 
@@ -477,7 +481,7 @@ function SeqnthTerm() {
     this.setOptions = function() {
 	for (var i = 0; i < this.options.length; i++) {
 	    if (this.options[i].type == "integer") {
-		this.options[i].value = parseInt(this.options[i].element.val());
+		this.options[i].value = makeInt(this.options[i].element.val(),this.options[i].default);
 	    } else if (this.options[i].type == "boolean") {
 		this.options[i].value = this.options[i].element.is(':checked');
 	    } else {
@@ -663,8 +667,8 @@ function SeqArithSeq() {
 	    name: "repeat",
 	    text: "Repeat Questions",
 	    shortcut: "r",
-	    type: "integer",
-	    default: 1
+	    type: "boolean",
+	    default: false
 	}
     ];
 
@@ -676,7 +680,7 @@ function SeqArithSeq() {
     this.setOptions = function() {
 	for (var i = 0; i < this.options.length; i++) {
 	    if (this.options[i].type == "integer") {
-		this.options[i].value = parseInt(this.options[i].element.val());
+		this.options[i].value = makeInt(this.options[i].element.val(),this.options[i].default);
 	    } else if (this.options[i].type == "boolean") {
 		this.options[i].value = this.options[i].element.is(':checked');
 	    } else {
@@ -715,7 +719,7 @@ function SeqArithSeq() {
 	if (this.qn >= this.size) return false;
 
 	var a = 0,d = 0;
-	var qdiv,adiv,p,sep,tex;
+	var qdiv,adiv,p,sep,qtex,atex;
 
 	while (this.seqs[ a + ":" + d]) {
 	    a = this.mkint(this.a);
@@ -725,7 +729,8 @@ function SeqArithSeq() {
 	
 	qdiv = $('<div>').addClass('question');
 	adiv = $('<div>').addClass('answer');
-	tex = '';
+	qtex = '';
+	atex = '';
 
 	adiv.append(
 	    $('<span>').append(
@@ -750,19 +755,22 @@ function SeqArithSeq() {
 		)
 	    ).append(". ")
 	);
-	tex = texwrap('a = ' + texnum(a)) + ', ' + texwrap('d = ' + texnum(d)) + '.';
+	atex = texwrap('a = ' + texnum(a)) + ', ' + texwrap('d = ' + texnum(d)) + '.';
 
 	p = a;
+	qtex = '';
 	for (var j = 0; j < this.terms; j++) {
 	    qdiv.append(tomml(p));
+	    qtex += totex(p) + ", ";
 	    p = math.add(p,d);
 	    qdiv.append($('<span>').addClass("separator").html(", "));
 	    qdiv.append($('<span>').addClass("linebreak").html(""));
 	}
+	qtex += totex('\\dotsc');
 	qdiv.append($('<span>').addClass("dots").html("..."));
 
 	this.qn++;
-	return [qdiv, adiv, tex];
+	return [qdiv, adiv, qtex, atex];
     }
     
 
@@ -840,8 +848,8 @@ function SeqSumSeries() {
 	    name: "repeat",
 	    text: "Repeat Questions",
 	    shortcut: "r",
-	    type: "integer",
-	    default: 1
+	    type: "boolean",
+	    default: false
 	}
     ];
 
@@ -853,7 +861,7 @@ function SeqSumSeries() {
     this.setOptions = function() {
 	for (var i = 0; i < this.options.length; i++) {
 	    if (this.options[i].type == "integer") {
-		this.options[i].value = parseInt(this.options[i].element.val());
+		this.options[i].value = makeInt(this.options[i].element.val(),this.options[i].default);
 	    } else if (this.options[i].type == "boolean") {
 		this.options[i].value = this.options[i].element.is(':checked');
 	    } else {
