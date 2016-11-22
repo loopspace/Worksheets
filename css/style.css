@@ -40,6 +40,10 @@ body {
     display: none;
 }
 
+.LaTeXbtn {
+    display: block;
+}
+
 .configuration {
     font-size: 71%;
     margin-bottom: 1em;

@@ -40,7 +40,8 @@ function init() {
 	seq1: new SeqTermToTerm(),
 	seq2: new SeqnthTerm(),
 	seq3: new SeqArithSeq(),
-	seq4: new SeqSumSeries()
+	seq4: new SeqArithTerm(),
+	seq5: new SeqSumSeries()
     };
 
     var typesel = $('#typeSelect');
@@ -154,8 +155,8 @@ function addQuestions(workdiv,ansdiv,type,obj) {
     var cpyform = $('<form>');
     var cpysolbtn = $('<button>').attr('type','button').addClass('LaTeXbtn');
     var cpyexbtn = $('<button>').attr('type','button').addClass('LaTeXbtn');
-    cpyform.append(cpysolbtn);
     cpyform.append(cpyexbtn);
+    cpyform.append(cpysolbtn);
     cpysolbtn.html('Copy answers to clipboard as LaTeX');
     cpysolbtn.click(function() {
 	copyToClipboard(soltex[0]);
@@ -393,3 +394,68 @@ function makeInt(s,d) {
     return parseInt(s,10) || d;
 }
 
+/*
+Select a random number from a list.
+The list is comma separated, each entry is either a number or a range.
+Ranges are denoted by a:b and are inclusive.
+Optionally, an entry can end in 'xN' to denote that that entry should be considered to be copied N times.
+*/
+
+function randomFromRange(s,p) {
+    var sel = s.split(',');
+    var len = [];
+    var ranges = [];
+    var total = 0;
+    var range;
+    var mult;
+    var matches;
+    var start;
+    var end;
+    var chosen;
+    for (var i = 0; i < sel.length; i++) {
+	if (sel[i].search('x') != -1) {
+	    matches = sel[i].match(/(.*)x\s*(\d+)/);
+	    range = matches[1];
+	    mult = parseInt(matches[2]);
+	} else {
+	    range = sel[i];
+	    mult = 1;
+	}
+	if (range.search(':')) {
+	    matches = range.match(/(-?\d+)\s*:\s*(-?\d+)/);
+	    start = parseInt(matches[1],10);
+	    end = parseInt(matches[2],10);
+	} else {
+	    start = parseInt(range,10);
+	    end = parseInt(range,10);
+	}
+	ranges.push([start,end - start + 1,mult]);
+	total += (end - start + 1)*mult;
+	len.push(total);
+    }
+    p = Math.floor(p*total + 1);
+
+    for (var i = 0; i < len.length; i++) {
+	if (len[i] >= p) {
+	    chosen = i;
+	    break;
+	}
+    }
+
+    p -= len[chosen-1] || 0;
+    p = p%ranges[chosen][1];
+    p += ranges[chosen][0];
+
+    return p;
+}
+
+/*
+var rand = [];
+for (var i = 0; i < 12; i++) {
+    rand[i] = 0;
+}
+for (var i = 0; i < 10000; i++) {
+    rand[randomFromRange('-5:-1,1:5',Math.random())+5]++;
+}
+console.log(rand);
+*/
