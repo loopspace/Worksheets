@@ -70,17 +70,17 @@ function SeqNextTerms() {
 	},
 	{
 	    name: "a",
-	    text: "Maximum first term",
+	    text: "Range for first term",
 	    shortcut: "a",
-	    type: "integer",
-	    default: 10
+	    type: "string",
+	    default: "1:10"
 	},
 	{
 	    name: "d",
-	    text: "Maximum term-to-term",
+	    text: "Range for term-to-term",
 	    shortcut: "d",
-	    type: "integer",
-	    default: 10
+	    type: "string",
+	    default: "1:10"
 	},
 	{
 	    name: "linear",
@@ -88,13 +88,6 @@ function SeqNextTerms() {
 	    shortcut: "l",
 	    type: "boolean",
 	    default: true
-	},
-	{
-	    name: "negative",
-	    text: "Allow negatives",
-	    shortcut: "g",
-	    type: "boolean",
-	    default: false
 	},
 	{
 	    name: "repeat",
@@ -117,7 +110,11 @@ function SeqNextTerms() {
 	    } else if (this.options[i].type == "boolean") {
 		this.options[i].value = this.options[i].element.is(':checked');
 	    } else {
-		this.options[i].value = this.options[i].element.val();
+		if (this.options[i].element.val() == '') {
+		    this.options[i].value = this.options[i].default;
+		} else {
+		    this.options[i].value = this.options[i].element.val();
+		}
 	    }
 	    this[this.options[i].name] = this.options[i].value;
 	    localStorage.setItem(this.storage + ':' + this.options[i].shortcut, this.options[i].value);
@@ -130,18 +127,6 @@ function SeqNextTerms() {
 	this.prng = new Math.seedrandom(this.seed);
 	this.explanation = 'For each sequence, write down the rule and the next ' + (this.terms == 1 ? 'term' :  int_to_words(this.terms) + ' terms') + '.';
 	
-	if (this.negative) {
-	    this.mkint = function(a) {
-		var n = Math.floor(2*a*self.prng() - a);
-		if (n >= 0) n++;
-		return n;
-	    }
-	} else {
-	    this.mkint = function(a) {
-		var n = Math.floor(a*self.prng() + 1);
-		return n;
-	    }
-	}
     }
 
     this.reset = function() {
@@ -153,60 +138,72 @@ function SeqNextTerms() {
 	if (this.qn >= this.size) return false;
 
 	var a = 0,d = 0,op = mkop(true);
-	var qdiv,adiv,p,sep,tex;
+	var qdiv,adiv,p,sep,qtex,atex;
+	var nqn = 0;
 
 	while (this.seqs[ a + ":" + d + ":" + op.type]) {
-	    a = this.mkint(this.a);
-	    d = this.mkint(this.d);
+	    a = randomFromRange(this.a,this.prng());
+	    d = randomFromRange(this.d,this.prng());
 	    op = mkop(this.linear);
+	    nqn++;
+	    if (nqn > 10) {
+		this.seqs = {"0:0:Add ": true};
+		nqn = 0;
+	    }
 	}
 	this.seqs[ a + ":" + d + ":" + op.type] = true;
-	
+
+	qtex = '';
 	qdiv = $('<div>').addClass('question');
 
 	qdiv.append(tomml(a));
+	qtex += totex(a);
 	qdiv.append($('<span>').addClass("separator").html(", "));
+	qtex += ', ';
 	qdiv.append($('<span>').addClass("linebreak").html(""));
 	p = a;
 	    
 	for (var j = 1; j < this.length; j++) {
-	    qdiv.append(tomml(op.op(p,d)));
 	    p = op.op(p,d);
+	    qdiv.append(tomml(p));
+	    qtex += totex(p);
 	    qdiv.append($('<span>').addClass("separator").html(", "));
+	    qtex += ', ';
 	    qdiv.append($('<span>').addClass("linebreak").html(""));
 	}
 	qdiv.append($('<span>').addClass("dots").html("..."));
+	qtex += totex('\\dots');
 
-	tex = '';
+	atex = '';
 	adiv = $('<div>').addClass('answer');
 	sep = ",";
 	if (op.type == "Add ") {
 	    if (d > 0) {
-		tex = 'Add ' + totex(d);
+		atex = 'Add ' + totex(d);
 		adiv.append( $('<span>').html("Add " + d + ":").addClass('rule'));
 	    } else {
-		tex = 'Subtract ' + totex(-d);
+		atex = 'Subtract ' + totex(-d);
 		adiv.append( $('<span>').html("Subtract " + (-d) + ":").addClass('rule'));
 	    }
 	} else {
-	    tex = op.type + totex(d);
+	    atex = op.type + totex(d);
 	    adiv.append( $('<span>').html(op.type + d + ":").addClass('rule'));
 	}
 	adiv.append($('<span>').addClass("linebreak").html("&nbsp;"));
-	tex += '. ';
+	atex += ': ';
 	for (var j = 0; j < this.terms; j++) {
 	    adiv.append(tomml(op.op(p,d)));
 	    p = op.op(p,d);
-	    tex += totex(p);
+	    atex += totex(p);
 	    
 	    if (j == this.terms - 1) sep = ".";
 	    adiv.append($('<span>').addClass("separator").html(sep));
 	    adiv.append($('<span>').addClass("linebreak").html("&nbsp;"));
-	    tex += sep + ' ';
+	    atex += sep + ' ';
 	}
 	
 	this.qn++;
-	return [qdiv, adiv, tex];
+	return [qdiv, adiv, qtex, atex];
     }
     
 
@@ -269,17 +266,17 @@ function SeqTermToTerm() {
 	},
 	{
 	    name: "a",
-	    text: "Maximum first term",
+	    text: "Range for first term",
 	    shortcut: "a",
-	    type: "integer",
-	    default: 10
+	    type: "string",
+	    default: "1:10"
 	},
 	{
 	    name: "d",
-	    text: "Maximum term-to-term",
+	    text: "Range for term-to-term",
 	    shortcut: "d",
-	    type: "integer",
-	    default: 10
+	    type: "string",
+	    default: "1:10"
 	},
 	{
 	    name: "linear",
@@ -287,13 +284,6 @@ function SeqTermToTerm() {
 	    shortcut: "l",
 	    type: "boolean",
 	    default: true
-	},
-	{
-	    name: "negative",
-	    text: "Allow negatives",
-	    shortcut: "g",
-	    type: "boolean",
-	    default: false
 	},
 	{
 	    name: "repeat",
@@ -316,7 +306,11 @@ function SeqTermToTerm() {
 	    } else if (this.options[i].type == "boolean") {
 		this.options[i].value = this.options[i].element.is(':checked');
 	    } else {
-		this.options[i].value = this.options[i].element.val();
+		if (this.options[i].element.val() == '') {
+		    this.options[i].value = this.options[i].default;
+		} else {
+		    this.options[i].value = this.options[i].element.val();
+		}
 	    }
 	    this[this.options[i].name] = this.options[i].value;
 	    localStorage.setItem(this.storage + ':' + this.options[i].shortcut, this.options[i].value);
@@ -329,18 +323,6 @@ function SeqTermToTerm() {
 	this.prng = new Math.seedrandom(this.seed);
 	this.explanation = 'For each sequence, write down the first ' + (this.terms == 1 ? 'term' :  int_to_words(this.terms) + ' terms') + '.';
 	
-	if (this.negative) {
-	    this.mkint = function(a) {
-		var n = Math.floor(2*a*self.prng() - a);
-		if (n >= 0) n++;
-		return n;
-	    }
-	} else {
-	    this.mkint = function(a) {
-		var n = Math.floor(a*self.prng() + 1);
-		return n;
-	    }
-	}
     }
 
     this.reset = function() {
@@ -352,45 +334,55 @@ function SeqTermToTerm() {
 	if (this.qn >= this.size) return false;
 
 	var a = 0,d = 0,op = mkop(true);
-	var qdiv,adiv,p,sep,tex;
+	var qdiv,adiv,p,sep,qtex,atex;
+	var nqn = 0;
 
 	while (this.seqs[ a + ":" + d + ":" + op.type]) {
-	    a = this.mkint(this.a);
-	    d = this.mkint(this.d);
+	    a = randomFromRange(this.a,this.prng());
+	    d = randomFromRange(this.d,this.prng());
 	    op = mkop(this.linear);
+	    nqn++;
+	    if (nqn > 10) {
+		this.seqs = {"0:0:Add ": true};
+		nqn = 0;
+	    }
 	}
 	this.seqs[ a + ":" + d + ":" + op.type] = true;
 	
 	qdiv = $('<div>').addClass('question');
 
 	qdiv.append( $('<span>').append("First term: ").append(tomml(a)).append(", "));
+	qtex = "First term: " + totex(a) + ", ";
 	if (op.type == "Add ") {
 	    if (d > 0) {
 		qdiv.append( $('<span>').append("rule: Add ").append(tomml(d)).append("."));
+		qtex += 'rule: Add ' + totex(d) + ".";
 	    } else {
 		qdiv.append( $('<span>').append("rule: Subtract ").append(tomml(-d)).append("."));
+		qtex += 'rule: Subtract ' + totex(-d) + ".";
 	    }
 	} else {
 	    qdiv.append( $('<span>').append("rule: " + op.type).append(tomml(d)).append("."));
+	    qtex += 'rule: ' + op.type + totex(d) + '.';
 	}
 	
 	adiv = $('<div>').addClass('answer');
 	adiv.append(tomml(a));
 	p = a;
-	tex = totex(a);
+	atex = totex(a);
 
 	for (var j = 1; j < this.terms; j++) {
 	    adiv.append($('<span>').addClass("separator").html(", "));
 	    adiv.append($('<span>').addClass("linebreak").html(""));
 	    p = op.op(p,d);
 	    adiv.append(tomml(p));
-	    tex += ', ' + totex(p);
+	    atex += ', ' + totex(p);
 	}
 	adiv.append($('<span>').addClass("dots").html("."));
-	tex += '.';
+	atex += '.';
 
 	this.qn++;
-	return [qdiv, adiv, tex];
+	return [qdiv, adiv, qtex, atex];
     }
     
 
@@ -438,31 +430,24 @@ function SeqnthTerm() {
 	},
 	{
 	    name: "a",
-	    text: "Maximum quadratic term",
+	    text: "Range for quadratic term",
 	    shortcut: "a",
-	    type: "integer",
-	    default: 2
+	    type: "string",
+	    default: "0:2"
 	},
 	{
 	    name: "b",
-	    text: "Maximum linear term",
+	    text: "Range for linear term",
 	    shortcut: "b",
-	    type: "integer",
-	    default: 6
+	    type: "string",
+	    default: "0:6"
 	},
 	{
 	    name: "c",
-	    text: "Maximum constant term",
+	    text: "Range for constant term",
 	    shortcut: "c",
-	    type: "integer",
-	    default: 10
-	},
-	{
-	    name: "negative",
-	    text: "Allow negatives",
-	    shortcut: "g",
-	    type: "boolean",
-	    default: false
+	    type: "string",
+	    default: "1:10"
 	},
 	{
 	    name: "repeat",
@@ -485,7 +470,11 @@ function SeqnthTerm() {
 	    } else if (this.options[i].type == "boolean") {
 		this.options[i].value = this.options[i].element.is(':checked');
 	    } else {
-		this.options[i].value = this.options[i].element.val();
+		if (this.options[i].element.val() == '') {
+		    this.options[i].value = this.options[i].default;
+		} else {
+		    this.options[i].value = this.options[i].element.val();
+		}
 	    }
 	    this[this.options[i].name] = this.options[i].value;
 	    localStorage.setItem(this.storage + ':' + this.options[i].shortcut, this.options[i].value);
@@ -498,17 +487,6 @@ function SeqnthTerm() {
 	this.prng = new Math.seedrandom(this.seed);
 	this.explanation = 'For each sequence, write down the first ' + (this.terms == 1 ? 'term' :  int_to_words(this.terms) + ' terms') + '.';
 	
-	if (this.negative) {
-	    this.mkint = function(a) {
-		var n = Math.floor(2*a*self.prng() - a);
-		return n;
-	    }
-	} else {
-	    this.mkint = function(a) {
-		var n = Math.floor(a*self.prng() + 1);
-		return n;
-	    }
-	}
     }
 
     this.reset = function() {
@@ -520,24 +498,34 @@ function SeqnthTerm() {
 	if (this.qn >= this.size) return false;
 
 	var a = 0,b = 0,c = 0;
-	var qdiv,adiv,p,sep,tex;
+	var qdiv,adiv,p,sep,atex,qtex;
+	var nqn = 0;
 
 	while (this.seqs[ a + ":" + b + ":" + c ]) {
-	    a = this.mkint(this.a);
-	    b = this.mkint(this.b);
-	    c = this.mkint(this.c);
+	    a = randomFromRange(this.a,this.prng());
+	    b = randomFromRange(this.b,this.prng());
+	    c = randomFromRange(this.c,this.prng());
+	    nqn++;
+	    if (nqn > 10) {
+		this.seqs = {"0:0:0": true};
+		nqn = 0;
+	    }
 	}
 	this.seqs[ a + ":" + b + ":" + c ] = true;
 	
 	qdiv = $('<div>').addClass('question');
+	qtex = '';
 
 	var quad = mmlelt('math').attr('display','inline');
+	var quadtex = '';
 	if (a != 0) {
 	    if (a != 1) {
 		if (a == -1) {
 		    quad.append(tommlelt('-').attr('lspace',"verythinmathspace").attr('rspace',"0em"));
+		    quadtex += '-';
 		} else {
 		    quad.append(tommlelt(a));
+		    quadtex += a;
 		}
 	    }
 	    quad.append(
@@ -547,55 +535,66 @@ function SeqnthTerm() {
 		    tommlelt('2')
 		)
 	    );
+	    quadtex += 'n^2';
 	}
 	if (b != 0) {
 	    if (a != 0) {
 		if (b > 0) {
 		    quad.append(tommlelt('+'));
+		    quadtex += '+';
 		} else {
 		    quad.append(tommlelt('-'));
+		    quadtex += '-';
 		}
 	    } else if (b < 0) {
 		quad.append(tommlelt('-').attr('lspace',"verythinmathspace").attr('rspace',"0em"));
+		quadtex += '-';
 	    }
 	    if (b != 1 && b != -1) {
 		quad.append(tommlelt(math.abs(b)));
+		quadtex += b;
 	    }
 	    quad.append(tommlelt('n'));
+	    quadtex += 'n';
 	}
 	if (c != 0) {
 	    if (a != 0 || b != 0) {
 		if (c > 0) {
 		    quad.append(tommlelt('+'));
+		    quadtex += '+';
 		} else {
 		    quad.append(tommlelt('-'));
+		    quadtex += '-';
 		}		    
 	    } else if (c < 0) {
 		quad.append(tommlelt('-').attr('lspace',"verythinmathspace").attr('rspace',"0em"));
+		quadtex += '-';
 	    }
 	    quad.append(tommlelt(math.abs(c)));
+	    quadtex += c;
 	}
 	
 	qdiv.append( $('<span>').append(tomml('n')).append("th term is: ").append(quad) );
+	qtex += totex('n') + 'th term is: ' + texwrap(quadtex);
 	
 	adiv = $('<div>').addClass('answer');
-	tex = '';
+	atex = '';
 
 	for (var j = 0; j < this.terms; j++) {
 	    p = math.eval('a*(n+1)^2 + b*(n+1) + c',{a: a, b: b, c: c, n: j});
 	    adiv.append(tomml(p));
-	    tex += totex(p);
+	    atex += totex(p);
 	    if (j != this.terms - 1) {
 		adiv.append($('<span>').addClass("separator").html(", "));
 		adiv.append($('<span>').addClass("linebreak").html(""));
-		tex += ', ';
+		atex += ', ';
 	    }
 	}
 	adiv.append($('<span>').addClass("dots").html("."));
-	tex += '.';
+	atex += '.';
 
 	this.qn++;
-	return [qdiv, adiv, tex];
+	return [qdiv, adiv, qtex, atex];
     }
     
 
@@ -644,24 +643,17 @@ function SeqArithSeq() {
 	},
 	{
 	    name: "a",
-	    text: "Maximum first term",
+	    text: "Range for first term",
 	    shortcut: "a",
-	    type: "integer",
-	    default: 10
+	    type: "string",
+	    default: "1:10"
 	},
 	{
 	    name: "d",
-	    text: "Maximum common difference",
+	    text: "Range for common difference",
 	    shortcut: "d",
 	    type: "integer",
-	    default: 10
-	},
-	{
-	    name: "negative",
-	    text: "Allow negatives",
-	    shortcut: "g",
-	    type: "boolean",
-	    default: false
+	    default: "1:10"
 	},
 	{
 	    name: "repeat",
@@ -684,7 +676,11 @@ function SeqArithSeq() {
 	    } else if (this.options[i].type == "boolean") {
 		this.options[i].value = this.options[i].element.is(':checked');
 	    } else {
-		this.options[i].value = this.options[i].element.val();
+		if (this.options[i].element.val() == '') {
+		    this.options[i].value = this.options[i].default;
+		} else {
+		    this.options[i].value = this.options[i].element.val();
+		}
 	    }
 	    this[this.options[i].name] = this.options[i].value;
 	    localStorage.setItem(this.storage + ':' + this.options[i].shortcut, this.options[i].value);
@@ -696,18 +692,6 @@ function SeqArithSeq() {
 	}
 	this.prng = new Math.seedrandom(this.seed);
 	
-	if (this.negative) {
-	    this.mkint = function(a) {
-		var n = Math.floor(2*a*self.prng() - a);
-		if (n >= 0) n++;
-		return n;
-	    }
-	} else {
-	    this.mkint = function(a) {
-		var n = Math.floor(a*self.prng() + 1);
-		return n;
-	    }
-	}
     }
 
     this.reset = function() {
@@ -720,10 +704,16 @@ function SeqArithSeq() {
 
 	var a = 0,d = 0;
 	var qdiv,adiv,p,sep,qtex,atex;
+	var nqn = 0;
 
 	while (this.seqs[ a + ":" + d]) {
-	    a = this.mkint(this.a);
-	    d = this.mkint(this.d);
+	    a = randomFromRange(this.a,this.prng());
+	    d = randomFromRange(this.d,this.prng());
+	    nqn++;
+	    if (nqn > 10) {
+		this.seqs = {"0:0": true};
+		nqn = 0;
+	    }
 	}
 	this.seqs[ a + ":" + d] = true;
 	
@@ -822,21 +812,21 @@ function SeqArithTerm() {
 	    text: "Range for first term",
 	    shortcut: "a",
 	    type: "string",
-	    default: 10
+	    default: "1:10"
 	},
 	{
 	    name: "d",
 	    text: "Range for common difference",
 	    shortcut: "d",
 	    type: "string",
-	    default: 10
+	    default: "1:10"
 	},
 	{
 	    name: "k",
 	    text: "Range for requested kth term",
 	    shortcut: "k",
 	    type: "string",
-	    default: 10
+	    default: "20:40"
 	},
 	{
 	    name: "repeat",
@@ -859,7 +849,11 @@ function SeqArithTerm() {
 	    } else if (this.options[i].type == "boolean") {
 		this.options[i].value = this.options[i].element.is(':checked');
 	    } else {
-		this.options[i].value = this.options[i].element.val();
+		if (this.options[i].element.val() == '') {
+		    this.options[i].value = this.options[i].default;
+		} else {
+		    this.options[i].value = this.options[i].element.val();
+		}
 	    }
 	    this[this.options[i].name] = this.options[i].value;
 	    localStorage.setItem(this.storage + ':' + this.options[i].shortcut, this.options[i].value);
@@ -882,11 +876,17 @@ function SeqArithTerm() {
 
 	var a = 0,d = 0,k = 0;
 	var qdiv,adiv,p,sep,qtex,atex;
+	var nqn = 0;
 
 	while (this.seqs[ a + ":" + d ]) {
 	    a = randomFromRange(this.a,this.prng());
 	    d = randomFromRange(this.d,this.prng());
 	    k = randomFromRange(this.k,this.prng());
+	    nqn++;
+	    if (nqn > 10) {
+		this.seqs = {"0:0": true};
+		nqn = 0;
+	    }
 	}
 	this.seqs[ a + ":" + d ] = true;
 	
@@ -961,14 +961,13 @@ function SeqArithTerm() {
 	).append(
 	    tomml(k)
 	).append(
-	    "th term"
+	    ordinal_suffix_of(k) + " term"
 	));
-	qtex += '; ' + totex(k) + 'th term.';
+	qtex += '; ' + totex(k) +  ordinal_suffix_of(k) + ' term.';
 
 	this.qn++;
 	return [qdiv, adiv, qtex, atex];
     }
-    
 
     return this;
 }
@@ -1021,24 +1020,17 @@ function SeqSumSeries() {
 	},
 	{
 	    name: "a",
-	    text: "Maximum first term",
+	    text: "Range for first term",
 	    shortcut: "a",
-	    type: "integer",
-	    default: 10
+	    type: "string",
+	    default: "1:10"
 	},
 	{
 	    name: "d",
-	    text: "Maximum common difference",
+	    text: "Range for common difference",
 	    shortcut: "d",
-	    type: "integer",
-	    default: 10
-	},
-	{
-	    name: "negative",
-	    text: "Allow negatives",
-	    shortcut: "g",
-	    type: "boolean",
-	    default: false
+	    type: "string",
+	    default: "1:10"
 	},
 	{
 	    name: "repeat",
@@ -1061,7 +1053,11 @@ function SeqSumSeries() {
 	    } else if (this.options[i].type == "boolean") {
 		this.options[i].value = this.options[i].element.is(':checked');
 	    } else {
-		this.options[i].value = this.options[i].element.val();
+		if (this.options[i].element.val() == '') {
+		    this.options[i].value = this.options[i].default;
+		} else {
+		    this.options[i].value = this.options[i].element.val();
+		}
 	    }
 	    this[this.options[i].name] = this.options[i].value;
 	    localStorage.setItem(this.storage + ':' + this.options[i].shortcut, this.options[i].value);
@@ -1074,18 +1070,6 @@ function SeqSumSeries() {
 	this.prng = new Math.seedrandom(this.seed);
 	this.explanation = 'For each sequence, write down the sum of the first ' + (this.terms == 1 ? 'term' :  int_to_words(this.terms) + ' terms') + '.';
 	
-	if (this.negative) {
-	    this.mkint = function(a) {
-		var n = Math.floor(2*a*self.prng() - a);
-		if (n >= 0) n++;
-		return n;
-	    }
-	} else {
-	    this.mkint = function(a) {
-		var n = Math.floor(a*self.prng() + 1);
-		return n;
-	    }
-	}
     }
 
     this.reset = function() {
@@ -1097,35 +1081,46 @@ function SeqSumSeries() {
 	if (this.qn >= this.size) return false;
 
 	var a = 0,d = 0;
-	var qdiv,adiv,p,sep,tex;
+	var qdiv,adiv,p,sep,qtex,atex;
+	var nqn = 0;
 
 	while (this.seqs[ a + ":" + d]) {
-	    a = this.mkint(this.a);
-	    d = this.mkint(this.d);
+	    a = randomFromRange(this.a,this.prng());
+	    d = randomFromRange(this.d,this.prng());
+	    nqn++;
+	    if (nqn > 10) {
+		this.seqs = {"0:0": true};
+		nqn = 0;
+	    }
 	}
 	this.seqs[ a + ":" + d] = true;
 	
 	qdiv = $('<div>').addClass('question');
 	adiv = $('<div>').addClass('answer');
-	tex = '';
+	qtex = '';
+	atex = '';
 	
 	qdiv.append(tomml(a));
+	qtex = totex(a);
 	p = a;
 
 	for (var j = 1; j < this.length; j++) {
 	    qdiv.append($('<span>').addClass("separator").html(", "));
 	    qdiv.append($('<span>').addClass("linebreak").html(""));
+	    qtex += ', ';
 	    p = math.add(p,d);
 	    qdiv.append(tomml(p));
+	    qtex += totex(p);
 	}
 	qdiv.append($('<span>').addClass("dots").html("."));
+	qtex += '.';
 
 	p = math.eval('n*(2*a + (n-1)*d)/2', {a: a, d: d, n: self.terms});
 	adiv.append(tomml(p));
-	tex = totex(p);
+	atex = totex(p);
 	
 	this.qn++;
-	return [qdiv, adiv, tex];
+	return [qdiv, adiv, qtex, atex];
     }
     
 

@@ -421,7 +421,7 @@ function randomFromRange(s,p) {
 	    range = sel[i];
 	    mult = 1;
 	}
-	if (range.search(':')) {
+	if (range.search(':') !== -1) {
 	    matches = range.match(/(-?\d+)\s*:\s*(-?\d+)/);
 	    start = parseInt(matches[1],10);
 	    end = parseInt(matches[2],10);
@@ -459,3 +459,22 @@ for (var i = 0; i < 10000; i++) {
 }
 console.log(rand);
 */
+
+/*
+http://stackoverflow.com/a/13627586
+*/
+
+function ordinal_suffix_of(i) {
+    var j = i % 10,
+        k = i % 100;
+    if (j == 1 && k != 11) {
+        return "st";
+    }
+    if (j == 2 && k != 12) {
+        return "nd";
+    }
+    if (j == 3 && k != 13) {
+        return "rd";
+    }
+    return "th";
+}
