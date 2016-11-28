@@ -652,7 +652,7 @@ function SeqArithSeq() {
 	    name: "d",
 	    text: "Range for common difference",
 	    shortcut: "d",
-	    type: "integer",
+	    type: "string",
 	    default: "1:10"
 	},
 	{
@@ -1006,10 +1006,10 @@ function SeqSumSeries() {
 	},
 	{
 	    name: "terms",
-	    text: "Number of asked for terms",
+	    text: "Range for asked for terms",
 	    shortcut: "t",
-	    type: "integer",
-	    default: 4
+	    type: "string",
+	    default: "10:20"
 	},
 	{
 	    name: "length",
@@ -1068,7 +1068,7 @@ function SeqSumSeries() {
 	    localStorage.removeItem(this.storage + ':' + this.options[optdict.seed].shortcut);
 	}
 	this.prng = new Math.seedrandom(this.seed);
-	this.explanation = 'For each sequence, write down the sum of the first ' + (this.terms == 1 ? 'term' :  int_to_words(this.terms) + ' terms') + '.';
+	this.explanation = 'For each sequence, write down the sum of the given number of terms.';
 	
     }
 
@@ -1080,13 +1080,14 @@ function SeqSumSeries() {
     this.makeQuestion = function() {
 	if (this.qn >= this.size) return false;
 
-	var a = 0,d = 0;
+	var a = 0,d = 0,n = 0;
 	var qdiv,adiv,p,sep,qtex,atex;
 	var nqn = 0;
 
 	while (this.seqs[ a + ":" + d]) {
 	    a = randomFromRange(this.a,this.prng());
 	    d = randomFromRange(this.d,this.prng());
+	    n = randomFromRange(this.terms,this.prng());
 	    nqn++;
 	    if (nqn > 10) {
 		this.seqs = {"0:0": true};
@@ -1100,22 +1101,27 @@ function SeqSumSeries() {
 	qtex = '';
 	atex = '';
 	
-	qdiv.append(tomml(a));
-	qtex = totex(a);
+	qtex = texnum(a);
 	p = a;
+	var qmml = mmlelt('math').attr('display','inline');
+	qmml.append(tommlelt(a));
 
 	for (var j = 1; j < this.length; j++) {
-	    qdiv.append($('<span>').addClass("separator").html(", "));
-	    qdiv.append($('<span>').addClass("linebreak").html(""));
-	    qtex += ', ';
+	    qmml.append(tommlelt('+'));
+	    qtex += ' + ';
 	    p = math.add(p,d);
-	    qdiv.append(tomml(p));
-	    qtex += totex(p);
+	    qmml.append(tommlelt(p));
+	    qtex += texnum(p);
 	}
-	qdiv.append($('<span>').addClass("dots").html("."));
-	qtex += '.';
+	qmml.append(tommlelt('+'));
+	qmml.append(tommlelt('&hellip;'));
+	qtex += ' + \\dots';
+	qdiv.append(qmml);
+	qtex = texwrap(qtex);
+	qtex += ' to ' + totex(n) + ' terms.';
+	qdiv.append($('<span>').html(" to " + n + " terms."));
 
-	p = math.eval('n*(2*a + (n-1)*d)/2', {a: a, d: d, n: self.terms});
+	p = math.eval('n*(2*a + (n-1)*d)/2', {a: a, d: d, n: n});
 	adiv.append(tomml(p));
 	atex = totex(p);
 	

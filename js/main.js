@@ -258,7 +258,7 @@ function tommlelt(s) {
 	    mselt.append(mmlelt('mn').html(s.d));
 	    melt.append(mselt);
 	}
-    } else if (s.search(/^[a-zA-Z]+$/) != -1) {
+    } else if (s.search(/^&?[a-zA-Z]+;?$/) != -1) {
 	melt = mmlelt('mi');
 	melt.html(s);
     } else {
