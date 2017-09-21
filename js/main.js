@@ -41,7 +41,12 @@ function init() {
 	seq2: new SeqnthTerm(),
 	seq3: new SeqArithSeq(),
 	seq4: new SeqArithTerm(),
-	seq5: new SeqSumSeries()
+	seq5: new SeqSumSeries(),
+	quad0: new QuadFact(),
+	quad1: new QuadSolveFact(),
+	quad2: new QuadCplt(),
+	quad3: new QuadSolveCplt(),
+	quad4: new QuadFormula(),
     };
 
     var typesel = $('#typeSelect');
