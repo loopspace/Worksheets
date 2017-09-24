@@ -298,6 +298,108 @@ function texnum(s) {
     return tex;
 }
 
+function addSignedCoefficient(p,tex,mml) {
+    if (p != 0) {
+	if (p < 0 ) {
+	    tex.push(' - ');
+	    mml.append(tommlelt('-'));
+	    p = - p;
+	} else {
+	    tex.push(' + ');
+	    mml.append(tommlelt('+'));
+	}
+	if (p != 1) {
+	    tex.push(p);
+	    mml.append(tommlelt(p));
+	}
+	return true;
+    } else {
+	return false;
+    }
+}
+
+function addCoefficient(p,tex,mml) {
+    if (p != 0) {
+	if (p < 0 ) {
+	    tex.push(' - ');
+	    mml.append(tommlelt('-'));
+	    p = - p;
+	}
+	if (p != 1) {
+	    tex.push( p);
+	    mml.append(tommlelt(p));
+	}
+	return true;
+    } else {
+	return false;
+    }
+}
+
+function addNumber(p,tex,mml) {
+    if (p != 0) {
+	tex.push(p);
+	mml.append(tommlelt(p));
+	return true;
+    } else {
+	return false;
+    }
+}
+
+function addSignedNumber(p,tex,mml) {
+    if (p != 0) {
+	if (p < 0 ) {
+	    tex.push(' - ');
+	    mml.append(tommlelt('-'));
+	    p = - p;
+	} else {
+	    tex.push(' + ');
+	    mml.append(tommlelt('+'));
+	}
+	tex.push( p);
+	mml.append(tommlelt(p));
+	return true;
+    } else {
+	return false;
+    }
+}
+
+function hasSquareRoot(a) {
+    if (a.isFraction) {
+	var b = math.sqrt(a.n);
+	var c = math.sqrt(a.d);
+	return (math.floor(b) == b) && (math.floor(c) == c);
+    } else {
+	var b = math.sqrt(a);
+	return math.floor(b) == b;
+    }
+}
+
+function primeDecomposition(n) {
+    var p = [];
+    var pr;
+    if (n%2 == 0) {
+	pr = [2,0];
+	while (n%2 == 0) {
+	    pr[1]++;
+	    n /= 2;
+	}
+	p.push(pr);
+    }
+    for (var i = 3; i <= n; i += 2) {
+	if (math.isPrime(i)) {
+	    if (n%i == 0) {
+		pr = [i,0];
+		while (n%i == 0) {
+		    pr[1]++;
+		    n /= i;
+		}
+		p.push(pr);
+	    }
+	}
+    }
+    return p;
+}
+
 // From http://stackoverflow.com/q/13621545
 
 var mmlelt = function(el) {

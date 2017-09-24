@@ -1167,28 +1167,28 @@ function QuadFact() {
 	},
 	{
 	    name: "a",
-	    text: "Range for a in (a x + b)",
+	    text: "Range for <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>a</mi></math> in <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mo stretchy=\"false\">(</mo><mi>a</mi><mi>x</mi><mo>+</mo><mi>b</mi><mo stretchy=\"false\">)</mo></math>",
 	    shortcut: "a",
 	    type: "string",
 	    default: "1"
 	},
 	{
 	    name: "b",
-	    text: "Range for b in (a x + b)",
+	    text: "Range for <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>b</mi></math> in <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mo stretchy=\"false\">(</mo><mi>a</mi><mi>x</mi><mo>+</mo><mi>b</mi><mo stretchy=\"false\">)</mo></math>",
 	    shortcut: "b",
 	    type: "string",
 	    default: "-5:5"
 	},
 	{
 	    name: "c",
-	    text: "Range for c in (c x + d)",
+	    text: "Range for <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>c</mi></math> in <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mo stretchy=\"false\">(</mo><mi>c</mi><mi>x</mi><mo>+</mo><mi>d</mi><mo stretchy=\"false\">)</mo></math>",
 	    shortcut: "c",
 	    type: "string",
 	    default: "1"
 	},
 	{
 	    name: "d",
-	    text: "Range for d in (c x + d)",
+	    text: "Range for <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>d</mi></math> in <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mo stretchy=\"false\">(</mo><mi>c</mi><mi>x</mi><mo>+</mo><mi>d</mi><mo stretchy=\"false\">)</mo></math>",
 	    shortcut: "d",
 	    type: "string",
 	    default: "-5:5"
@@ -1241,7 +1241,7 @@ function QuadFact() {
 	if (this.qn >= this.size) return false;
 
 	 var a = 0,b = 0, c = 0,d = 0;
-	 var qdiv,adiv,p,sep,qtex,atex;
+	 var qdiv,adiv,p,sep,qtex,atex,coeffn,numbfn;
 	 var nqn = 0;
 
 	 while (math.gcd(a,b,c,d) != 1 || a == 0 || c == 0 || b*d == 0 || this.quads[ a + ":" + b + ":" + c + ":" + d]) {
@@ -1259,144 +1259,82 @@ function QuadFact() {
 	
 	qdiv = $('<div>').addClass('question');
 	adiv = $('<div>').addClass('answer');
-	qtex = '\\(';
-	atex = '';
+	qtex = ['\\('];
+	 atex = [];
+	 coeffn = addCoefficient;
+	 numbfn = addNumber;
 
 	 var qmml = mmlelt('math').attr('display','inline');
-	 p = a * c;
-	 if (p != 1) {
-	     if (p != -1) {
-		 qtex += texnum(p);
-		 qmml.append(tommlelt(p));
-	     } else {
-		 qtex = '-';
-		 qtex.append(tommlelt('-').attr('lspace',"verythinmathspace").attr('rspace',"0em"));
-	     }
-	 }
-	 qmml.append(
-	     mmlelt('msup').append(
-		 tommlelt('x')
-	     ).append(
-		 tommlelt('2')
-	     )
-	 );
-	 qtex += 'x^2';
-	 p = a * d + c * b;
-	 if (p != 0) {
-	     if (p < 0 ) {
-		 qtex += ' - ';
-		 qmml.append(tommlelt('-'));
-		 p = - p;
-	     } else {
-		 qtex += ' + ';
-		 qmml.append(tommlelt('+'));
-	     }
-	     if (p != 1) {
-		 qtex += p;
-		 qmml.append(tommlelt(p));
-	     }
-	     qtex += ' x ';
-	     qmml.append(tommlelt('x'));
-	 }
-	 p = b * d;
-	 if (p != 0) {
-	     if (p < 0 ) {
-		 qtex += ' - ';
-		 qmml.append(tommlelt('-'));
-		 p = - p;
-	     } else {
-		 qtex += ' + ';
-		 qmml.append(tommlelt('+'));
-	     }
-	     qtex += p;
-	     qmml.append(tommlelt(p));
+
+	 if (coeffn(a * c,qtex,qmml)) {
+	     qmml.append(
+		 mmlelt('msup').append(
+		     tommlelt('x')
+		 ).append(
+		     tommlelt('2')
+		 )
+	     );
+	     qtex.push('x^2');
+	     coeffn = addSignedCoefficient;
+	     numbfn = addSignedNumber;
 	 }
 
+	 if (coeffn(a * d + c * b,qtex,qmml)) {
+	     qtex.push(' x ');
+	     qmml.append(tommlelt('x'));
+	     coeffn = addSignedCoefficient;
+	     numbfn = addSignedNumber;
+	 }
+
+	 numbfn(b * d,qtex,qmml);
 	 qdiv.append(qmml);
-	 qtex += '\\)';
+	 qtex.push('\\)');
 	 
 	 var amml = mmlelt('math').attr('display','inline');
-	 atex = '\\(';
+	 atex.push('\\(');
+
+	 coeffn = addCoefficient;
+	 numbfn = addNumber;
+
 	 if (b != 0) {
-	     atex = "(";
+	     atex.push("(");
 	     amml.append(tommlelt('('));
-	     if (a != 1) {
-		 if (a != -1) {
-		     atex += a;
-		     amml.append(tommlelt(a));
-		 } else {
-		     atex += '-';
-		     amml.append(tommlelt('-'));
-		 }
-	     }
-	     atex += " x ";
-	     amml.append(tommlelt('x'));
-	     if (b < 0) {
-		 atex += b;
-		 amml.append(tommlelt(b));
-	     } else {
-		 atex += ' + ' + b;
-		 amml.append(tommlelt('+'));
-		 amml.append(tommlelt(b));
-	     }
-	     atex += " )";
-	     amml.append(tommlelt(')'));
-	 } else {
-	     if (a != 1) {
-		 if (a != -1) {
-		     atex += a;
-		     amml.append(tommlelt(a));
-		 } else {
-		     atex += '-';
-		     amml.append(tommlelt('-'));
-		 }
-	     }
-	     atex += " x ";
-	     amml.append(tommlelt('x'));
 	 }
-	 if (d != 0) {
-	     atex += "(";
-	     amml.append(tommlelt('('));
-	     if (c != 1) {
-		 if (c != -1) {
-		     atex += c;
-		     amml.append(tommlelt(c));
-		 } else {
-		     atex += '-';
-		     amml.append(tommlelt('-'));
-		 }
-	     }
-	     atex += " x ";
+	 
+	 if (coeffn(a,atex,amml)) {
+	     atex.push(" x ");
 	     amml.append(tommlelt('x'));
-	     if (d < 0) {
-		 atex += d;
-		 amml.append(tommlelt(d));
-	     } else {
-		 atex += ' + ' + d;
-		 amml.append(tommlelt('+'));
-		 amml.append(tommlelt(d));
-	     }
-	     atex += " )";
+	     numbfn = addSignedNumber;
+	 }
+
+	 if (numbfn(b,atex,amml)) {
+	     atex.push(")");
 	     amml.append(tommlelt(')'));
-	 } else {
-	     if (c != 1) {
-		 if (c != -1) {
-		     atex += c;
-		     amml.append(tommlelt(c));
-		 } else {
-		     atex += '-';
-		     amml.append(tommlelt('-'));
-		 }
-	     }
-	     atex += " x ";
+	 }
+
+	 numbfn = addNumber;
+
+	 if (d != 0) {
+	     atex.push("(");
+	     amml.append(tommlelt('('));
+	 }
+	 
+	 if (coeffn(c,atex,amml)) {
+	     atex.push(" x ");
 	     amml.append(tommlelt('x'));
+	     numbfn = addSignedNumber;
+	 }
+
+	 if (numbfn(d,atex,amml)) {
+	     atex.push(")");
+	     amml.append(tommlelt(')'));
 	 }
 	 
 	 adiv.append(amml);
-	 atex += '\\)';
+	 atex.push('\\)');
 	
 	this.qn++;
-	return [qdiv, adiv, qtex, atex];
+	 return [qdiv, adiv, qtex.join(''), atex.join('')];
     }
    
     
@@ -1433,28 +1371,28 @@ function QuadSolveFact() {
 	},
 	{
 	    name: "a",
-	    text: "Range for a in (a x + b)",
+	    text: "Range for <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>a</mi></math> in <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mo stretchy=\"false\">(</mo><mi>a</mi><mi>x</mi><mo>+</mo><mi>b</mi><mo stretchy=\"false\">)</mo></math>",
 	    shortcut: "a",
 	    type: "string",
 	    default: "1"
 	},
 	{
 	    name: "b",
-	    text: "Range for b in (a x + b)",
+	    text: "Range for <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>b</mi></math> in <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mo stretchy=\"false\">(</mo><mi>a</mi><mi>x</mi><mo>+</mo><mi>b</mi><mo stretchy=\"false\">)</mo></math>",
 	    shortcut: "b",
 	    type: "string",
 	    default: "-5:5"
 	},
 	{
 	    name: "c",
-	    text: "Range for c in (c x + d)",
+	    text: "Range for <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>c</mi></math> in <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mo stretchy=\"false\">(</mo><mi>c</mi><mi>x</mi><mo>+</mo><mi>d</mi><mo stretchy=\"false\">)</mo></math>",
 	    shortcut: "c",
 	    type: "string",
 	    default: "1"
 	},
 	{
 	    name: "d",
-	    text: "Range for d in (c x + d)",
+	    text: "Range for <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>d</mi></math> in <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mo stretchy=\"false\">(</mo><mi>c</mi><mi>x</mi><mo>+</mo><mi>d</mi><mo stretchy=\"false\">)</mo></math>",
 	    shortcut: "d",
 	    type: "string",
 	    default: "-5:5"
@@ -1507,7 +1445,7 @@ function QuadSolveFact() {
 	if (this.qn >= this.size) return false;
 
 	 var a = 0,b = 0, c = 0,d = 0;
-	 var qdiv,adiv,p,sep,qtex,atex;
+	 var qdiv,adiv,p,sep,qtex,atex,coeffn,numbfn;
 	 var nqn = 0;
 
 	 while (math.gcd(a,b,c,d) != 1 || a == 0 || c == 0 || b*d == 0 || this.quads[ a + ":" + b + ":" + c + ":" + d]) {
@@ -1525,73 +1463,51 @@ function QuadSolveFact() {
 	
 	qdiv = $('<div>').addClass('question');
 	adiv = $('<div>').addClass('answer');
-	qtex = '\\(';
-	atex = '';
+	qtex = ['\\('];
+	atex = [];
 
 	 var qmml = mmlelt('math').attr('display','inline');
-	 p = a * c;
-	 if (p != 1) {
-	     if (p != -1) {
-		 qtex += texnum(p);
-		 qmml.append(tommlelt(p));
-	     } else {
-		 qtex = '-';
-		 qtex.append(tommlelt('-').attr('lspace',"verythinmathspace").attr('rspace',"0em"));
-	     }
+
+	 coeffn = addCoefficient;
+	 numbfn = addNumber;
+
+	 if (coeffn(a * c, qtex, qmml)) {
+	     qmml.append(
+		 mmlelt('msup').append(
+		     tommlelt('x')
+		 ).append(
+		     tommlelt('2')
+		 )
+	     );
+	     qtex.push( 'x^2');
+	     
+	     coeffn = addSignedCoefficient;
+	     numbfn = addSignedNumber;
 	 }
-	 qmml.append(
-	     mmlelt('msup').append(
-		 tommlelt('x')
-	     ).append(
-		 tommlelt('2')
-	     )
-	 );
-	 qtex += 'x^2';
-	 p = a * d + c * b;
-	 if (p != 0) {
-	     if (p < 0 ) {
-		 qtex += ' - ';
-		 qmml.append(tommlelt('-'));
-		 p = - p;
-	     } else {
-		 qtex += ' + ';
-		 qmml.append(tommlelt('+'));
-	     }
-	     if (p != 1) {
-		 qtex += p;
-		 qmml.append(tommlelt(p));
-	     }
-	     qtex += ' x ';
+
+	 if (coeffn(a * d + c * b,qtex,qmml)) {
+	     qtex.push(' x ');
 	     qmml.append(tommlelt('x'));
+
+	     coeffn = addSignedCoefficient;
+	     numbfn = addSignedNumber;
 	 }
-	 p = b * d;
-	 if (p != 0) {
-	     if (p < 0 ) {
-		 qtex += ' - ';
-		 qmml.append(tommlelt('-'));
-		 p = - p;
-	     } else {
-		 qtex += ' + ';
-		 qmml.append(tommlelt('+'));
-	     }
-	     qtex += p;
-	     qmml.append(tommlelt(p));
-	 }
+	 numbfn(b * d,qtex,qmml);
 
 	 qmml.append(tommlelt('='));
 	 qmml.append(tommlelt(0));
 	 
 	 qdiv.append(qmml);
-	 qtex += ' = 0\\)';
+	 qtex.push(' = 0\\)');
 	 
 	 var amml = mmlelt('math').attr('display','inline');
-	 atex = '\\(';
+	 atex = ['\\('];
 
-	 p = math.fraction(math.divide(b,a));
+	 p = math.fraction(math.divide(-b,a));
 
-	 atex += 'x = ';
-	 atex += totex(p);
-	 atex += '\\), ';
+	 atex.push('x = ');
+	 atex.push(texnum(p));
+	 atex.push('\\), ');
 
 	 amml.append(tommlelt('x'));
 	 amml.append(tommlelt('='));
@@ -1600,13 +1516,13 @@ function QuadSolveFact() {
 	 adiv.append($('<span>').addClass("separator").html(", "));
 	 
 	 amml = mmlelt('math').attr('display','inline');
-	 atex += '\\(';
+	 atex.push('\\(');
 
-	 p = math.fraction(math.divide(d,c));
+	 p = math.fraction(math.divide(-d,c));
 
-	 atex += 'x = ';
-	 atex += totex(p);
-	 atex += '\\)';
+	 atex.push('x = ');
+	 atex.push(texnum(p));
+	 atex.push('\\)');
 	
 	 amml.append(tommlelt('x'));
 	 amml.append(tommlelt('='));
@@ -1614,7 +1530,7 @@ function QuadSolveFact() {
 	 adiv.append(amml);
 
 	 this.qn++;
-	return [qdiv, adiv, qtex, atex];
+	 return [qdiv, adiv, qtex.join(''), atex.join('')];
     }
     
     return this;
@@ -1650,21 +1566,21 @@ function QuadCplt() {
 	},
 	{
 	    name: "p",
-	    text: "Range for p in p(x + q)^2 + r",
+	    text: "Range for <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>p</mi></math> in <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>p</mi><mo stretchy=\"false\">(</mo><mi>x</mi><mo>+</mo><mi>q</mi><msup><mo stretchy=\"false\">)</mo> <mn>2</mn></msup><mo>+</mo><mi>r</mi></math>",
 	    shortcut: "p",
 	    type: "string",
 	    default: "1"
 	},
 	{
 	    name: "q",
-	    text: "Range for q in p(x + q)^2 + r",
+	    text: "Range for <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>q</mi></math> in <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>p</mi><mo stretchy=\"false\">(</mo><mi>x</mi><mo>+</mo><mi>q</mi><msup><mo stretchy=\"false\">)</mo> <mn>2</mn></msup><mo>+</mo><mi>r</mi></math>",
 	    shortcut: "q",
 	    type: "string",
 	    default: "-5:5"
 	},
 	{
 	    name: "r",
-	    text: "Range for r in p(x + q)^2 + r",
+	    text: "Range for <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>r</mi></math> in <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>p</mi><mo stretchy=\"false\">(</mo><mi>x</mi><mo>+</mo><mi>q</mi><msup><mo stretchy=\"false\">)</mo> <mn>2</mn></msup><mo>+</mo><mi>r</mi></math>",
 	    shortcut: "r",
 	    type: "string",
 	    default: "-5:5"
@@ -1717,7 +1633,7 @@ function QuadCplt() {
 	if (this.qn >= this.size) return false;
 
 	 var p = 0,q = 0, r = 0;
-	 var qdiv,adiv,a,sep,qtex,atex;
+	 var qdiv,adiv,a,sep,qtex,atex,coeffn,numbfn;
 	 var nqn = 0;
 
 	 while (p == 0 || this.quads[ p + ":" + q + ":" + r]) {
@@ -1734,102 +1650,61 @@ function QuadCplt() {
 	
 	qdiv = $('<div>').addClass('question');
 	adiv = $('<div>').addClass('answer');
-	qtex = '\\(';
-	atex = '';
+	qtex = ['\\('];
+	 atex = [];
+	 coeffn = addCoefficient;
+	 numbfn = addNumber;
 
 	 var qmml = mmlelt('math').attr('display','inline');
-	 if (p != 1) {
-	     if (p != -1) {
-		 qtex += texnum(p);
-		 qmml.append(tommlelt(p));
-	     } else {
-		 qtex = '-';
-		 qtex.append(tommlelt('-').attr('lspace',"verythinmathspace").attr('rspace',"0em"));
-	     }
-	 }
-	 qmml.append(
-	     mmlelt('msup').append(
-		 tommlelt('x')
-	     ).append(
-		 tommlelt('2')
-	     )
-	 );
-	 qtex += 'x^2';
-	 a = 2*p*q;
-	 if (a != 0) {
-	     if (a < 0 ) {
-		 qtex += ' - ';
-		 qmml.append(tommlelt('-'));
-		 a = - a;
-	     } else {
-		 qtex += ' + ';
-		 qmml.append(tommlelt('+'));
-	     }
-	     if (a != 1) {
-		 qtex += a;
-		 qmml.append(tommlelt(a));
-	     }
-	     qtex += ' x ';
-	     qmml.append(tommlelt('x'));
-	 }
-	 a = p * q**2 + r;
-	 if (a != 0) {
-	     if (a < 0 ) {
-		 qtex += ' - ';
-		 qmml.append(tommlelt('-'));
-		 a = - a;
-	     } else {
-		 qtex += ' + ';
-		 qmml.append(tommlelt('+'));
-	     }
-	     qtex += a;
-	     qmml.append(tommlelt(a));
+	 if (coeffn(p,qtex,qmml)) {
+	     qmml.append(
+		 mmlelt('msup').append(
+		     tommlelt('x')
+		 ).append(
+		     tommlelt('2')
+		 )
+	     );
+	     qtex.push('x^2');
+
+	     coeffn = addSignedCoefficient;
+	     numbfn = addSignedNumber;
 	 }
 
+	 if (coeffn(2 * p * q,qtex,qmml)) {
+	     qtex.push(' x ');
+	     qmml.append(tommlelt('x'));
+
+	     coeffn = addSignedCoefficient;
+	     numbfn = addSignedNumber;
+	 }
+
+	 numbfn(p * q**2 + r,qtex,qmml);
 	 qdiv.append(qmml);
-	 qtex += '\\)';
+	 qtex.push('\\)');
 	 
 	 var amml = mmlelt('math').attr('display','inline');
-	 atex = '\\(';
+	 atex.push('\\(');
 
-	 if (p != 1) {
-	     if (p != -1) {
-		 atex += texnum(p);
-		 amml.append(tommlelt(p));
-	     } else {
-		 atex = '-';
-		 atex.append(tommlelt('-').attr('lspace',"verythinmathspace").attr('rspace',"0em"));
-	     }
-	 }
+	 addCoefficient(p,atex,amml);
 
 	 var bmml = mmlelt('msup');
 	 var gmml = mmlelt('mrow');
 
 	 
 	 if (q != 0) {
-	     atex += '(';
+	     atex.push('(');
 	     gmml.append(tommlelt('('));
 	 }
 
-	 atex += 'x';
+	 atex.push('x');
 	 gmml.append(tommlelt('x'));
 
-	 if (q != 0) {
-	     if (q < 0) {
-		 atex += ' - ';
-		 gmml.append(tommlelt('-'));
-		 q = - q;
-	     } else {
-		 atex += ' + ';
-		 gmml.append(tommlelt('+'));
-	     }
-	     atex += q;
-	     gmml.append(tommlelt(q));
-	     atex += ')';
+	 if (addSignedNumber(q,atex,gmml)) {
+	     atex.push(')');
 	     gmml.append(tommlelt(')'));
 	 }
 
-	 atex += '^2';
+	 atex.push('^2');
 	 bmml.append(
 	     gmml
 	 ).append(
@@ -1837,25 +1712,13 @@ function QuadCplt() {
 	 )
 	 amml.append(bmml);
 
-	 if (r != 0) {
-	     if (r < 0) {
-		 atex += ' - ';
-		 amml.append(tommlelt('-'));
-		 r = - r;
-	     } else {
-		 atex += ' + ';
-		 amml.append(tommlelt('+'));
-	     }
-	     atex += r;
-	     amml.append(tommlelt(r));
-	 }
-		 
+	 addSignedNumber(r,atex,amml);
 	 
 	 adiv.append(amml);
-	 atex += '\\)';
+	 atex.push('\\)');
 	
 	this.qn++;
-	return [qdiv, adiv, qtex, atex];
+	 return [qdiv, adiv, qtex.join(''), atex.join('')];
     }
    
     
@@ -1892,21 +1755,21 @@ function QuadSolveCplt() {
 	},
 	{
 	    name: "p",
-	    text: "Range for p in p(x + q)^2 + r",
+	    text: "Range for <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>p</mi></math> in <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>p</mi><mo stretchy=\"false\">(</mo><mi>x</mi><mo>+</mo><mi>q</mi><msup><mo stretchy=\"false\">)</mo> <mn>2</mn></msup><mo>+</mo><mi>r</mi></math>",
 	    shortcut: "p",
 	    type: "string",
 	    default: "1"
 	},
 	{
 	    name: "q",
-	    text: "Range for q in p(x + q)^2 + r",
+	    text: "Range for <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>q</mi></math> in <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>p</mi><mo stretchy=\"false\">(</mo><mi>x</mi><mo>+</mo><mi>q</mi><msup><mo stretchy=\"false\">)</mo> <mn>2</mn></msup><mo>+</mo><mi>r</mi></math>",
 	    shortcut: "q",
 	    type: "string",
 	    default: "-5:5"
 	},
 	{
 	    name: "r",
-	    text: "Range for r in p(x + q)^2 + r",
+	    text: "Range for <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>r</mi></math> in <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>p</mi><mo stretchy=\"false\">(</mo><mi>x</mi><mo>+</mo><mi>q</mi><msup><mo stretchy=\"false\">)</mo> <mn>2</mn></msup><mo>+</mo><mi>r</mi></math>",
 	    shortcut: "r",
 	    type: "string",
 	    default: "-5:5"
@@ -1959,7 +1822,7 @@ function QuadSolveCplt() {
 	if (this.qn >= this.size) return false;
 
 	 var p = 0,q = 0, r = 0;
-	 var qdiv,adiv,a,sep,qtex,atex;
+	 var qdiv,adiv,a,sep,qtex,atex,coeffn,numbfn;
 	 var nqn = 0;
 
 	 while (p == 0 || this.quads[ p + ":" + q + ":" + r]) {
@@ -1976,63 +1839,39 @@ function QuadSolveCplt() {
 	
 	qdiv = $('<div>').addClass('question');
 	adiv = $('<div>').addClass('answer');
-	qtex = '\\(';
-	atex = '';
+	qtex = ['\\('];
+	 atex = [];
+	 coeffn = addCoefficient;
+	 numbfn = addNumber;
 
 	 var qmml = mmlelt('math').attr('display','inline');
-	 if (p != 1) {
-	     if (p != -1) {
-		 qtex += texnum(p);
-		 qmml.append(tommlelt(p));
-	     } else {
-		 qtex = '-';
-		 qtex.append(tommlelt('-').attr('lspace',"verythinmathspace").attr('rspace',"0em"));
-	     }
+	 if (coeffn(p,qtex,qmml)) {
+	     qmml.append(
+		 mmlelt('msup').append(
+		     tommlelt('x')
+		 ).append(
+		     tommlelt('2')
+		 )
+	     );
+	     qtex.push('x^2');
+
+	     coeffn = addSignedCoefficient;
+	     numbfn = addSignedNumber;
 	 }
-	 qmml.append(
-	     mmlelt('msup').append(
-		 tommlelt('x')
-	     ).append(
-		 tommlelt('2')
-	     )
-	 );
-	 qtex += 'x^2';
-	 a = 2*p*q;
-	 if (a != 0) {
-	     if (a < 0 ) {
-		 qtex += ' - ';
-		 qmml.append(tommlelt('-'));
-		 a = - a;
-	     } else {
-		 qtex += ' + ';
-		 qmml.append(tommlelt('+'));
-	     }
-	     if (a != 1) {
-		 qtex += a;
-		 qmml.append(tommlelt(a));
-	     }
-	     qtex += ' x ';
+	 if (coeffn(2*p*q,qtex,qmml)) {
+	     qtex.push(' x ');
 	     qmml.append(tommlelt('x'));
-	 }
-	 a = p * q**2 + r;
-	 if (a != 0) {
-	     if (a < 0 ) {
-		 qtex += ' - ';
-		 qmml.append(tommlelt('-'));
-		 a = - a;
-	     } else {
-		 qtex += ' + ';
-		 qmml.append(tommlelt('+'));
-	     }
-	     qtex += a;
-	     qmml.append(tommlelt(a));
+
+	     coeffn = addSignedCoefficient;
+	     numbfn = addSignedNumber;
 	 }
 
+	 numbfn(p * q**2 + r,qtex,qmml);
 	 qmml.append(tommlelt('='));
 	 qmml.append(tommlelt(0));
 
 	 qdiv.append(qmml);
-	 qtex += ' = 0\\)';
+	 qtex.push(' = 0\\)');
 
 	 var amml;
 	 
@@ -2042,69 +1881,67 @@ function QuadSolveCplt() {
 	 }
 	 
 	 if (r > 0) {
-	     amml = $('<span>').html("No solution.")
-	     atex = 'No solution.';
+	     adiv.append($('<span>').html("No solution."));
+	     atex = ['No solution.'];
 	 } else {
 	     r = - r;
 	     q = - q;
 	     amml = mmlelt('math').attr('display','inline');
 	     amml.append(tommlelt('x'));
 	     amml.append(tommlelt('='));
-	     atex = '\\( x = ';
+	     atex = ['\\( x = '];
 
-	     var gmml = mmlelt('mrow');
+	     var a = math.fraction(math.divide(r,p));
+	     if (hasSquareRoot(a)) {
+		 var b = math.fraction(math.add(q,a));
+		 amml.append(tommlelt(b));
+		 atex.push(texnum(b));
 
-	     if (q != 0) {
-		 gmml.append(tommlelt(q));
-	     }
-	     if (r != 0) {
-		 gmml.append(tommlelt('&plusmn;'));
-		 var a = math.sqrt(r);
-		 if (math.floor(a) == a) {
-		     gmml.append(a);
+		 atex.push('\\)');
+
+		 adiv.append(amml);
+		 if (a == 0) {
+		     adiv.append(amml);
+		     adiv.append($('<span>').html(" repeated."));
+		     atex.push(' repeated.');
 		 } else {
-		     gmml.append(
-			 mmlelt('msqrt').append(r)
-		     );
+		     adiv.append($('<span>').addClass("separator").html(", "));
+		 
+		     amml = mmlelt('math').attr('display','inline');
+		     amml.append(tommlelt('x'));
+		     amml.append(tommlelt('='));
+		 
+		     var b = math.fraction(math.subtract(q,a));
+		     amml.append(tommlelt(b));
+		     atex.push(', \\(x = ');
+		     atex.push(texnum(b));
+		     atex.push('\\)');
+		     adiv.append(amml);
 		 }
-	     }
-	     
-	     if (p != 1) {
-		 amml.append(
-		     mmlelt('mfrac').append(
-			 gmml
-		     ).append(
-			 tommlelt(p)
-		     )
-		 );
-		 atex += '\\frac{';
+
 	     } else {
-		 amml.append(gmml);
-	     }
-	     if (q != 0) {
-		 atex += q;
-	     }
-	     
-	     if (r != 0) {
-		 atex += ' \\pm ';
-		 if (math.floor(a) == a) {
-		     atex += a;
-		 } else {
-		     atex += '\\sqrt{';
-		     atex += r;
-		     atex += '}';
+		 
+		 if (q != 0) {
+		     amml.append(tommlelt(q));
+		     atex.push(q);
 		 }
+
+		 
+		 if (r != 0) {
+		     var b = math.fraction(math.divide(r,p));
+		     amml.append(tommlelt('&plusmn;'));
+		     amml.append(
+			 mmlelt('msqrt').append(tommlelt(b))
+		     );
+		     atex.push('\\pm \\sqrt{' + texnum(b) + '}');
+		 }
+		 atex.push('\\)');
+		 adiv.append(amml);
 	     }
-	     
-	     if (p != 1) {
-		 atex += '}{' + p + '}';
-	     }
-	     atex += '\\)';
 	 }
-	 adiv.append(amml);
 	 
 	this.qn++;
-	return [qdiv, adiv, qtex, atex];
+	 return [qdiv, adiv, qtex.join(''), atex.join('')];
     }
     
     return this;
@@ -2141,21 +1978,21 @@ function QuadFormula() {
 	},
 	{
 	    name: "a",
-	    text: "Range for a in a x^2 + b x + c",
+	    text: "Range for <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>a</mi></math> in <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>a</mi><msup><mi>x</mi> <mn>2</mn></msup><mo>+</mo><mi>b</mi><mi>x</mi><mo>+</mo><mi>c</mi></math>",
 	    shortcut: "a",
 	    type: "string",
 	    default: "1"
 	},
 	{
 	    name: "b",
-	    text: "Range for a in a x^2 + b x + c",
+	    text: "Range for <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>b</mi></math> in <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>a</mi><msup><mi>x</mi> <mn>2</mn></msup><mo>+</mo><mi>b</mi><mi>x</mi><mo>+</mo><mi>c</mi></math>",
 	    shortcut: "b",
 	    type: "string",
 	    default: "-5:5"
 	},
 	{
 	    name: "c",
-	    text: "Range for a in a x^2 + b x + c",
+	    text: "Range for <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>c</mi></math> in <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>a</mi><msup><mi>x</mi> <mn>2</mn></msup><mo>+</mo><mi>b</mi><mi>x</mi><mo>+</mo><mi>c</mi></math>",
 	    shortcut: "c",
 	    type: "string",
 	    default: "-5:5"
@@ -2208,7 +2045,7 @@ function QuadFormula() {
 	if (this.qn >= this.size) return false;
 
 	 var a = 0,b = 0, c = 0;
-	 var qdiv,adiv,p,sep,qtex,atex;
+	 var qdiv,adiv,p,q,sep,qtex,atex,coeffn,numbfn;
 	 var nqn = 0;
 
 	 while (a == 0 || this.quads[ a + ":" + b + ":" + c]) {
@@ -2225,128 +2062,148 @@ function QuadFormula() {
 	
 	qdiv = $('<div>').addClass('question');
 	adiv = $('<div>').addClass('answer');
-	qtex = '\\(';
-	atex = '';
+	qtex = ['\\('];
+	 atex = [];
+
+	 coeffn = addCoefficient;
+	 numbfn = addNumber;
 
 	 var qmml = mmlelt('math').attr('display','inline');
-	 if (a != 1) {
-	     if (a != -1) {
-		 qtex += texnum(p);
-		 qmml.append(tommlelt(p));
-	     } else {
-		 qtex = '-';
-		 qtex.append(tommlelt('-').attr('lspace',"verythinmathspace").attr('rspace',"0em"));
-	     }
-	 }
-	 qmml.append(
-	     mmlelt('msup').append(
-		 tommlelt('x')
-	     ).append(
-		 tommlelt('2')
-	     )
-	 );
-	 qtex += 'x^2';
+	 if (coeffn(a,qtex,qmml)) {
+	     qmml.append(
+		 mmlelt('msup').append(
+		     tommlelt('x')
+		 ).append(
+		     tommlelt('2')
+		 )
+	     );
+	     qtex.push('x^2');
 
-	 p = b;
-	 if (p != 0) {
-	     if (p < 0 ) {
-		 qtex += ' - ';
-		 qmml.append(tommlelt('-'));
-		 p = - p;
-	     } else {
-		 qtex += ' + ';
-		 qmml.append(tommlelt('+'));
-	     }
-	     if (p != 1) {
-		 qtex += p;
-		 qmml.append(tommlelt(p));
-	     }
-	     qtex += ' x ';
+	     coeffn = addSignedCoefficient;
+	     numbfn = addSignedNumber;
+	 }
+
+	 if (coeffn(b,qtex,qmml)) {
+	     qtex.push(' x ');
 	     qmml.append(tommlelt('x'));
+
+	     coeffn = addSignedCoefficient;
+	     numbfn = addSignedNumber;
 	 }
-	 p = c;
-	 if (p != 0) {
-	     if (p < 0 ) {
-		 qtex += ' - ';
-		 qmml.append(tommlelt('-'));
-		 p = - p;
-	     } else {
-		 qtex += ' + ';
-		 qmml.append(tommlelt('+'));
-	     }
-	     qtex += p;
-	     qmml.append(tommlelt(p));
-	 }
+
+	 numbfn(c,qtex,qmml);
 
 	 qmml.append(tommlelt('='));
 	 qmml.append(tommlelt('0'));
 	 
 	 qdiv.append(qmml);
-	 qtex += '= 0 \\)';
+	 qtex.push('= 0 \\)');
 
 	 var amml;
+	 numbfn = addNumber;
+	 coeffn = addCoefficient;
 
 	 p = b**2 - 4*a*c;
 
 	 if (p < 0) {
-	     amml = $('<span>').html("No solution.")
-	     atex = 'No solution.';
+	     adiv.append($('<span>').html("No solution: "));
+	     amml = mmlelt('math').attr('display','inline');
+	     amml.append(
+		 mmlelt('msup').append(
+		     tommlelt('b')
+		 ).append(
+		     tommlelt('2')
+		 )
+	     );
+	     amml.append(tommlelt('-'));
+	     amml.append(tommlelt(4));
+	     amml.append(tommlelt('a'));
+	     amml.append(tommlelt('c'));
+	     amml.append(tommlelt('='));
+	     amml.append(tommlelt(p));
+	     adiv.append(amml);
+
+	     atex.push('No solution: \\(b^2 - 4 a c = ' + texnum(p) + '\\).');
 	 } else {
-	     b = - b;
 	     amml = mmlelt('math').attr('display','inline');
 	     amml.append(tommlelt('x'));
 	     amml.append(tommlelt('='));
-	     atex = '\\( x = ';
-
-	     var gmml = mmlelt('mrow');
-
-	     if (b != 0) {
-		 gmml.append(tommlelt(b));
-	     }
+	     atex.push('\\( x = ');
 
 	     if (p != 0) {
-		 gmml.append(tommlelt('&plusmn;'));
-		 var q = math.sqrt(p);
-		 if (math.floor(q) == q) {
-		     gmml.append(q);
+
+		 var pd = primeDecomposition(p);
+		 var nsq = 1;
+		 var sq = 1;
+
+		 var l;
+		 for (var i = 0; i < pd.length; i++) {
+		     l = pd[i][1];
+		     if (l%2 == 1) {
+			 sq *= pd[i][0];
+			 l--;
+		     }
+		     l /= 2;
+		     for (var j = 0; j < l; j++) {
+			 nsq *= pd[i][0];
+		     }
+		 }
+
+		 if (sq == 1) {
+		     q = math.fraction(math.divide(-b + nsq,2*a));
+		     amml.append(tommlelt(q));
+		     atex.push(texnum(q));
+
+
+		     atex.push('\\), \\(x = ');
+		     adiv.append(amml);
+		     adiv.append($('<span>').addClass("separator").html(", "));
+		 
+		     amml = mmlelt('math').attr('display','inline');
+		     amml.append(tommlelt('x'));
+		     amml.append(tommlelt('='));
+		     
+		     q = math.fraction(math.divide(-b - nsq,2*a));
+		     amml.append(tommlelt(q));
+		     atex.push(texnum(q));
 		 } else {
-		     gmml.append(
-			 mmlelt('msqrt').append(p)
+		     q = math.fraction(math.divide(-b,2*a));
+		     numbfn(q,atex,amml);
+		     
+		     amml.append(tommlelt('&plusmn;'));
+		     atex.push(' \\pm ');
+
+		     q = math.fraction(math.divide(nsq,math.abs(2*a)));
+		     coeffn(q,atex,amml);
+		 
+		     amml.append(
+			 mmlelt('msqrt')
+			     .append(mmlelt('mrow')
+				     .append(tommlelt(sq))
+				    )
 		     );
-		 }
-	     }
-	     
-	     amml.append(
-		 mmlelt('mfrac').append(
-		     gmml
-		 ).append(
-		     tommlelt(2 * a)
-		 )
-	     );
-	     atex += '\\frac{';
 
-	     if (b != 0) {
-		 atex += b;
-	     }
-	     
-	     if (p != 0) {
-		 atex += ' \\pm ';
-		 if (math.floor(q) == q) {
-		     atex += q;
-		 } else {
-		     atex += '\\sqrt{';
-		     atex += p;
-		     atex += '}';
+		     atex.push('\\sqrt{');
+		     atex.push(sq);
+		     atex.push('}');
 		 }
+		 atex.push('\\)');
+		 adiv.append(amml);
+	     } else {
+		 q = math.fraction(math.divide(-b,2*a));
+		 amml.append(tommlelt(q));
+		 atex.push(texnum(q));
+
+		 adiv.append(amml);
+		 adiv.append($('<span>').html(" repeated."));
+		 atex.push('\\)');
+		 atex.push(' repeated.');
+		 
 	     }
-	     
-	     atex += '}{' + (2 * a) + '}';
-	     atex += '\\)';
 	 }
-	 adiv.append(amml);
 	 
 	this.qn++;
-	return [qdiv, adiv, qtex, atex];
+	 return [qdiv, adiv, qtex.join(''), atex.join('')];
     }
     
     return this;
