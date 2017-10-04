@@ -47,6 +47,7 @@ function init() {
 	quad2: new QuadCplt(),
 	quad3: new QuadSolveCplt(),
 	quad4: new QuadFormula(),
+	arith0: new ArithSums(),
     };
 
     var typesel = $('#typeSelect');
@@ -155,8 +156,8 @@ function addQuestions(workdiv,ansdiv,type,obj) {
     }
     soltxt.append(solul);
 
-    var soltex = $('<div>').addClass('LaTeX');
-    var extex = $('<div>').addClass('LaTeX');
+    var soltex = $('<div>').addClass('LaTeX').attr('id','soltex');
+    var extex = $('<div>').addClass('LaTeX').attr('id','extex');
     var cpyform = $('<form>');
     var cpysolbtn = $('<button>').attr('type','button').addClass('LaTeXbtn');
     var cpyexbtn = $('<button>').attr('type','button').addClass('LaTeXbtn');
@@ -170,19 +171,23 @@ function addQuestions(workdiv,ansdiv,type,obj) {
     cpyexbtn.click(function() {
 	copyToClipboard(extex[0]);
     });
+    soltxt.append(extex);
     soltxt.append(soltex);
     soltxt.append(cpyform);
     soltxt.append($('<a>').attr('href',solurl).text(solurl).addClass('srcURL'));
     
     var exlist = $('<ol>').addClass('exlist');
-    var sollist = $('<ol>').addClass('sollist');
+    var sollist = $('<ol>').addClass('sollist').attr('id','sollist');
     var item;
     
     obj.reset();
-    var qn = obj.makeQuestion();
+    var qn = obj.makeQuestion(false);
+    var reload = $('<div>').text('⟳').addClass('reload');
+    reload.click(function(e) {reloadQuestion(e,obj)});
+
     do {
 	exlist.append(
-	    $('<li>').append(qn[0])
+	    $('<li>').append(qn[0].append(reload.clone(true,true)))
 	);
 	sollist.append(
 	    $('<li>').append(qn[1])
@@ -193,14 +198,14 @@ function addQuestions(workdiv,ansdiv,type,obj) {
 	soltex.append(
 	    $('<div>').text('\n\\item ' + qn[3])
 	);
-	qn = obj.makeQuestion();
+	qn = obj.makeQuestion(false);
     } while (qn);
 
     workdiv.html('');
 
     workdiv.append(exhdr.clone());
     workdiv.append(extxt.clone());
-    workdiv.append($('<div>').addClass('columns').append(exlist.clone()));
+    workdiv.append($('<div>').addClass('columns').addClass('questions').append(exlist.clone(true,true).addClass('first')));
     
     if (obj.repeat) {
 	var h = workdiv.outerHeight(true);
@@ -208,7 +213,7 @@ function addQuestions(workdiv,ansdiv,type,obj) {
 	while (workdiv.outerHeight(true) < cm2px(29.7)) {
 	    hdrelt = exhdr.clone();
 	    txtelt = extxt.clone();
-	    colelt = $('<div>').addClass('columns').append(exlist.clone());
+	    colelt = $('<div>').addClass('columns').addClass('questions').append(exlist.clone());
 	    workdiv.append(hdrelt);
 	    workdiv.append(txtelt);
 	    workdiv.append(colelt);
@@ -219,8 +224,33 @@ function addQuestions(workdiv,ansdiv,type,obj) {
     }
     ansdiv.html('');
     ansdiv.append(solhdr);
-    ansdiv.append($('<div>').addClass('columns').append(sollist));
+    ansdiv.append($('<div>').addClass('columns').addClass('answers').append(sollist));
     ansdiv.append(soltxt);
+}
+
+function reloadQuestion(e,obj) {
+    var item = e.target.parentElement.parentElement;
+    var list = item.parentElement;
+    var n;
+    for (var i = 0; i < list.childNodes.length; i++) {
+	if (list.childNodes[i] == item) {
+	    n = i;
+	}
+    }
+    n++;
+    var qn = obj.makeQuestion(true);
+    var reload = $('<div>').text('⟳').addClass('reload');
+    reload.click(function(e) {reloadQuestion(e,obj)});
+    var newitem = $('<li>').append(qn[0].append(reload.clone(true,true)));
+    $(item).replaceWith(newitem.clone(true,true));
+
+    $('.questions').each(function(i,elt) {
+	$(elt).find('li:nth-child(' + n + ')').replaceWith(newitem.clone(true,true))
+    });
+
+    $('#sollist').find('li:nth-child(' + n + ')').replaceWith($('<li>').append(qn[1]));
+    $('#extex').find('div:nth-child(' + n + ')').replaceWith($('<div>').text('\n\\item ' + qn[2]));
+    $('#soltex').find('div:nth-child(' + n + ')').replaceWith($('<div>').text('\n\\item ' + qn[3]));
 }
 
 $(window).on('load',init);
