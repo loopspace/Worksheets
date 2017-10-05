@@ -183,7 +183,19 @@ function addQuestions(workdiv,ansdiv,type,obj) {
     obj.reset();
     var qn = obj.makeQuestion(false);
     var reload = $('<div>').text('⟳').addClass('reload');
-    reload.click(function(e) {reloadQuestion(e,obj)});
+    var reloadfn;
+    if (typeof MathJax !== 'undefined') {
+	reloadfn = function(e) {
+            MathJax.Hub.Queue(function() {reloadQuestion(e,obj);});
+            MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+	}
+    } else {
+	reloadfn = function(e) {
+	    reloadQuestion(e,obj);
+	}
+    }
+    reload.click(reloadfn);
+
 
     do {
 	exlist.append(
@@ -240,7 +252,18 @@ function reloadQuestion(e,obj) {
     n++;
     var qn = obj.makeQuestion(true);
     var reload = $('<div>').text('⟳').addClass('reload');
-    reload.click(function(e) {reloadQuestion(e,obj)});
+    var reloadfn;
+    if (typeof MathJax !== 'undefined') {
+	reloadfn = function(e) {
+            MathJax.Hub.Queue(function() {reloadQuestion(e,obj);});
+            MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+	}
+    } else {
+	reloadfn = function(e) {
+	    reloadQuestion(e,obj);
+	}
+    }
+    reload.click(reloadfn);
     var newitem = $('<li>').append(qn[0].append(reload.clone(true,true)));
     $(item).replaceWith(newitem.clone(true,true));
 
