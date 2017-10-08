@@ -48,6 +48,10 @@ function init() {
 	quad3: new QuadSolveCplt(),
 	quad4: new QuadFormula(),
 	arith0: new ArithSums(),
+	arith1: new ToStdForm(),
+	arith2: new FromStdForm(),
+	arith3: new RoundDP(),
+	arith4: new RoundSF(),
     };
 
     var typesel = $('#typeSelect');
