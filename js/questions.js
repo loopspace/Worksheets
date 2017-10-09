@@ -3000,7 +3000,7 @@ function RoundSF() {
 	    p = randomFromRange(this.p,this.prng());
 	    a = [];
 	    a.push(randomFromRange("1:9",this.prng()));
-	    for (var i = 1; i < n+p-1; i++) {
+	    for (var i = 1; i < n+d-1; i++) {
 		a.push(randomFromRange("0:9",this.prng()));
 	    }
 	    a.push(randomFromRange("1:9",this.prng()));
@@ -3038,8 +3038,18 @@ function RoundSF() {
 	    }
 	}
 	
-	var qn = a.slice(0,dp).join('') + '.' + a.slice(dp).join('');
-	var ans = b.slice(0,bdp).join('') + '.' + b.slice(bdp).join('');
+	var qn;
+	if (a.length > dp) {
+	    qn = a.slice(0,dp).join('') + '.' + a.slice(dp).join('');
+	} else {
+	    qn = a.join('') + "0".repeat(dp - a.length);
+	}
+	var ans;
+	if (b.length > dp) {
+	    ans = b.slice(0,bdp).join('') + '.' + b.slice(bdp).join('');
+	} else {
+	    ans = b.join('') + "0".repeat(bdp - b.length);
+	}
 
 	qdiv = $('<div>').addClass('question');
 	adiv = $('<div>').addClass('answer');
@@ -3058,10 +3068,10 @@ function RoundSF() {
 	).append(
 	    tomml(d)
 	).append(
-	    " significant figures."
+	    " significant figure" + (d == 1 ? '' : "s") + "."
 	));
 
-	qtex.push(' to \\(' + d + '\\) significant figures.');
+	qtex.push(' to \\(' + d + '\\) significant figure' + (d == 1 ? '' : 's') + '.');
 	
 	var amml = mmlelt('math').attr('display','inline');
 	amml.append(mmlelt('mi').html(ans));
