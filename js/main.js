@@ -1,5 +1,11 @@
 // Seedable PRNG from https://github.com/davidbau/seedrandom
 
+/*
+TODO:
+
+
+*/
+
 // Parse query string
 var qs = (function(a) {
     if (a == "") return {};
@@ -64,16 +70,57 @@ function init() {
     
     typesel.on('change',
 	function() {
-	    setOptions($('#options'),$('#worksheet'), $('#answers'),$(this).val(),types[$(this).val()],qs);
+	    setOptions($('#options'),$('#qns'), $('#ans'),$(this).val(),types[$(this).val()],qs);
 	}
     );
 
-    setOptions($('#options'),$('#worksheet'), $('#answers'),opt,types[opt],qs);
+    setOptions($('#options'),$('#qns'), $('#ans'),opt,types[opt],qs);
 
     math.config({
 	number: 'Fraction'
     });
 
+    $('#swtoqns').on('click', function(e) {
+	e.preventDefault();
+	$('#worksheet').hide();
+	$('#questions').show();
+	$('#swtoqns').addClass('current');
+	$('#swtowks').removeClass('current');
+    });
+    $('#swtowks').on('click', function(e) {
+	e.preventDefault();
+	$('#questions').hide();
+	$('#worksheet').show();
+	$('#swtowks').addClass('current');
+	$('#swtoqns').removeClass('current');
+    });
+    $('#wkcpyqns').click(function() {
+	copyToClipboard($('#wkextex')[0]);
+    });
+
+    $('#wkcpysol').click(function() {
+	copyToClipboard($('#wksoltex')[0]);
+    });
+
+// From https://stackoverflow.com/questions/20668560/using-jquery-ui-sortable-to-sort-2-list-at-once
+    var pre;
+    var lists = ['wksollist', 'wkextex', 'wksoltex'];
+    $('#wkexlist').sortable({
+	start:function(event, ui){
+            pre = ui.item.index();
+	},
+	stop: function(event, ui) {
+            post = ui.item.index();
+	    for (var i = 0; i < 3; i++ ){
+            //Use insertBefore if moving UP, or insertAfter if moving DOWN
+		if (post > pre) {
+		    $('#'+ lists[i] + ' li:eq(' +pre+ ')').insertAfter('#'+ lists[i] + ' li:eq(' +post+ ')');
+		}else{
+		    $('#'+ lists[i] + ' li:eq(' +pre+ ')').insertBefore('#'+ lists[i] + ' li:eq(' +post+ ')');
+		}
+	    }
+	}
+    });
 }
 
 function setOptions (formdiv,workdiv,ansdiv,type,obj,params) {
@@ -149,6 +196,8 @@ function addQuestions(workdiv,ansdiv,type,obj) {
     var solhdr = $('<h1>').html(obj.title + ' Answers');
     var extxt = $('<div>').addClass('explanation');
     extxt.html(obj.explanation);
+    var shextxt = $('<span>').addClass('shortexplanation');
+    shextxt.html(obj.shortexp);
     
     var soltxt = $('<div>').addClass('configuration');
     var solul = $('<ul>');
@@ -162,6 +211,7 @@ function addQuestions(workdiv,ansdiv,type,obj) {
 
     var soltex = $('<div>').addClass('LaTeX').attr('id','soltex');
     var extex = $('<div>').addClass('LaTeX').attr('id','extex');
+    
     var cpyform = $('<form>');
     var cpysolbtn = $('<button>').attr('type','button').addClass('LaTeXbtn');
     var cpyexbtn = $('<button>').attr('type','button').addClass('LaTeXbtn');
@@ -200,10 +250,43 @@ function addQuestions(workdiv,ansdiv,type,obj) {
     }
     reload.click(reloadfn);
 
+    var addtowks = $('<div>').text('+').addClass('reload');
+    var addtowksfn;
+    if (typeof MathJax !== 'undefined') {
+	addtowksfn = function(e) {
+            MathJax.Hub.Queue(function() {addQuestionToWorksheet(e,obj);});
+            MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+	}
+    } else {
+	addtowksfn = function(e) {
+	    addQuestionToWorksheet(e,obj);
+	}
+    }
+    addtowks.click(addtowksfn);
+
+    var rmfromwks = $('<div>').text('-').addClass('remove');
+    var rmfromwksfn;
+    if (typeof MathJax !== 'undefined') {
+	rmfromwksfn = function(e) {
+            MathJax.Hub.Queue(function() {removeQuestionFromWorksheet(e,obj);});
+            MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+	}
+    } else {
+	rmfromwksfn = function(e) {
+	    removeQuestionFromWorksheet(e,obj);
+	}
+    }
+    rmfromwks.click(rmfromwksfn);
 
     do {
 	exlist.append(
-	    $('<li>').append(qn[0].append(reload.clone(true,true)))
+	    $('<li>').append(
+		shextxt.clone(true,true)
+	    ).append(
+		qn[0].append(reload.clone(true,true))
+		    .append(addtowks.clone(true,true))
+		    .append(rmfromwks.clone(true,true))
+	    )
 	);
 	sollist.append(
 	    $('<li>').append(qn[1])
@@ -268,7 +351,24 @@ function reloadQuestion(e,obj) {
 	}
     }
     reload.click(reloadfn);
-    var newitem = $('<li>').append(qn[0].append(reload.clone(true,true)));
+
+    var addtowks = $('<div>').text('+').addClass('reload');
+    var addtowksfn;
+    if (typeof MathJax !== 'undefined') {
+	addtowksfn = function(e) {
+            MathJax.Hub.Queue(function() {addQuestionToWorksheet(e,obj);});
+            MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+	}
+    } else {
+	addtowksfn = function(e) {
+	    addQuestionToWorksheet(e,obj);
+	}
+    }
+    addtowks.click(addtowksfn);
+    
+    var newitem = $('<li>').append(
+	qn[0].append(reload).append(addtowksfn)
+    );
     $(item).replaceWith(newitem.clone(true,true));
 
     $('.questions').each(function(i,elt) {
@@ -278,6 +378,40 @@ function reloadQuestion(e,obj) {
     $('#sollist').find('li:nth-child(' + n + ')').replaceWith($('<li>').append(qn[1]));
     $('#extex').find('div:nth-child(' + n + ')').replaceWith($('<div>').text('\n\\item ' + qn[2]));
     $('#soltex').find('div:nth-child(' + n + ')').replaceWith($('<div>').text('\n\\item ' + qn[3]));
+}
+
+function addQuestionToWorksheet(e,obj) {
+    $(e.target).addClass('fadeOutIn').one("animationend webkitAnimationEnd oAnimationEnd MSAnimationEnd", function(){ $(e.target).removeClass('fadeOutIn') });
+    var item = e.target.parentElement.parentElement;
+    var list = item.parentElement;
+    var n;
+    for (var i = 0; i < list.childNodes.length; i++) {
+	if (list.childNodes[i] == item) {
+	    n = i;
+	}
+    }
+    n++;
+
+    $('#wkexlist').append($(item).clone(true,true));
+    $('#wksollist').append($('#sollist').find('li:nth-child(' + n + ')').clone(true,true));
+    $('#wkextex').append($('#extex').find('div:nth-child(' + n + ')').clone(true,true));
+    $('#wksoltex').append($('#soltex').find('div:nth-child(' + n + ')').clone(true,true));
+}
+
+function removeQuestionFromWorksheet(e,obj) {
+    var item = e.target.parentElement.parentElement;
+    var list = item.parentElement;
+    var n;
+    for (var i = 0; i < list.childNodes.length; i++) {
+	if (list.childNodes[i] == item) {
+	    n = i;
+	}
+    }
+
+    $(item).remove();
+    $('#wksollist').find('li:nth-child(' + n + ')').remove();
+    $('#wkextex').find('div:nth-child(' + n + ')').remove();
+    $('#wksoltex').find('div:nth-child(' + n + ')').remove();
 }
 
 $(window).on('load',init);

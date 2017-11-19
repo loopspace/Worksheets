@@ -27,43 +27,81 @@
   </head>
   <body>
     <div id="content">
-      <div id="type">
-	<h1>Question Type</h1>
-	<form id="typeForm">
-	  <select id="typeSelect">
-	    <optgroup label="Sequences">
-	      <option value="seq0">Next Terms</option>
-	      <option value="seq1">Apply Term-to-Term Rule</option>
-	      <option value="seq2">Apply nth Term Rule</option>
-	      <option value="seq3">First Term and Common
-		Difference</option>
-	      <option value="seq4">nth Term of Arithmetic Series</option>
-	      <option value="seq5">Sum of Arithmetic Series</option>
-	    </optgroup>
-	    <optgroup label="Quadratics">
-	      <option value="quad0">Factorisation</option>
-	      <option value="quad1">Solve by Factorisation</option>
-	      <option value="quad2">Completing the Square</option>
-	      <option value="quad3">Solve by Completing the Square</option>
-	      <option value="quad4">Solve by the Formula</option>
-	    </optgroup>
-	    <optgroup label="Arithmetic">
-	      <option value="arith0">Addition and Subtraction</option>
-	      <option value="arith1">To Standard Form</option>
-	      <option value="arith2">From Standard Form</option>
-	      <option value="arith3">Rounding to Decimal Places</option>
-	      <option value="arith4">Rounding to Significant Figures</option>
-	    </optgroup>
-	  </select>
-	</form>
+      <div id="tabsdiv">
+	<ul id="tabs">
+	  <li class="tabstyle"><a href="#" class="nolink current" id="swtoqns">Questions</a>
+	  <li class="tabstyle"><a href="#" class="nolink" id="swtowks">Worksheet</a>
+	</ul>
       </div>
-      <div id="options">
-      </div>
-      <div id="worksheet">
-      </div>
-      <div id="answers">
+      <div id="main">
+	<div id="questions">
+	  <div id="type">
+	    <h1>Question Type</h1>
+	    <form id="typeForm">
+	      <select id="typeSelect">
+		<optgroup label="Sequences">
+		  <option value="seq0">Next Terms</option>
+		  <option value="seq1">Apply Term-to-Term Rule</option>
+		  <option value="seq2">Apply nth Term Rule</option>
+		  <option value="seq3">First Term and Common
+		    Difference</option>
+		  <option value="seq4">nth Term of Arithmetic Series</option>
+		  <option value="seq5">Sum of Arithmetic Series</option>
+		</optgroup>
+		<optgroup label="Quadratics">
+		  <option value="quad0">Factorisation</option>
+		  <option value="quad1">Solve by Factorisation</option>
+		  <option value="quad2">Completing the Square</option>
+		  <option value="quad3">Solve by Completing the Square</option>
+		  <option value="quad4">Solve by the Formula</option>
+		</optgroup>
+		<optgroup label="Arithmetic">
+		  <option value="arith0">Addition and Subtraction</option>
+		  <option value="arith1">To Standard Form</option>
+		  <option value="arith2">From Standard Form</option>
+		  <option value="arith3">Rounding to Decimal Places</option>
+		  <option value="arith4">Rounding to Significant Figures</option>
+		</optgroup>
+	      </select>
+	    </form>
+	  </div>
+	  <div id="options">
+	  </div>
+	  <div id="qns">
+	  </div>
+	  <div id="ans">
+	  </div>
+	</div>
+	<div id="worksheet">
+	  <div id="wkqns">
+	    <h1>Questions</h1>
+	    <div class='columns questions'>
+	      <ol id="wkexlist" class='exlist'>
+	      </ol>
+	    </div>
+	  </div>
+	  <div id="wkans">
+	    <h1>Answers</h1>
+	    <div class='columns answers'>
+	      <ol id="wksollist" class='sollist'>
+	      </ol>
+	    </div>
+	    <div id='wkextex' class='LaTeX'></div>
+	    <div id='wksoltex' class='LaTeX'></div>
+	    <div class='configuration'>
+	      <form>
+		<button id="wkcpyqns" type="button" class="LaTeXbtn">
+		  Copy questions to clipboard as LaTeX.
+		</button>
+		<button id="wkcpysol" type="button" class="LaTeXbtn">
+		  Copy answers to clipboard as LaTeX.
+		</button>
+	      </form>
+	    </div>
+	  </div>
+	</div>
       </div>
     </div>
   </body>
 </html>
-  
+

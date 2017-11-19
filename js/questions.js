@@ -126,7 +126,7 @@ function SeqNextTerms() {
 	}
 	this.prng = new Math.seedrandom(this.seed);
 	this.explanation = 'For each sequence, write down the rule and the next ' + (this.terms == 1 ? 'term' :  int_to_words(this.terms) + ' terms') + '.';
-	
+	this.shortexp =  'Write down the rule and the next ' + (this.terms == 1 ? 'term' :  int_to_words(this.terms) + ' terms') + ' for ';
     }
 
     this.reset = function() {
@@ -322,6 +322,7 @@ function SeqTermToTerm() {
 	}
 	this.prng = new Math.seedrandom(this.seed);
 	this.explanation = 'For each sequence, write down the first ' + (this.terms == 1 ? 'term' :  int_to_words(this.terms) + ' terms') + '.';
+	this.shortexp = 'Write down the first ' + (this.terms == 1 ? 'term' :  int_to_words(this.terms) + ' terms') + ' of ';
 	
     }
 
@@ -486,6 +487,7 @@ function SeqnthTerm() {
 	}
 	this.prng = new Math.seedrandom(this.seed);
 	this.explanation = 'For each sequence, write down the first ' + (this.terms == 1 ? 'term' :  int_to_words(this.terms) + ' terms') + '.';
+	this.shortexp = 'Write down the first ' + (this.terms == 1 ? 'term' :  int_to_words(this.terms) + ' terms') + ' of ';
 	
     }
 
@@ -616,6 +618,7 @@ function SeqArithSeq() {
     this.qn = 0;
     this.seqs = {"0:0": true};
     this.explanation = 'For each sequence, write down the first term (' + tomml('a')[0].outerHTML +  ') and the common difference (' + tomml('d')[0].outerHTML + ').';
+    this.shortexp = 'Write down the first term (' + tomml('a')[0].outerHTML +  ') and the common difference (' + tomml('d')[0].outerHTML + ') of ';
 
     var seedgen = new Math.seedrandom();
 
@@ -782,6 +785,7 @@ function SeqArithTerm() {
     this.qn = 0;
     this.seqs = {"0:0": true};
     this.explanation = 'For each sequence, write down the formula for the nth term and the given term.';
+    this.shortexp = 'Write down the formula for the nth term and the given term of ';
 
     var seedgen = new Math.seedrandom();
 
@@ -1069,7 +1073,7 @@ function SeqSumSeries() {
 	}
 	this.prng = new Math.seedrandom(this.seed);
 	this.explanation = 'For each sequence, write down the sum of the given number of terms.';
-	
+	this.shortexp = 'Write down the sum of ';
     }
 
     this.reset = function() {
@@ -1230,6 +1234,7 @@ function QuadFact() {
 	}
 	this.prng = new Math.seedrandom(this.seed);
 	this.explanation = 'Factorise each quadratic expression';
+	this.shortexp = 'Factorise ';
     }
 
     this.reset = function() {
@@ -1244,7 +1249,7 @@ function QuadFact() {
 	 var qdiv,adiv,p,sep,qtex,atex,coeffn,numbfn;
 	 var nqn = 0;
 
-	 while (math.gcd(a,b,c,d) != 1 || a == 0 || c == 0 || b*d == 0 || this.quads[ a + ":" + b + ":" + c + ":" + d]) {
+	 while (math.gcd(a,b,c,d) != 1 || a * c == 0 || b**2 + d**2 == 0 || this.quads[ a + ":" + b + ":" + c + ":" + d]) {
 	     a = randomFromRange(this.a,this.prng());
 	     b = randomFromRange(this.b,this.prng());
 	     c = randomFromRange(this.c,this.prng());
@@ -1434,6 +1439,7 @@ function QuadSolveFact() {
 	}
 	this.prng = new Math.seedrandom(this.seed);
 	this.explanation = 'Solve each quadratic function using factorisation.';
+	this.shortexp = 'Solve by factorising ';
     }
 
     this.reset = function() {
@@ -1622,6 +1628,7 @@ function QuadCplt() {
 	}
 	this.prng = new Math.seedrandom(this.seed);
 	this.explanation = 'Complete the square for each quadratic expression';
+	this.shortexp = 'Complete the square for ';
     }
 
     this.reset = function() {
@@ -1811,6 +1818,7 @@ function QuadSolveCplt() {
 	}
 	this.prng = new Math.seedrandom(this.seed);
 	this.explanation = 'Solve the following quadratic equations by completing the square.';
+	this.shortexp = 'Solve by completing the square ';
     }
 
     this.reset = function() {
@@ -2034,6 +2042,7 @@ function QuadFormula() {
 	}
 	this.prng = new Math.seedrandom(this.seed);
 	this.explanation = 'Solve the following quadratic equations.';
+	this.shortexp = 'Solve ';
     }
 
     this.reset = function() {
@@ -2292,6 +2301,151 @@ function ArithSums() {
 	}
 	this.prng = new Math.seedrandom(this.seed);
 	this.explanation = 'Calculate the following expressions.';
+	this.shortexp = 'Calculate ';
+    }
+
+    this.reset = function() {
+	this.qn = 0;
+	this.sums = {"": true};
+    }
+
+    this.makeQuestion = function(force) {
+	if (this.qn >= this.size && !force) return false;
+
+	var a = [];
+	var qdiv,adiv,qtex,atex;
+	var nqn = 0;
+
+	var n = randomFromRange(this.n,this.prng());
+
+	while (this.sums[a.slice().sort().join(':')]) {
+	    a = [];
+	    for (var i = 0; i < n; i++) {
+		var b;
+		do {
+		    b = randomFromRange(this.a,this.prng());
+		} while (b == 0);
+		a.push(b);
+	    }
+	    nqn++;
+	    if (nqn > 10) {
+		this.sums = {"": true};
+		nqn = 0;
+	    }
+	}
+
+	this.sums[a.slice().sort().join(':')] = true;
+	
+	qdiv = $('<div>').addClass('question');
+	adiv = $('<div>').addClass('answer');
+	qtex = ['\\('];
+	atex = ['\\('];
+
+	var qmml = mmlelt('math').attr('display','inline');
+	
+	addNumber(a[0],qtex,qmml);
+	for (var i = 1; i < a.length; i++) {
+	    addSignedNumber(a[i],qtex,qmml);
+	}
+
+	qtex.push('\\)');
+	var s = 0;
+	for (var i = 0; i < a.length; i++) {
+	    s += a[i];
+	}
+
+	qdiv.append(qmml);
+	
+	var amml = mmlelt('math').attr('display','inline');
+	addNumber(s,atex,amml);
+	adiv.append(amml);
+	atex.push('\\)');
+	this.qn++;
+	return [qdiv, adiv, qtex.join(''), atex.join('')];
+    }
+
+    return this;
+}
+/*
+  Question Type: Multiple multiply and divides
+*/
+
+function ArithProds() {
+    var self = this;
+    this.title = "Arithmetic";
+    this.storage = "ArithProds";
+    this.qn = 0;
+    this.sums = {"": true};
+
+    var seedgen = new Math.seedrandom();
+
+    this.options = [
+	{
+	    name: "seed",
+	    text: "Random seed",
+	    shortcut: "s",
+	    type: "string",
+	    default: ''
+	},
+	{
+	    name: "size",
+	    text: "Number of questions",
+	    shortcut: "z",
+	    type: "integer",
+	    default: 10
+	},
+	{
+	    name: "a",
+	    text: "Range for terms (zero and one are automatically excluded)",
+	    shortcut: "a",
+	    type: "string",
+	    default: "-10:10"
+	},
+	{
+	    name: "n",
+	    text: "Range for number of terms",
+	    shortcut: "n",
+	    type: "string",
+	    default: "3:5"
+	},
+	{
+	    name: "repeat",
+	    text: "Repeat Questions",
+	    shortcut: "t",
+	    type: "boolean",
+	    default: false
+	}
+    ];
+
+    var optdict = {};
+    for (var i = 0; i < this.options.length; i++) {
+	optdict[this.options[i].name] = i;
+    }
+
+    this.setOptions = function() {
+	for (var i = 0; i < this.options.length; i++) {
+	    if (this.options[i].type == "integer") {
+		this.options[i].value = makeInt(this.options[i].element.val(),this.options[i].default);
+	    } else if (this.options[i].type == "boolean") {
+		this.options[i].value = this.options[i].element.is(':checked');
+	    } else {
+		if (this.options[i].element.val() == '') {
+		    this.options[i].value = this.options[i].default;
+		} else {
+		    this.options[i].value = this.options[i].element.val();
+		}
+	    }
+	    this[this.options[i].name] = this.options[i].value;
+	    localStorage.setItem(this.storage + ':' + this.options[i].shortcut, this.options[i].value);
+	}
+	if (this.seed == '') {
+	    this.seed = Math.abs(seedgen.int32()).toString();
+	    this.options[optdict.seed].value = this.seed;
+	    localStorage.removeItem(this.storage + ':' + this.options[optdict.seed].shortcut);
+	}
+	this.prng = new Math.seedrandom(this.seed);
+	this.explanation = 'Calculate the following expressions.';
+	this.shortexp = 'Calculate ';
     }
 
     this.reset = function() {
@@ -2438,6 +2592,7 @@ function ToStdForm() {
 	}
 	this.prng = new Math.seedrandom(this.seed);
 	this.explanation = 'Write the following in standard form.';
+	this.shortexp = 'Write in standard form ';
     }
 
     this.reset = function() {
@@ -2603,6 +2758,7 @@ function FromStdForm() {
 	}
 	this.prng = new Math.seedrandom(this.seed);
 	this.explanation = 'Write the following as normal numbers.';
+	this.shortexpl = 'Write as a normal number ';
     }
 
     this.reset = function() {
@@ -2779,6 +2935,7 @@ function RoundDP() {
 	}
 	this.prng = new Math.seedrandom(this.seed);
 	this.explanation = 'Round the following numbers to the given number of decimal places.';
+	this.shortexp = 'Round ';
     }
 
     this.reset = function() {
@@ -2971,6 +3128,7 @@ function RoundSF() {
 	}
 	this.prng = new Math.seedrandom(this.seed);
 	this.explanation = 'Round the following numbers to the given number of significant figures.';
+	this.shortexp = 'Round ';
     }
 
     this.reset = function() {

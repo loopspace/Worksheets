@@ -4,8 +4,11 @@ body {
 
 #content {
     max-width: 210mm;
-    min-height: calc(100vh - 4em - 12pt);
     margin: 0 auto;
+}
+
+#main {
+    min-height: calc(100vh - 4em - 12pt);
     background: #fff;
     padding: 2em;
     border-radius: 5pt;
@@ -18,6 +21,10 @@ body {
     -webkit-column-gap: 2em;
     -moz-column-gap: 2em;
     column-gap: 2em;
+}
+
+.columns li {
+    display: table;
 }
 
 .separator {
@@ -73,15 +80,27 @@ body {
     text-align: right;
 }
 
-.reload {
+.reload, .remove {
     display: none;
     width: 3ex;
     text-align: right;
     font-size: 170%;
 }
 
-.first .question:hover .reload {
+#questions .first .question:hover .reload {
     display: inline-block;
+}
+
+#worksheet .question:hover .remove {
+    display: inline-block;
+}
+
+#questions .shortexplanation {
+    display: none;
+}
+
+#worksheet .shortexplanation {
+    display: inline;
 }
 
 .rule {
@@ -98,7 +117,7 @@ button {
 	display: none;
     }
 
-    #worksheet {
+    #questions, #wkqns {
 	break-after: always;
 	page-break-after: always;
     }
@@ -120,4 +139,59 @@ button {
     .srcURL {
 	display: none;
     }
+
+    #tabsdiv {
+	display: none;
+    }
+
+}
+
+#tabsdiv {
+    padding: 0px;
+}
+
+#tabs {
+    display: inline;
+    list-style-type: none;
+    margin: 0px;
+    vertical-align: bottom;
+}
+
+.tabstyle {
+    border-radius: 5px 5px 0px 0px;
+    background-color: #aaa;
+    padding: 5px 5px 2px 5px;
+    display: inline;
+    margin-left: 2px;
+}
+
+.tabstyle .current {
+    color: #fff;
+}
+
+.nolink {
+    text-decoration: none;
+    color: black;
+}
+
+#worksheet {
+    display: none;
+}
+
+@keyframes fadeOutIn {
+    from {
+	color: #000;
+    }
+
+    50% {
+	color: #fff;
+    }
+    
+    to {
+	color: #000;
+    }
+}
+
+.fadeOutIn {
+    animation: 1s fadeOutIn;
 }
