@@ -58,6 +58,7 @@ function init() {
 	arith2: new FromStdForm(),
 	arith3: new RoundDP(),
 	arith4: new RoundSF(),
+	trig0: new SineRule(),
     };
 
     var typesel = $('#typeSelect');
@@ -367,7 +368,7 @@ function reloadQuestion(e,obj) {
     addtowks.click(addtowksfn);
     
     var newitem = $('<li>').append(
-	qn[0].append(reload).append(addtowksfn)
+	qn[0].append(reload).append(addtowks)
     );
     $(item).replaceWith(newitem.clone(true,true));
 
