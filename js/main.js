@@ -59,6 +59,7 @@ function init() {
 	arith3: new RoundDP(),
 	arith4: new RoundSF(),
 	trig0: new SineRule(),
+	trig1: new CosineRule(),
     };
 
     var typesel = $('#typeSelect');
@@ -777,3 +778,80 @@ function ordinal_suffix_of(i) {
     }
     return "th";
 }
+
+/*
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/round
+*/
+
+// Closure
+(function() {
+  /**
+   * Decimal adjustment of a number.
+   *
+   * @param {String}  type  The type of adjustment.
+   * @param {Number}  value The number.
+   * @param {Integer} exp   The exponent (the 10 logarithm of the adjustment base).
+   * @returns {Number} The adjusted value.
+   */
+  function decimalAdjust(type, value, exp) {
+    // If the exp is undefined or zero...
+    if (typeof exp === 'undefined' || +exp === 0) {
+      return Math[type](value);
+    }
+    value = +value;
+    exp = +exp;
+    // If the value is not a number or the exp is not an integer...
+    if (value === null || isNaN(value) || !(typeof exp === 'number' && exp % 1 === 0)) {
+      return NaN;
+    }
+    // If the value is negative...
+    if (value < 0) {
+      return -decimalAdjust(type, -value, exp);
+    }
+    // Shift
+    value = value.toString().split('e');
+    value = Math[type](+(value[0] + 'e' + (value[1] ? (+value[1] - exp) : -exp)));
+    // Shift back
+    value = value.toString().split('e');
+    return +(value[0] + 'e' + (value[1] ? (+value[1] + exp) : exp));
+  }
+
+  // Decimal round
+  if (!Math.round10) {
+    Math.round10 = function(value, exp) {
+      return decimalAdjust('round', value, exp);
+    };
+  }
+  // Decimal floor
+  if (!Math.floor10) {
+    Math.floor10 = function(value, exp) {
+      return decimalAdjust('floor', value, exp);
+    };
+  }
+  // Decimal ceil
+  if (!Math.ceil10) {
+    Math.ceil10 = function(value, exp) {
+      return decimalAdjust('ceil', value, exp);
+    };
+  }
+
+    // Significant figures round
+  if (!Math.roundsf) {
+    Math.roundsf = function(value, exp) {
+      return decimalAdjust('round', value, Math.floor(Math.log10(Math.abs(value))) + 1 - exp);
+    };
+  }
+  //  Significant figures floor
+  if (!Math.floorsf) {
+      Math.floorsf = function(value, exp) {
+	return decimalAdjust('floor', value, Math.floor(Math.log10(Math.abs(value))) + 1 - exp);
+    };
+  }
+  //  Significant figures ceil
+  if (!Math.ceilsf) {
+    Math.ceilsf = function(value, exp) {
+      return decimalAdjust('ceil', value, Math.floor(Math.log10(Math.abs(value))) + 1 - exp);
+    };
+  }
+})();
+
