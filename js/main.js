@@ -6,6 +6,9 @@ TODO:
 
 */
 
+var questions = [];
+var worksheet = [];
+
 // Parse query string
 var qs = (function(a) {
     if (a == "") return {};
@@ -84,15 +87,31 @@ function init() {
 
     $('#swtoqns').on('click', function(e) {
 	e.preventDefault();
-	$('#worksheet').hide();
-	$('#questions').show();
+	if (false && typeof MathJax !== 'undefined') {
+            MathJax.Hub.Queue(function() {
+		$('#worksheet').hide();
+		$('#questions').show();
+	    });
+            MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+	} else {
+	    $('#worksheet').hide();
+	    $('#questions').show();
+	}
 	$('#swtoqns').addClass('current');
 	$('#swtowks').removeClass('current');
     });
     $('#swtowks').on('click', function(e) {
 	e.preventDefault();
-	$('#questions').hide();
-	$('#worksheet').show();
+	if (false && typeof MathJax !== 'undefined') {
+            MathJax.Hub.Queue(function() {
+		$('#worksheet').show();
+		$('#questions').hide();
+	    });
+            MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+	} else {
+	    $('#worksheet').show();
+	    $('#questions').hide();
+	}
 	$('#swtowks').addClass('current');
 	$('#swtoqns').removeClass('current');
     });
@@ -235,9 +254,11 @@ function addQuestions(workdiv,ansdiv,type,obj) {
     var exlist = $('<ol>').addClass('exlist');
     var sollist = $('<ol>').addClass('sollist').attr('id','sollist');
     var item;
-    
+
+    questions = [];
     obj.reset();
     var qn = obj.makeQuestion(false);
+
     var reload = $('<div>').text('⟳').addClass('reload');
     var reloadfn;
     if (typeof MathJax !== 'undefined') {
@@ -266,32 +287,19 @@ function addQuestions(workdiv,ansdiv,type,obj) {
     }
     addtowks.click(addtowksfn);
 
-    var rmfromwks = $('<div>').text('-').addClass('remove');
-    var rmfromwksfn;
-    if (typeof MathJax !== 'undefined') {
-	rmfromwksfn = function(e) {
-            MathJax.Hub.Queue(function() {removeQuestionFromWorksheet(e,obj);});
-            MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
-	}
-    } else {
-	rmfromwksfn = function(e) {
-	    removeQuestionFromWorksheet(e,obj);
-	}
-    }
-    rmfromwks.click(rmfromwksfn);
-
     do {
+	questions.push(qn);
 	exlist.append(
 	    $('<li>').append(
 		shextxt.clone(true,true)
 	    ).append(
-		qn[0].append(reload.clone(true,true))
+		qn[0].clone(true,true)
+		    .append(reload.clone(true,true))
 		    .append(addtowks.clone(true,true))
-		    .append(rmfromwks.clone(true,true))
 	    )
 	);
 	sollist.append(
-	    $('<li>').append(qn[1])
+	    $('<li>').append(qn[1].clone(true,true))
 	);
 	extex.append(
 	    $('<div>').text('\n\\item ' + qn[2])
@@ -340,6 +348,7 @@ function reloadQuestion(e,obj) {
     }
     n++;
     var qn = obj.makeQuestion(true);
+    questions[n] = qn;
     var reload = $('<div>').text('⟳').addClass('reload');
     var reloadfn;
     if (typeof MathJax !== 'undefined') {
@@ -356,7 +365,7 @@ function reloadQuestion(e,obj) {
 
     var addtowks = $('<div>').text('+').addClass('reload');
     var addtowksfn;
-    if (typeof MathJax !== 'undefined') {
+    if (false && typeof MathJax !== 'undefined') {
 	addtowksfn = function(e) {
             MathJax.Hub.Queue(function() {addQuestionToWorksheet(e,obj);});
             MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
@@ -369,7 +378,7 @@ function reloadQuestion(e,obj) {
     addtowks.click(addtowksfn);
     
     var newitem = $('<li>').append(
-	qn[0].append(reload).append(addtowks)
+	qn[0].clone(true,true).append(reload).append(addtowks)
     );
     $(item).replaceWith(newitem.clone(true,true));
 
@@ -377,7 +386,7 @@ function reloadQuestion(e,obj) {
 	$(elt).find('li:nth-child(' + n + ')').replaceWith(newitem.clone(true,true))
     });
 
-    $('#sollist').find('li:nth-child(' + n + ')').replaceWith($('<li>').append(qn[1]));
+    $('#sollist').find('li:nth-child(' + n + ')').replaceWith($('<li>').append(qn[1].clone(true,true)));
     $('#extex').find('div:nth-child(' + n + ')').replaceWith($('<div>').text('\n\\item ' + qn[2]));
     $('#soltex').find('div:nth-child(' + n + ')').replaceWith($('<div>').text('\n\\item ' + qn[3]));
 }
@@ -386,6 +395,23 @@ function addQuestionToWorksheet(e,obj) {
     $(e.target).addClass('fadeOutIn').one("animationend webkitAnimationEnd oAnimationEnd MSAnimationEnd", function(){ $(e.target).removeClass('fadeOutIn') });
     var item = e.target.parentElement.parentElement;
     var list = item.parentElement;
+    var shextxt = $('<span>').addClass('shortexplanation');
+    shextxt.html(obj.shortexp);
+
+    var rmfromwks = $('<div>').text('-').addClass('remove');
+    var rmfromwksfn;
+    if (typeof MathJax !== 'undefined') {
+	rmfromwksfn = function(e) {
+            MathJax.Hub.Queue(function() {removeQuestionFromWorksheet(e,obj);});
+            MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+	}
+    } else {
+	rmfromwksfn = function(e) {
+	    removeQuestionFromWorksheet(e,obj);
+	}
+    }
+    rmfromwks.click(rmfromwksfn);
+    
     var n;
     for (var i = 0; i < list.childNodes.length; i++) {
 	if (list.childNodes[i] == item) {
@@ -393,11 +419,28 @@ function addQuestionToWorksheet(e,obj) {
 	}
     }
     n++;
+    var qn = questions[n];
+    worksheet.push(qn);
 
-    $('#wkexlist').append($(item).clone(true,true));
-    $('#wksollist').append($('#sollist').find('li:nth-child(' + n + ')').clone(true,true));
-    $('#wkextex').append($('#extex').find('div:nth-child(' + n + ')').clone(true,true));
-    $('#wksoltex').append($('#soltex').find('div:nth-child(' + n + ')').clone(true,true));
+    $('#wkexlist').append(
+	    $('<li>').append(
+		shextxt.clone(true,true)
+	    ).append(
+		qn[0].clone().append(rmfromwks.clone(true,true))
+	    )
+    );
+
+    $('#wksollist').append(
+	$('<li>').append(qn[1].clone(true,true))
+    );
+
+    $('#wkextex').append(
+	$('<div>').text('\n\\item ' + qn[2])
+    );
+
+    $('#wksoltex').append(
+	$('<div>').text('\n\\item ' + qn[3])	
+    );
 }
 
 function removeQuestionFromWorksheet(e,obj) {
@@ -409,7 +452,7 @@ function removeQuestionFromWorksheet(e,obj) {
 	    n = i;
 	}
     }
-
+    worksheet.splice(n,1);
     $(item).remove();
     $('#wksollist').find('li:nth-child(' + n + ')').remove();
     $('#wkextex').find('div:nth-child(' + n + ')').remove();
