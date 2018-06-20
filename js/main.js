@@ -57,12 +57,15 @@ function init() {
 	quad3: new QuadSolveCplt(),
 	quad4: new QuadFormula(),
 	arith0: new ArithSums(),
-	arith1: new ToStdForm(),
-	arith2: new FromStdForm(),
-	arith3: new RoundDP(),
-	arith4: new RoundSF(),
+	arith1: new ArithProds(),
+	arith2: new ToStdForm(),
+	arith3: new FromStdForm(),
+	arith4: new RoundDP(),
+	arith5: new RoundSF(),
 	trig0: new SineRule(),
 	trig1: new CosineRule(),
+	eq0: new OneEqSolve(),
+	eq1: new TwoEqSolve(),
     };
 
     var typesel = $('#typeSelect');

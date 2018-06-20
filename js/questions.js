@@ -2375,7 +2375,7 @@ function ArithProds() {
     this.title = "Arithmetic";
     this.storage = "ArithProds";
     this.qn = 0;
-    this.sums = {"": true};
+    this.prods = {";": true};
 
     var seedgen = new Math.seedrandom();
 
@@ -2450,35 +2450,40 @@ function ArithProds() {
 
     this.reset = function() {
 	this.qn = 0;
-	this.sums = {"": true};
+	this.prods = {";": true};
     }
 
     this.makeQuestion = function(force) {
 	if (this.qn >= this.size && !force) return false;
 
 	var a = [];
+	var m = [];
 	var qdiv,adiv,qtex,atex;
 	var nqn = 0;
 
 	var n = randomFromRange(this.n,this.prng());
 
-	while (this.sums[a.slice().sort().join(':')]) {
+	while (this.prods[a.join(':') + ";" + m.join(':')]) {
 	    a = [];
 	    for (var i = 0; i < n; i++) {
 		var b;
 		do {
 		    b = randomFromRange(this.a,this.prng());
-		} while (b == 0);
+		} while (b == 0 || b == 1);
 		a.push(b);
 	    }
+		m = [];
+		for (var i = 0; i < n-1; i++) {
+			m.push(Math.round10(this.prng(),0));
+		}
 	    nqn++;
 	    if (nqn > 10) {
-		this.sums = {"": true};
+		this.prods = {"": true};
 		nqn = 0;
 	    }
 	}
 
-	this.sums[a.slice().sort().join(':')] = true;
+	this.prods[a.join(':') + ";" + m.join(':')] = true;
 	
 	qdiv = $('<div>').addClass('question');
 	adiv = $('<div>').addClass('answer');
@@ -2486,18 +2491,23 @@ function ArithProds() {
 	atex = ['\\('];
 
 	var qmml = mmlelt('math').attr('display','inline');
-	
+
 	addNumber(a[0],qtex,qmml);
+	var s = a[0];
 	for (var i = 1; i < a.length; i++) {
-	    addSignedNumber(a[i],qtex,qmml);
+		if (m[i-1] == 1) {
+			qtex.push('\\times');
+			qmml.append(mmlelt('mo').html('&times;'));
+			s = math.multiply(s,a[i]);
+		} else {
+			qtex.push('\\div');
+			qmml.append(mmlelt('mo').html('&div;'));
+			s = math.fraction(math.divide(s,a[i]));
+		}
+	    addNumber(a[i],qtex,qmml);
 	}
 
 	qtex.push('\\)');
-	var s = 0;
-	for (var i = 0; i < a.length; i++) {
-	    s += a[i];
-	}
-
 	qdiv.append(qmml);
 	
 	var amml = mmlelt('math').attr('display','inline');
@@ -3831,3 +3841,332 @@ function CosineRule() {
 
     return this;
 }
+
+/*
+Question Type: Solve an Equation
+*/
+
+// One-sided equations
+
+function OneEqSolve() {
+    var self = this;
+    this.title = "One-sided Equations";
+    this.storage = "OneEqSolve";
+    this.qn = 0;
+    this.eqns = {"0:0:0": true};
+
+    var seedgen = new Math.seedrandom();
+
+    this.options = [
+	{
+	    name: "seed",
+	    text: "Random seed",
+	    shortcut: "s",
+	    type: "string",
+	    default: ''
+	},
+	{
+	    name: "size",
+	    text: "Number of questions",
+	    shortcut: "z",
+	    type: "integer",
+	    default: 10
+	},
+	{
+	    name: "a",
+	    text: "Range for <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>a</mi></math> in <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>a</mi><mi>x</mi><mo>+</mo><mi>b</mi></math>",
+	    shortcut: "a",
+	    type: "string",
+	    default: "-5:5"
+	},
+	{
+	    name: "b",
+	    text: "Range for <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>b</mi></math> in <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>a</mi><mi>x</mi><mo>+</mo><mi>b</mi></math>",
+	    shortcut: "b",
+	    type: "string",
+	    default: "-5:5"
+	},
+	{
+	    name: "x",
+	    text: "Range for <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>x</mi></math> in <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>a</mi><mi>x</mi><mo>+</mo><mi>b</mi></math>",
+	    shortcut: "x",
+	    type: "string",
+	    default: "-5:5"
+	},
+	{
+	    name: "repeat",
+	    text: "Repeat Questions",
+	    shortcut: "r",
+	    type: "boolean",
+	    default: false
+	}
+    ];
+
+    var optdict = {};
+    for (var i = 0; i < this.options.length; i++) {
+	optdict[this.options[i].name] = i;
+    }
+
+    this.setOptions = function() {
+	for (var i = 0; i < this.options.length; i++) {
+	    if (this.options[i].type == "integer") {
+		this.options[i].value = makeInt(this.options[i].element.val(),this.options[i].default);
+	    } else if (this.options[i].type == "boolean") {
+		this.options[i].value = this.options[i].element.is(':checked');
+	    } else {
+		if (this.options[i].element.val() == '') {
+		    this.options[i].value = this.options[i].default;
+		} else {
+		    this.options[i].value = this.options[i].element.val();
+		}
+	    }
+	    this[this.options[i].name] = this.options[i].value;
+	    localStorage.setItem(this.storage + ':' + this.options[i].shortcut, this.options[i].value);
+	}
+	if (this.seed == '') {
+	    this.seed = Math.abs(seedgen.int32()).toString();
+	    this.options[optdict.seed].value = this.seed;
+	    localStorage.removeItem(this.storage + ':' + this.options[optdict.seed].shortcut);
+	}
+	this.prng = new Math.seedrandom(this.seed);
+	this.explanation = 'Solve each equation';
+	this.shortexp = 'Solve ';
+    }
+
+    this.reset = function() {
+	this.qn = 0;
+	this.eqns = {"0:0:0": true};
+    }
+
+     this.makeQuestion = function(force) {
+	if (this.qn >= this.size && !force) return false;
+
+	 var a = 0, b = 0, x = 0;
+	 var qdiv,adiv,p,sep,qtex,atex,coeffn,numbfn;
+	 var nqn = 0;
+
+	 while ( a == 0 || this.eqns[ a + ":" + b + ":" + x ]) {
+	     a = randomFromRange(this.a,this.prng());
+	     b = randomFromRange(this.b,this.prng());
+	     x = randomFromRange(this.x,this.prng());
+	     nqn++;
+	     if (nqn > 10) {
+		 this.eqns = {"0:0:0": true};
+		 nqn = 0;
+	     }
+	}
+	this.eqns[ a + ":" + b + ":" + x ] = true;
+	
+	qdiv = $('<div>').addClass('question');
+	adiv = $('<div>').addClass('answer');
+	qtex = ['\\('];
+	 atex = [];
+
+	 var qmml = mmlelt('math').attr('display','inline');
+
+	 addCoefficient(a, qtex, qmml);
+	 qmml.append(tommlelt('x'));
+	 qtex.push('x');
+	 addSignedNumber(b, qtex, qmml);
+	 
+	 qmml.append(tommlelt('='));
+	 qtex.push('=');
+	 
+	 qmml.append(tommlelt(a*x+b));
+	 qtex.push(a*x+b);
+	 
+	 qdiv.append(qmml);
+	 qtex.push('\\)');
+	 
+	 var amml = mmlelt('math').attr('display','inline');
+	 atex.push('\\(');
+
+	 amml.append(tommlelt('x'));
+	 atex.push('x');
+	 
+	 amml.append(tommlelt('='));
+	 atex.push('=');
+	 
+	 amml.append(tommlelt(x));
+	 atex.push(x);
+	 
+	 adiv.append(amml);
+	 atex.push('\\)');
+	
+	this.qn++;
+	 return [qdiv, adiv, qtex.join(''), atex.join('')];
+    }
+   
+    
+    return this;
+}
+
+// Two-sided equations
+
+function TwoEqSolve() {
+    var self = this;
+    this.title = "Two-sided Equations";
+    this.storage = "TwoEqSolve";
+    this.qn = 0;
+    this.eqns = {"0:0:0:0": true};
+
+    var seedgen = new Math.seedrandom();
+
+    this.options = [
+	{
+	    name: "seed",
+	    text: "Random seed",
+	    shortcut: "s",
+	    type: "string",
+	    default: ''
+	},
+	{
+	    name: "size",
+	    text: "Number of questions",
+	    shortcut: "z",
+	    type: "integer",
+	    default: 10
+	},
+	{
+	    name: "a",
+	    text: "Range for <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>a</mi></math> in <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>a</mi><mi>x</mi><mo>+</mo><mi>b</mi></math>",
+	    shortcut: "a",
+	    type: "string",
+	    default: "-5:5"
+	},
+	{
+	    name: "c",
+	    text: "Range for <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>c</mi></math> in <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>c</mi><mi>x</mi><mo>+</mo><mi>d</mi></math>",
+	    shortcut: "c",
+	    type: "string",
+	    default: "-5:5"
+	},
+	{
+	    name: "b",
+	    text: "Range for <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>b</mi><mo>+</mo><mi>d</mi></math> in <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>a</mi><mi>x</mi><mo>+</mo><mi>b</mi><mo>=</mo><mi>c</mi><mi>x</mi><mo>+</mo><mi>d</mi></math>",
+	    shortcut: "b",
+	    type: "string",
+	    default: "1"
+	},
+	{
+	    name: "x",
+	    text: "Range for <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>x</mi></math>",
+	    shortcut: "x",
+	    type: "string",
+	    default: "-5:5"
+	},
+	{
+	    name: "repeat",
+	    text: "Repeat Questions",
+	    shortcut: "r",
+	    type: "boolean",
+	    default: false
+	}
+    ];
+
+    var optdict = {};
+    for (var i = 0; i < this.options.length; i++) {
+	optdict[this.options[i].name] = i;
+    }
+
+    this.setOptions = function() {
+	for (var i = 0; i < this.options.length; i++) {
+	    if (this.options[i].type == "integer") {
+		this.options[i].value = makeInt(this.options[i].element.val(),this.options[i].default);
+	    } else if (this.options[i].type == "boolean") {
+		this.options[i].value = this.options[i].element.is(':checked');
+	    } else {
+		if (this.options[i].element.val() == '') {
+		    this.options[i].value = this.options[i].default;
+		} else {
+		    this.options[i].value = this.options[i].element.val();
+		}
+	    }
+	    this[this.options[i].name] = this.options[i].value;
+	    localStorage.setItem(this.storage + ':' + this.options[i].shortcut, this.options[i].value);
+	}
+	if (this.seed == '') {
+	    this.seed = Math.abs(seedgen.int32()).toString();
+	    this.options[optdict.seed].value = this.seed;
+	    localStorage.removeItem(this.storage + ':' + this.options[optdict.seed].shortcut);
+	}
+	this.prng = new Math.seedrandom(this.seed);
+	this.explanation = 'Solve each equation';
+	this.shortexp = 'Solve ';
+    }
+
+    this.reset = function() {
+	this.qn = 0;
+	this.eqns = {"0:0:0:0": true};
+    }
+
+     this.makeQuestion = function(force) {
+	if (this.qn >= this.size && !force) return false;
+
+	 var a = 0, b = 0, c = 0, d = 0, x = 0;
+	 var qdiv,adiv,p,sep,qtex,atex,coeffn,numbfn;
+	 var nqn = 0;
+
+	 while ( a*c == 0 || a == c || this.eqns[ a + ":" + c + ":" + b + ":" + x ]) {
+	     a = randomFromRange(this.a,this.prng());
+	     c = randomFromRange(this.c,this.prng());
+	     b = randomFromRange(this.b,this.prng());
+	     x = randomFromRange(this.x,this.prng());
+	     nqn++;
+	     if (nqn > 10) {
+		 this.eqns = {"0:0:0:0": true};
+		 nqn = 0;
+	     }
+	}
+	this.eqns[ a + ":" + c + ":" + b + ":" + x ] = true;
+	
+	d = a*x - c*x + b;
+	d = math.sign(d)*math.floor(math.abs(d)/2);
+	b = c*x + d - a*x;
+	
+	qdiv = $('<div>').addClass('question');
+	adiv = $('<div>').addClass('answer');
+	qtex = ['\\('];
+	 atex = [];
+
+	 var qmml = mmlelt('math').attr('display','inline');
+
+	 addCoefficient(a, qtex, qmml);
+	 qmml.append(tommlelt('x'));
+	 qtex.push('x');
+	 addSignedNumber(b, qtex, qmml);
+	 
+	 qmml.append(tommlelt('='));
+	 qtex.push('=');
+	 
+	 addCoefficient(c, qtex, qmml);
+	 qmml.append(tommlelt('x'));
+	 qtex.push('x');
+	 addSignedNumber(d, qtex, qmml);
+	 
+	 qdiv.append(qmml);
+	 qtex.push('\\)');
+	 
+	 var amml = mmlelt('math').attr('display','inline');
+	 atex.push('\\(');
+
+	 amml.append(tommlelt('x'));
+	 atex.push('x');
+	 
+	 amml.append(tommlelt('='));
+	 atex.push('=');
+	 
+	 amml.append(tommlelt(x));
+	 atex.push(x);
+	 
+	 adiv.append(amml);
+	 atex.push('\\)');
+	
+	this.qn++;
+	 return [qdiv, adiv, qtex.join(''), atex.join('')];
+    }
+   
+    
+    return this;
+}
+
