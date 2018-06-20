@@ -58,10 +58,12 @@ function init() {
 	quad4: new QuadFormula(),
 	arith0: new ArithSums(),
 	arith1: new ArithProds(),
-	arith2: new ToStdForm(),
-	arith3: new FromStdForm(),
-	arith4: new RoundDP(),
-	arith5: new RoundSF(),
+	arith2: new ArithSumFracts(),
+	arith3: new ArithProdFracts(),
+	arith4: new ToStdForm(),
+	arith5: new FromStdForm(),
+	arith6: new RoundDP(),
+	arith7: new RoundSF(),
 	trig0: new SineRule(),
 	trig1: new CosineRule(),
 	eq0: new OneEqSolve(),
@@ -548,7 +550,7 @@ function addSignedCoefficient(p,tex,mml) {
 	    mml.append(tommlelt('+'));
 	}
 	if (p != 1) {
-	    tex.push(p);
+	    tex.push(texnum(p));
 	    mml.append(tommlelt(p));
 	}
 	return true;
@@ -565,7 +567,7 @@ function addCoefficient(p,tex,mml) {
 	    p = - p;
 	}
 	if (p != 1) {
-	    tex.push( p);
+	    tex.push( texnum(p));
 	    mml.append(tommlelt(p));
 	}
 	return true;
@@ -576,7 +578,7 @@ function addCoefficient(p,tex,mml) {
 
 function addNumber(p,tex,mml) {
     if (p != 0) {
-	tex.push(p);
+	tex.push(texnum(p));
 	mml.append(tommlelt(p));
 	return true;
     } else {
@@ -589,12 +591,12 @@ function addSignedNumber(p,tex,mml) {
 	if (p < 0 ) {
 	    tex.push(' - ');
 	    mml.append(tommlelt('-'));
-	    p = - p;
+	    p = math.unaryMinus(p);
 	} else {
 	    tex.push(' + ');
 	    mml.append(tommlelt('+'));
 	}
-	tex.push( p);
+	tex.push( texnum(p));
 	mml.append(tommlelt(p));
 	return true;
     } else {
