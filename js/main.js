@@ -68,6 +68,8 @@ function init() {
 	trig1: new CosineRule(),
 	eq0: new OneEqSolve(),
 	eq1: new TwoEqSolve(),
+	graph0: new DrawSLGraph(),
+	graph1: new EquationSLGraph(),
     };
 
     var typesel = $('#typeSelect');

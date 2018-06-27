@@ -87,18 +87,19 @@ body {
 }
 
 .reload, .remove {
-    display: none;
+/*    display: none; */
+    display: inline-block;
     width: 3ex;
     text-align: right;
 /*    font-size: 170%;*/
 }
 
 #questions .first .question:hover .reload {
-    display: inline-block;
+
 }
 
 #worksheet .question:hover .remove {
-    display: inline-block;
+
 }
 
 #questions .shortexplanation {
@@ -150,6 +151,9 @@ button {
 	display: none;
     }
 
+    .reload, .remove {
+	display: none;
+    }
 }
 
 #tabsdiv {
@@ -201,3 +205,9 @@ button {
 .fadeOutIn {
     animation: 1s fadeOutIn;
 }
+
+svg {
+    vertical-align: middle;
+    display:inline-block;
+}
+
