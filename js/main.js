@@ -214,7 +214,14 @@ function setOptions (formdiv,workdiv,ansdiv,type,obj,params) {
     workdiv.html('');
     ansdiv.html('');
     formdiv.append($('<h1>').html(obj.title + " Options"));
-    formdiv.append(form);
+    if (typeof MathJax !== 'undefined') {
+        MathJax.Hub.Queue(function() {
+	    formdiv.append(form);
+	});
+        MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+    } else {
+	formdiv.append(form);
+    }
 }
 
 function addQuestions(workdiv,ansdiv,type,obj) {
