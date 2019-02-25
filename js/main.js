@@ -68,6 +68,7 @@ function init() {
 	trig1: new CosineRule(),
 	eq0: new OneEqSolve(),
 	eq1: new TwoEqSolve(),
+	eq2: new SimEqSolve(),
 	graph0: new DrawSLGraph(),
 	graph1: new EquationSLGraph(),
     };
@@ -94,7 +95,7 @@ function init() {
 
     $('#swtoqns').on('click', function(e) {
 	e.preventDefault();
-	if (false && typeof MathJax !== 'undefined') {
+	if (typeof MathJax !== 'undefined') {
             MathJax.Hub.Queue(function() {
 		$('#worksheet').hide();
 		$('#questions').show();
@@ -109,7 +110,7 @@ function init() {
     });
     $('#swtowks').on('click', function(e) {
 	e.preventDefault();
-	if (false && typeof MathJax !== 'undefined') {
+	if (typeof MathJax !== 'undefined') {
             MathJax.Hub.Queue(function() {
 		$('#worksheet').show();
 		$('#questions').hide();
@@ -379,7 +380,7 @@ function reloadQuestion(e,obj) {
 
     var addtowks = $('<div>').text('+').addClass('reload');
     var addtowksfn;
-    if (false && typeof MathJax !== 'undefined') {
+    if (typeof MathJax !== 'undefined') {
 	addtowksfn = function(e) {
             MathJax.Hub.Queue(function() {addQuestionToWorksheet(e,obj);});
             MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
@@ -557,6 +558,36 @@ function addSignedCoefficient(p,tex,mml) {
 	} else {
 	    tex.push(' + ');
 	    mml.append(tommlelt('+'));
+	}
+	if (p != 1) {
+	    tex.push(texnum(p));
+	    mml.append(tommlelt(p));
+	}
+	return true;
+    } else {
+	return false;
+    }
+}
+
+function addSignofCoefficient(p,tex,mml) {
+    if (p != 0) {
+	if (p < 0 ) {
+	    tex.push(' - ');
+	    mml.append(tommlelt('-'));
+	} else {
+	    tex.push(' + ');
+	    mml.append(tommlelt('+'));
+	}
+	return true;
+    } else {
+	return false;
+    }
+}
+
+function addUnsignedCoefficient(p,tex,mml) {
+    if (p != 0) {
+	if (p < 0 ) {
+	    p = - p;
 	}
 	if (p != 1) {
 	    tex.push(texnum(p));
