@@ -65,6 +65,7 @@ function init() {
 	arith5: new FromStdForm(),
 	arith6: new RoundDP(),
 	arith7: new RoundSF(),
+	arith8: new RoundTen(),
 	trig0: new SineRule(),
 	trig1: new CosineRule(),
 	eq0: new OneEqSolve(),
@@ -682,6 +683,42 @@ function primeDecomposition(n) {
     return p;
 }
 
+function powerOfTen(n) {
+    switch (n) {
+    case 1:
+	return "ten";
+	break;
+    case 2:
+	return "hundred";
+	break;
+    case 3:
+	return "thousand";
+	break;
+    case 4:
+	return "ten thousand";
+	break;
+    case 5:
+	return "hundred thousand";
+	break;
+    case 6:
+	return "million";
+	break;
+    case 7:
+	return "ten million";
+	break;
+    case 8:
+	return "hundred million";
+	break;
+    case 9:
+	return "billion";
+	break;
+    default:
+	return "1" + "0".repeat(n);
+	break;
+    }
+    return "";
+}
+
 // From http://stackoverflow.com/q/13621545
 
 var mmlelt = function(el) {
@@ -836,6 +873,58 @@ function randomFromRange(s,p) {
     p += ranges[chosen][0];
 
     return p;
+}
+
+function randomLetterFromRange(s,p) {
+    var sel = s.split(',');
+    var len = [];
+    var ranges = [];
+    var total = 0;
+    var range;
+    var mult;
+    var matches;
+    var start;
+    var end;
+    var chosen;
+    for (var i = 0; i < sel.length; i++) {
+	/*
+	if (sel[i].search('x') != -1) {
+	    matches = sel[i].match(/(.*)x\s*(\d+)/);
+	    range = matches[1];
+	    mult = parseInt(matches[2]);
+	} else {
+	    range = sel[i];
+	    mult = 1;
+	}
+	*/
+	range = sel[i];
+	mult = 1;
+	if (range.search(':') !== -1) {
+	    matches = range.match(/(-?\w+)\s*:\s*(-?\w+)/);
+	    start = matches[1].charCodeAt(0);
+	    end = matches[2].charCodeAt(0);
+	} else {
+	    start = range.charCodeAt(0);
+	    end = range.charCodeAt(0);
+	}
+	ranges.push([start,end - start + 1,mult]);
+	total += (end - start + 1)*mult;
+	len.push(total);
+    }
+    p = Math.floor(p*total + 1);
+
+    for (var i = 0; i < len.length; i++) {
+	if (len[i] >= p) {
+	    chosen = i;
+	    break;
+	}
+    }
+
+    p -= len[chosen-1] || 0;
+    p = p%ranges[chosen][1];
+    p += ranges[chosen][0];
+
+    return String.fromCharCode(p);
 }
 
 /*
