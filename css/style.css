@@ -2,9 +2,19 @@ body {
     background: #8b1a1a;
 }
 
+body.printable {
+    background: #fff;
+}
+
 #content {
     max-width: 210mm;
     margin: 0 auto;
+}
+
+#content.printable {
+    min-height: 0px;
+    padding: 0pt;
+    border-radius: 0pt;
 }
 
 #main {
@@ -94,6 +104,13 @@ body {
 /*    font-size: 170%;*/
 }
 
+#questions.printable, #wkqns.printable {
+    break-after: always;
+    page-break-after: always;
+}
+
+
+
 #questions .first .question:hover .reload {
 
 }
@@ -154,6 +171,10 @@ button {
     .reload, .remove {
 	display: none;
     }
+
+    #togglePrintable {
+	display: none;
+    }
 }
 
 #tabsdiv {
@@ -210,4 +231,19 @@ svg {
     vertical-align: middle;
     display:inline-block;
 }
+
+#togglePrintable {
+    position: absolute;
+    left: 0;
+    top: 0;
+    border-radius: 5pt;
+    background: #aaa;
+    padding: .5ex;
+    font-size: 150%;
+}
+
+#togglePrintable.printable {
+    background: #fff;
+}
+
 
