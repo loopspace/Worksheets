@@ -1,196 +1,131 @@
-function QuadSolveFact() {
-    var self = this;
-    this.title = "Quadratics";
-    this.storage = "QuadSolveFact";
-    this.qn = 0;
-    this.quads = {"0:0:0:0": true};
-
-    var seedgen = new Math.seedrandom();
-
-    this.options = [
-	{
-	    name: "seed",
-	    text: "Random seed",
-	    shortcut: "s",
-	    type: "string",
-	    default: ''
-	},
-	{
-	    name: "size",
-	    text: "Number of questions",
-	    shortcut: "z",
-	    type: "integer",
-	    default: 10
-	},
-	{
-	    name: "a",
-	    text: "Range for <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>a</mi></math> in <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mo stretchy=\"false\">(</mo><mi>a</mi><mi>x</mi><mo>+</mo><mi>b</mi><mo stretchy=\"false\">)</mo></math>",
-	    shortcut: "a",
-	    type: "string",
-	    default: "1"
-	},
-	{
-	    name: "b",
-	    text: "Range for <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>b</mi></math> in <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mo stretchy=\"false\">(</mo><mi>a</mi><mi>x</mi><mo>+</mo><mi>b</mi><mo stretchy=\"false\">)</mo></math>",
-	    shortcut: "b",
-	    type: "string",
-	    default: "-5:5"
-	},
-	{
-	    name: "c",
-	    text: "Range for <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>c</mi></math> in <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mo stretchy=\"false\">(</mo><mi>c</mi><mi>x</mi><mo>+</mo><mi>d</mi><mo stretchy=\"false\">)</mo></math>",
-	    shortcut: "c",
-	    type: "string",
-	    default: "1"
-	},
-	{
-	    name: "d",
-	    text: "Range for <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>d</mi></math> in <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mo stretchy=\"false\">(</mo><mi>c</mi><mi>x</mi><mo>+</mo><mi>d</mi><mo stretchy=\"false\">)</mo></math>",
-	    shortcut: "d",
-	    type: "string",
-	    default: "-5:5"
-	},
-	{
-	    name: "repeat",
-	    text: "Repeat Questions",
-	    shortcut: "r",
-	    type: "boolean",
-	    default: false
-	}
-    ];
-
-    var optdict = {};
-    for (var i = 0; i < this.options.length; i++) {
-	optdict[this.options[i].name] = i;
-    }
-
-    this.setOptions = function() {
-	for (var i = 0; i < this.options.length; i++) {
-	    if (this.options[i].type == "integer") {
-		this.options[i].value = makeInt(this.options[i].element.val(),this.options[i].default);
-	    } else if (this.options[i].type == "boolean") {
-		this.options[i].value = this.options[i].element.is(':checked');
-	    } else {
-		if (this.options[i].element.val() == '') {
-		    this.options[i].value = this.options[i].default;
-		} else {
-		    this.options[i].value = this.options[i].element.val();
-		}
-	    }
-	    this[this.options[i].name] = this.options[i].value;
-	    localStorage.setItem(this.storage + ':' + this.options[i].shortcut, this.options[i].value);
-	}
-	if (this.seed == '') {
-	    this.seed = Math.abs(seedgen.int32()).toString();
-	    this.options[optdict.seed].value = this.seed;
-	    localStorage.removeItem(this.storage + ':' + this.options[optdict.seed].shortcut);
-	}
-	this.prng = new Math.seedrandom(this.seed);
-	this.explanation = 'Solve each quadratic function using factorisation.';
-	this.shortexp = 'Solve by factorising ';
-    }
-
-    this.reset = function() {
-	this.qn = 0;
-	this.quads = {"0:0:0:0": true};
-    }
-
-     this.makeQuestion = function(force) {
-	if (this.qn >= this.size && !force) return false;
-
-	 var a = 0,b = 0, c = 0,d = 0;
-	 var qdiv,adiv,p,sep,qtex,atex,coeffn,numbfn;
-	 var nqn = 0;
-
-	 while (math.gcd(a,b,c,d) != 1 || a == 0 || c == 0 || b*d == 0 || this.quads[ a + ":" + b + ":" + c + ":" + d]) {
-	     a = randomFromRange(this.a,this.prng());
-	     b = randomFromRange(this.b,this.prng());
-	     c = randomFromRange(this.c,this.prng());
-	     d = randomFromRange(this.d,this.prng());
-	     nqn++;
-	     if (nqn > 10) {
-		 this.quads = {"0:0:0:0": true};
-		 nqn = 0;
-	     }
-	}
-	this.quads[ a + ":" + b + ":" + c + ":" + d] = true;
-	
-	qdiv = $('<div>').addClass('question');
-	adiv = $('<div>').addClass('answer');
-	qtex = ['\\('];
-	atex = [];
-
-	 var qmml = mmlelt('math').attr('display','inline');
-
-	 coeffn = addCoefficient;
-	 numbfn = addNumber;
-
-	 if (coeffn(a * c, qtex, qmml)) {
-	     qmml.append(
-		 mmlelt('msup').append(
-		     tommlelt('x')
-		 ).append(
-		     tommlelt('2')
-		 )
-	     );
-	     qtex.push( 'x^2');
-	     
-	     coeffn = addSignedCoefficient;
-	     numbfn = addSignedNumber;
-	 }
-
-	 if (coeffn(a * d + c * b,qtex,qmml)) {
-	     qtex.push(' x ');
-	     qmml.append(tommlelt('x'));
-
-	     coeffn = addSignedCoefficient;
-	     numbfn = addSignedNumber;
-	 }
-	 numbfn(b * d,qtex,qmml);
-
-	 qmml.append(tommlelt('='));
-	 qmml.append(tommlelt(0));
-	 
-	 qdiv.append(qmml);
-	 qtex.push(' = 0\\)');
-	 
-	 var amml = mmlelt('math').attr('display','inline');
-	 atex = ['\\('];
-
-	 p = math.fraction(math.divide(-b,a));
-
-	 atex.push('x = ');
-	 atex.push(texnum(p));
-	 atex.push('\\), ');
-
-	 amml.append(tommlelt('x'));
-	 amml.append(tommlelt('='));
-	 amml.append(tommlelt(p));
-	 adiv.append(amml);
-	 adiv.append($('<span>').addClass("separator").html(", "));
-	 
-	 amml = mmlelt('math').attr('display','inline');
-	 atex.push('\\(');
-
-	 p = math.fraction(math.divide(-d,c));
-
-	 atex.push('x = ');
-	 atex.push(texnum(p));
-	 atex.push('\\)');
-	
-	 amml.append(tommlelt('x'));
-	 amml.append(tommlelt('='));
-	 amml.append(tommlelt(p));
-	 adiv.append(amml);
-
-	 this.qn++;
-	 return [qdiv, adiv, qtex.join(''), atex.join('')];
-    }
-    
-    return this;
-}
 
 /*
-Question type: Complete the square
+  Question type: Solve a quadratic using factorisation
 */
 
+QuadSolveFact = new QuestionGenerator(
+    "Quadratics",
+    "Quadratics",
+    "quad1",
+    "QuadSolveFact",
+    ["0:0:0:0"]
+);
+
+QuadSolveFact.explanation = function() {
+    return 'Solve each quadratic equation.';
+}
+QuadSolveFact.shortexp = function() {
+    return 'Solve by factorising ';
+}
+
+QuadSolveFact.addOption("a","Range for <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>a</mi></math> in <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mo stretchy=\"false\">(</mo><mi>a</mi><mi>x</mi><mo>+</mo><mi>b</mi><mo stretchy=\"false\">)</mo></math>","a","string","1");
+QuadSolveFact.addOption("b","Range for <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>b</mi></math> in <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mo stretchy=\"false\">(</mo><mi>a</mi><mi>x</mi><mo>+</mo><mi>b</mi><mo stretchy=\"false\">)</mo></math>","b","string","-5:5");
+QuadSolveFact.addOption("c","Range for <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>c</mi></math> in <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mo stretchy=\"false\">(</mo><mi>c</mi><mi>x</mi><mo>+</mo><mi>d</mi><mo stretchy=\"false\">)</mo></math>","c","string","1");
+QuadSolveFact.addOption("d","Range for <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>d</mi></math> in <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mo stretchy=\"false\">(</mo><mi>c</mi><mi>x</mi><mo>+</mo><mi>d</mi><mo stretchy=\"false\">)</mo></math>","d","string","-5:5");
+
+
+QuadSolveFact.createQuestion = function(question) {
+
+    var a,b,c,d;
+    var p,sep,qtexa,atexa,coeffn,numbfn;
+    var nqn = 0;
+
+    do {
+	a = randomFromRange(this.a,this.prng());
+	b = randomFromRange(this.b,this.prng());
+	c = randomFromRange(this.c,this.prng());
+	d = randomFromRange(this.d,this.prng());
+	nqn++;
+
+	if (a > c) {
+	    tmp = a;
+	    a = c;
+	    c = tmp;
+
+	    tmp = b;
+	    b = d;
+	    d = tmp;
+	} else if (a == c && b > d) {
+	    tmp = b;
+	    b = d;
+	    d = tmp;
+	}
+
+	if (nqn > 10) {
+	    this.resetSaved();
+	    nqn = 0;
+	}
+    } while (math.gcd(a,b,c,d) != 1 || a == 0 || c == 0 || b*d == 0 || this.checkQn([ a, b, c, d]))
+    
+    this.registerQn([ a, b, c, d]);
+    
+    qtexa = ['\\('];
+    atexa = [];
+
+    var qmml = mmlelt('math').attr('display','inline');
+
+    coeffn = addCoefficient;
+    numbfn = addNumber;
+
+    if (coeffn(a * c, qtexa, qmml)) {
+	qmml.append(
+	    mmlelt('msup').append(
+		tommlelt('x')
+	    ).append(
+		tommlelt('2')
+	    )
+	);
+	qtexa.push( 'x^2');
+	
+	coeffn = addSignedCoefficient;
+	numbfn = addSignedNumber;
+    }
+
+    if (coeffn(a * d + c * b,qtexa,qmml)) {
+	qtexa.push(' x ');
+	qmml.append(tommlelt('x'));
+
+	coeffn = addSignedCoefficient;
+	numbfn = addSignedNumber;
+    }
+    numbfn(b * d,qtexa,qmml);
+
+    qmml.append(tommlelt('='));
+    qmml.append(tommlelt(0));
+    
+    question.qdiv.append(qmml);
+    qtexa.push(' = 0\\)');
+    
+    var amml = mmlelt('math').attr('display','inline');
+    atexa = ['\\('];
+
+    p = math.fraction(math.divide(-b,a));
+
+    atexa.push('x = ');
+    atexa.push(texnum(p));
+    atexa.push('\\), ');
+
+    amml.append(tommlelt('x'));
+    amml.append(tommlelt('='));
+    amml.append(tommlelt(p));
+    question.adiv.append(amml);
+    question.adiv.append($('<span>').addClass("separator").html(", "));
+    
+    amml = mmlelt('math').attr('display','inline');
+    atexa.push('\\(');
+
+    p = math.fraction(math.divide(-d,c));
+
+    atexa.push('x = ');
+    atexa.push(texnum(p));
+    atexa.push('\\)');
+    
+    amml.append(tommlelt('x'));
+    amml.append(tommlelt('='));
+    amml.append(tommlelt(p));
+    question.adiv.append(amml);
+
+    question.qtex =  qtexa.join('');
+    question.atex = atexa.join('');
+    return this;
+}

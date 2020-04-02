@@ -22,8 +22,6 @@ SeqNextTerms.shortexp = function() {
     return 'For each sequence, write down the rule and the next ' + (this.terms == 1 ? 'term' :  int_to_words(this.terms) + ' terms') + '.';
 }
 
-SeqNextTerms.addOption("seed", "Random seed", "s", "string", "");
-SeqNextTerms.addOption("size", "Number of questions", "z", "integer", 10);
 SeqNextTerms.addOption("length", "Number of given terms", "n", "integer", 4);
 SeqNextTerms.addOption("terms", "Number of asked for terms", "t", "integer", 2);
 SeqNextTerms.addOption("a", "Range for first term", "a", "string", "1:10");
@@ -46,11 +44,9 @@ SeqNextTerms.mkop = function(n) {
     }
 };
     
-SeqNextTerms.makeQuestion = function(force) {
-    if (this.qn >= this.size && !force) return false;
-
+SeqNextTerms.createQuestion = function(question) {
     var a,d,op;
-    var qdiv,adiv,p,sep,qtex,atex;
+    var p,sep;
     var nqn = 0;
 
     do {
@@ -59,63 +55,57 @@ SeqNextTerms.makeQuestion = function(force) {
 	op = this.mkop(this.linear);
 	nqn++;
 	if (nqn > 10) {
-	    this.seqs = {"0:0:Add ": true};
+	    this.resetSaved();
 	    nqn = 0;
 	}
-    } while (this.qns[ a + ":" + d + ":" + op.type]);
+    } while (this.checkQn([ a, d, op.type]))
 
-    this.qns[ a + ":" + d + ":" + op.type] = true;
+    this.registerQn([ a, d, op.type]);
 
-    qtex = '';
-    qdiv = $('<div>').addClass('question');
-
-    qdiv.append(tomml(a));
-    qtex += totex(a);
-    qdiv.append($('<span>').addClass("separator").html(", "));
-    qtex += ', ';
-    qdiv.append($('<span>').addClass("linebreak").html(""));
+    question.qdiv.append(tomml(a));
+    question.qtex += totex(a);
+    question.qdiv.append($('<span>').addClass("separator").html(", "));
+    question.qtex += ', ';
+    question.qdiv.append($('<span>').addClass("linebreak").html(""));
     p = a;
     
     for (var j = 1; j < this.length; j++) {
 	p = op.op(p,d);
-	qdiv.append(tomml(p));
-	qtex += totex(p);
-	qdiv.append($('<span>').addClass("separator").html(", "));
-	qtex += ', ';
-	qdiv.append($('<span>').addClass("linebreak").html(""));
+	question.qdiv.append(tomml(p));
+	question.qtex += totex(p);
+	question.qdiv.append($('<span>').addClass("separator").html(", "));
+	question.qtex += ', ';
+	question.qdiv.append($('<span>').addClass("linebreak").html(""));
     }
-    qdiv.append($('<span>').addClass("dots").html("..."));
-    qtex += totex('\\dots');
+    question.qdiv.append($('<span>').addClass("dots").html("..."));
+    question.qtex += totex('\\dots');
 
-    atex = '';
-    adiv = $('<div>').addClass('answer');
     sep = ",";
     if (op.type == "Add ") {
 	if (d > 0) {
-	    atex = 'Add ' + totex(d);
-	    adiv.append( $('<span>').html("Add " + d + ":").addClass('rule'));
+	    question.atex = 'Add ' + totex(d);
+	    question.adiv.append( $('<span>').html("Add " + d + ":").addClass('rule'));
 	} else {
-	    atex = 'Subtract ' + totex(-d);
-	    adiv.append( $('<span>').html("Subtract " + (-d) + ":").addClass('rule'));
+	    question.atex = 'Subtract ' + totex(-d);
+	    question.adiv.append( $('<span>').html("Subtract " + (-d) + ":").addClass('rule'));
 	}
     } else {
-	atex = op.type + totex(d);
-	adiv.append( $('<span>').html(op.type + d + ":").addClass('rule'));
+	question.atex = op.type + totex(d);
+	question.adiv.append( $('<span>').html(op.type + d + ":").addClass('rule'));
     }
-    adiv.append($('<span>').addClass("linebreak").html("&nbsp;"));
-    atex += ': ';
+    question.adiv.append($('<span>').addClass("linebreak").html("&nbsp;"));
+    question.atex += ': ';
     for (var j = 0; j < this.terms; j++) {
-	adiv.append(tomml(op.op(p,d)));
+	question.adiv.append(tomml(op.op(p,d)));
 	p = op.op(p,d);
-	atex += totex(p);
+	question.atex += totex(p);
 	
 	if (j == this.terms - 1) sep = ".";
-	adiv.append($('<span>').addClass("separator").html(sep));
-	adiv.append($('<span>').addClass("linebreak").html("&nbsp;"));
-	atex += sep + ' ';
+	question.adiv.append($('<span>').addClass("separator").html(sep));
+	question.adiv.append($('<span>').addClass("linebreak").html("&nbsp;"));
+	question.atex += sep + ' ';
     }
     
-    this.qn++;
-    return new Question(qdiv, adiv, qtex, atex, this);
+    return this;
 }
 

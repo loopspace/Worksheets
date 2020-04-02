@@ -33,10 +33,15 @@ class QuestionGenerator {
 	this.storage = storage;
 	this.group = group;
 	this.alias = alias;
-	for (const k in qnsReset) {
-	    this.qnsReset[k] = true;
+	
+	for (const k of qnsReset) {
+	    this.registerQn(k);
 	}
 	generators[alias] = this;;
+	
+	this.addOption("seed", "Random seed", "s", "string", "");
+	this.addOption("size", "Number of questions", "z", "integer", 10);
+	
 	return this;
     }
 
@@ -134,21 +139,56 @@ class QuestionGenerator {
     }
     
     
-    reset() {
+    resetAll() {
 	this.qn = 0;
+	this.resetSaved();
+	return this;
+    }
+
+    resetSaved() {
 	for (const k of Object.keys(this.qnsReset)) {
-	    this.qns[k] = true;
+	    this.registerQn(k);
 	}
 	return this;
     }
 
-    makeQuestion() {
-	var qdiv, adiv, qtex, atex;
-	qtex = '';
-	qdiv = $('<div>').addClass('question');
-	atex = '';
-	adiv = $('<div>').addClass('question');
-	return Question(qdiv, adiv, qtex, atex, this);
+    checkQn(a) {
+	var s;
+	if (typeof(a) == 'string') {
+	    s = "q:" + a;
+	} else if (typeof(a) == 'number') {
+	    s = "q:" + a.toString();
+	} else {
+	    s = "q:" + a.join(':');
+	}
+	if (s in this.qns) {
+	    return true;
+	} else {
+	    return false;
+	}
+    }
+
+    registerQn(a) {
+	var s;
+	if (typeof(a) == 'string') {
+	    s = "q:" + a;
+	} else if (typeof(a) == 'number') {
+	    s = "q:" + a.toString();
+	} else {
+	    s = "q:" + a.join(':');
+	}
+	this.qns[s] = true;
+    }
+
+    makeQuestion(force) {
+	if (this.qn >= this.size && !force) return false;
+
+	// Initialise containers (can be overwritten)
+	var qn = new Question(this);
+	this.createQuestion(qn);
+	this.qn++;
+	
+	return qn;
     }
 
     renderHeader() {
@@ -207,11 +247,12 @@ class Question {
     generator;
     location;
     
-    constructor(qdiv, adiv, qtex, atex, generator) {
-	this.qdiv = qdiv;
-	this.adiv = adiv;
-	this.qtex = qtex;
-	this.atex = atex;
+    constructor(generator) {
+	this.qdiv = $('<div>').addClass('question');
+	this.adiv = $('<div>').addClass('answer');
+	this.qtex = '';
+	this.atex = '';
+	
 	this.generator = generator;
 	return this;
     }

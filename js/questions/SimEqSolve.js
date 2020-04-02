@@ -1,243 +1,164 @@
-function SimEqSolve () {
-    var self = this;
-    this.title = "Simultaneous Equations";
-    this.storage = "SimEqSolve";
-    this.qn = 0;
-    this.eqns = {"0:0:0:0:0:0": true};
 
-    var seedgen = new Math.seedrandom();
+// Simultaneous equations
 
-    this.options = [
-	{
-	    name: "seed",
-	    text: "Random seed",
-	    shortcut: "s",
-	    type: "string",
-	    default: ''
-	},
-	{
-	    name: "size",
-	    text: "Number of questions",
-	    shortcut: "z",
-	    type: "integer",
-	    default: 10
-	},
-	{
-	    name: "a",
-	    text: "Range for <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>a</mi></math> in <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>a</mi><mi>x</mi><mo>+</mo><mi>b</mi><mi>y</mi><mo>=</mo><mi>c</mi></math>",
-	    shortcut: "a",
-	    type: "string",
-	    default: "-5:5"
-	},
-	{
-	    name: "b",
-	    text: "Range for <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>b</mi></math> in <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>a</mi><mi>x</mi><mo>+</mo><mi>b</mi><mi>y</mi><mo>=</mo><mi>c</mi></math>",
-	    shortcut: "b",
-	    type: "string",
-	    default: "-5:5"
-	},
-	{
-	    name: "x",
-	    text: "Range for <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>x</mi></math> and <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>y</mi></math> in <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>a</mi><mi>x</mi><mo>+</mo><mi>b</mi><mi>y</mi><mo>=</mo><mi>c</mi></math>",
-	    shortcut: "x",
-	    type: "string",
-	    default: "-5:5"
-	},
-	{
-	    name: "v",
-	    text: "Range for letters used for variables",
-	    shortcut: "v",
-	    type: "string",
-	    default: "x"
-	},
-	{
-	    name: "repeat",
-	    text: "Repeat Questions",
-	    shortcut: "r",
-	    type: "boolean",
-	    default: false
+SimEqSolve = new QuestionGenerator (
+    "Equations",
+    "Simultaneous Equations",
+    "eq2",
+    "SimEqSolve",
+    ["0:0:0:0:0:0"]
+);
+
+SimEqSolve.explanation = function() {
+    return 'Solve each pair of equations';
+}
+SimEqSolve.shortexp = function() {
+    return 'Solve ';
+}
+
+SimEqSolve.addOption("a","Range for <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>a</mi></math> in <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>a</mi><mi>x</mi><mo>+</mo><mi>b</mi><mi>y</mi><mo>=</mo><mi>c</mi></math>","a","string","-5:5");
+SimEqSolve.addOption("b","Range for <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>b</mi></math> in <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>a</mi><mi>x</mi><mo>+</mo><mi>b</mi><mi>y</mi><mo>=</mo><mi>c</mi></math>","b","string","-5:5");
+SimEqSolve.addOption("x","Range for <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>x</mi></math> and <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>y</mi></math> in <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>a</mi><mi>x</mi><mo>+</mo><mi>b</mi><mi>y</mi><mo>=</mo><mi>c</mi></math>","x","string","-5:5");
+SimEqSolve.addOption("v","Range for letters used for variables","v","string","x");
+
+SimEqSolve.createQuestion = function(question) {
+    var a = 0, b = 0, c = 0, d = 0, x = 0, y = 0, u = "", v = "";
+    var e, f;
+    var p,sep,qtexa,atexa,coeffn,numbfn;
+    var nqn = 0;
+
+    do {
+	a = randomFromRange(this.a,this.prng());
+	b = randomFromRange(this.b,this.prng());
+	c = randomFromRange(this.a,this.prng());
+	d = randomFromRange(this.b,this.prng());
+	x = randomFromRange(this.x,this.prng());
+	y = randomFromRange(this.x,this.prng());
+	nqn++;
+	if (nqn > 10) {
+	    this.resetSaved();
+	    nqn = 0;
 	}
-    ];
+    } while ( a*b*c*d == 0 || a*d - b*c == 0 || this.checkQn([ a, b, c, d, x, y ]))
+    
+    this.registerQn([ a, b, c, d, x, y ])
 
-    var optdict = {};
-    for (var i = 0; i < this.options.length; i++) {
-	optdict[this.options[i].name] = i;
+    u = randomLetterFromRange(this.v, this.prng());
+    v = u;
+
+    while (v == u) {
+	v = randomLetterFromRange(this.v, this.prng());
     }
+    e = a * x + b * y;
+    f = c * x + d * y;
+    
+    question.qdiv = $('<div>').addClass('question');
+    question.adiv = $('<div>').addClass('answer');
+    qtexa = ['\\begin{align*}'];
+    atexa = [];
 
-    this.setOptions = function() {
-	for (var i = 0; i < this.options.length; i++) {
-	    if (this.options[i].type == "integer") {
-		this.options[i].value = makeInt(this.options[i].element.val(),this.options[i].default);
-	    } else if (this.options[i].type == "boolean") {
-		this.options[i].value = this.options[i].element.is(':checked');
-	    } else {
-		if (this.options[i].element.val() == '') {
-		    this.options[i].value = this.options[i].default;
-		} else {
-		    this.options[i].value = this.options[i].element.val();
-		}
-	    }
-	    this[this.options[i].name] = this.options[i].value;
-	    localStorage.setItem(this.storage + ':' + this.options[i].shortcut, this.options[i].value);
-	}
-	if (this.seed == '') {
-	    this.seed = Math.abs(seedgen.int32()).toString();
-	    this.options[optdict.seed].value = this.seed;
-	    localStorage.removeItem(this.storage + ':' + this.options[optdict.seed].shortcut);
-	}
-	this.prng = new Math.seedrandom(this.seed);
-	this.explanation = 'Solve each pair of equations';
-	this.shortexp = 'Solve ';
-    }
+    var qmml = mmlelt('math').attr('display','inline');
+    var mtable = mmlelt('mtable').attr('displaystyle','true')
+	.attr('columnalign','right left right left right left')
+	.attr('columnspacing','verythinmathspace')
+    qmml.append(mtable);
 
-    this.reset = function() {
-	this.qn = 0;
-	this.eqns = {"0:0:0:0:0:0": true};
-    }
+    var mtd, mrow;
 
-     this.makeQuestion = function(force) {
-	if (this.qn >= this.size && !force) return false;
+    mrow = mmlelt('mtr');
+    mtable.append(mrow);
+    mtd = mmlelt('mtd');
+    mrow.append(mtd);
 
-	 var a = 0, b = 0, c = 0, d = 0, x = 0, y = 0, u = "", v = "";
-	 var e, f;
-	 var qdiv,adiv,p,sep,qtex,atex,coeffn,numbfn;
-	 var nqn = 0;
+    addCoefficient(a, qtexa, mtd);
+    mtd.append(tommlelt(u));
+    qtexa.push(u);
+    
+    mtd = mmlelt('mtd');
+    mrow.append(mtd);
+    qtexa.push('&');
+    addSignofCoefficient(b, qtexa, mtd);
 
-	 while ( a*b*c*d == 0 || a*d - b*c == 0 || this.eqns[ a + ":" + b + ":" + c + ":" + d + ":" + x + ":" + y ]) {
-	     a = randomFromRange(this.a,this.prng());
-	     b = randomFromRange(this.b,this.prng());
-	     c = randomFromRange(this.a,this.prng());
-	     d = randomFromRange(this.b,this.prng());
-	     x = randomFromRange(this.x,this.prng());
-	     y = randomFromRange(this.x,this.prng());
-	     nqn++;
-	     if (nqn > 10) {
-		 this.eqns = {"0:0:0:0:0:0": true};
-		 nqn = 0;
-	     }
-	}
-	this.eqns[ a + ":" + b + ":" + c + ":" + d + ":" + x + ":" + y ] = true;
+    mtd = mmlelt('mtd');
+    mrow.append(mtd);
+    qtexa.push('&');
+    addUnsignedCoefficient(b, qtexa, mtd);
+    mtd.append(tommlelt(v));
+    qtexa.push(v);
+    
+    mtd = mmlelt('mtd');
+    mrow.append(mtd);
+    mtd.append(tommlelt('='));
+    mtd.append(tommlelt(e));
+    qtexa.push('&=');
+    qtexa.push(texnum(e));
+    qtexa.push('\\\\');
 
-	 u = randomLetterFromRange(this.v, this.prng());
-	 v = u;
+    mrow = mmlelt('mtr');
+    mtable.append(mrow);
+    mtd = mmlelt('mtd');
+    mrow.append(mtd);
 
-	 while (v == u) {
-	     v = randomLetterFromRange(this.v, this.prng());
-	 }
-	 e = a * x + b * y;
-	 f = c * x + d * y;
-	
-	 qdiv = $('<div>').addClass('question');
-	 adiv = $('<div>').addClass('answer');
-	 qtex = ['\\begin{align*}'];
-	 atex = [];
+    addCoefficient(c, qtexa, mtd);
+    mtd.append(tommlelt(u));
+    qtexa.push(u);
+    
+    mtd = mmlelt('mtd');
+    mrow.append(mtd);
+    qtexa.push('&');
+    addSignofCoefficient(d, qtexa, mtd);
 
-	 var qmml = mmlelt('math').attr('display','inline');
-	 var mtable = mmlelt('mtable').attr('displaystyle','true')
-		 .attr('columnalign','right left right left right left')
-		 .attr('columnspacing','verythinmathspace')
-	 qmml.append(mtable);
+    mtd = mmlelt('mtd');
+    mrow.append(mtd);
+    qtexa.push('&');
+    addUnsignedCoefficient(d, qtexa, mtd);
+    mtd.append(tommlelt(v));
+    qtexa.push(v);
+    
+    mtd = mmlelt('mtd');
+    mrow.append(mtd);
+    mtd.append(tommlelt('='));
+    mtd.append(tommlelt(f));
+    qtexa.push('&=');
+    qtexa.push(texnum(f));
+    
+    question.qdiv.append(qmml);
+    qtexa.push('\\end{align*}');
+    
+    var amml = mmlelt('math').attr('display','inline');
+    atexa.push('\\(');
 
-	 var mtd, mrow;
+    amml.append(tommlelt(u));
+    atexa.push(u);
+    
+    amml.append(tommlelt('='));
+    atexa.push('=');
+    
+    amml.append(tommlelt(x));
+    atexa.push(x);
+    
+    question.adiv.append(amml);
+    question.adiv.append($('<span>').addClass("separator").html(','));
+    atexa.push('\\), ');
 
-	 mrow = mmlelt('mtr');
-	 mtable.append(mrow);
-	 mtd = mmlelt('mtd');
-	 mrow.append(mtd);
+    amml = mmlelt('math').attr('display','inline');
+    atexa.push('\\(');
 
-	 addCoefficient(a, qtex, mtd);
-	 mtd.append(tommlelt(u));
-	 qtex.push(u);
-	 
-	 mtd = mmlelt('mtd');
-	 mrow.append(mtd);
-	 qtex.push('&');
-	 addSignofCoefficient(b, qtex, mtd);
-
-	 mtd = mmlelt('mtd');
-	 mrow.append(mtd);
-	 qtex.push('&');
-	 addUnsignedCoefficient(b, qtex, mtd);
-	 mtd.append(tommlelt(v));
-	 qtex.push(v);
-	 
-	 mtd = mmlelt('mtd');
-	 mrow.append(mtd);
-	 mtd.append(tommlelt('='));
-	 mtd.append(tommlelt(e));
-	 qtex.push('&=');
-	 qtex.push(texnum(e));
-	 qtex.push('\\\\');
-
-	 mrow = mmlelt('mtr');
-	 mtable.append(mrow);
-	 mtd = mmlelt('mtd');
-	 mrow.append(mtd);
-
-	 addCoefficient(c, qtex, mtd);
-	 mtd.append(tommlelt(u));
-	 qtex.push(u);
-	 
-	 mtd = mmlelt('mtd');
-	 mrow.append(mtd);
-	 qtex.push('&');
-	 addSignofCoefficient(d, qtex, mtd);
-
-	 mtd = mmlelt('mtd');
-	 mrow.append(mtd);
-	 qtex.push('&');
-	 addUnsignedCoefficient(d, qtex, mtd);
-	 mtd.append(tommlelt(v));
-	 qtex.push(v);
-	 
-	 mtd = mmlelt('mtd');
-	 mrow.append(mtd);
-	 mtd.append(tommlelt('='));
-	 mtd.append(tommlelt(f));
-	 qtex.push('&=');
-	 qtex.push(texnum(f));
-	 
-	 qdiv.append(qmml);
-	 qtex.push('\\end{align*}');
-	 
-	 var amml = mmlelt('math').attr('display','inline');
-	 atex.push('\\(');
-
-	 amml.append(tommlelt(u));
-	 atex.push(u);
-	 
-	 amml.append(tommlelt('='));
-	 atex.push('=');
-	 
-	 amml.append(tommlelt(x));
-	 atex.push(x);
-	 
-	 adiv.append(amml);
-	 adiv.append($('<span>').addClass("separator").html(','));
-	 atex.push('\\), ');
-
-	 amml = mmlelt('math').attr('display','inline');
-	 atex.push('\\(');
-
-	 amml.append(tommlelt(v));
-	 atex.push(v);
-	 
-	 amml.append(tommlelt('='));
-	 atex.push('=');
-	 
-	 amml.append(tommlelt(y));
-	 atex.push(y);
-	 
-	 adiv.append(amml);
-	 atex.push('\\)');
-	
-	this.qn++;
-	 return [qdiv, adiv, qtex.join(''), atex.join('')];
-    }
-   
+    amml.append(tommlelt(v));
+    atexa.push(v);
+    
+    amml.append(tommlelt('='));
+    atexa.push('=');
+    
+    amml.append(tommlelt(y));
+    atexa.push(y);
+    
+    question.adiv.append(amml);
+    atexa.push('\\)');
+    
+    question.qtex = qtexa.join('');
+    question.atex = atexa.join('');
     
     return this;
 }
-
-// Straight line graphs
 

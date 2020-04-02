@@ -1,167 +1,84 @@
-function SeqArithSeq() {
-    var self = this;
-    this.title = "Sequence";
-    this.storage = "SeqArithSeq";
-    this.qn = 0;
-    this.seqs = {"0:0": true};
-    this.explanation = 'For each sequence, write down the first term (' + tomml('a')[0].outerHTML +  ') and the common difference (' + tomml('d')[0].outerHTML + ').';
-    this.shortexp = 'Write down the first term (' + tomml('a')[0].outerHTML +  ') and the common difference (' + tomml('d')[0].outerHTML + ') of ';
+/*
+Question Type: Sequences
 
-    var seedgen = new Math.seedrandom();
+Question Type: Sequences First Term and Common Difference
 
-    this.options = [
-	{
-	    name: "seed",
-	    text: "Random seed",
-	    shortcut: "s",
-	    type: "string",
-	    default: ''
-	},
-	{
-	    name: "size",
-	    text: "Number of questions",
-	    shortcut: "z",
-	    type: "integer",
-	    default: 10
-	},
-	{
-	    name: "terms",
-	    text: "Number of given terms",
-	    shortcut: "t",
-	    type: "integer",
-	    default: 4
-	},
-	{
-	    name: "a",
-	    text: "Range for first term",
-	    shortcut: "a",
-	    type: "string",
-	    default: "1:10"
-	},
-	{
-	    name: "d",
-	    text: "Range for common difference",
-	    shortcut: "d",
-	    type: "string",
-	    default: "1:10"
-	},
-	{
-	    name: "repeat",
-	    text: "Repeat Questions",
-	    shortcut: "r",
-	    type: "boolean",
-	    default: false
-	}
-    ];
+Given linear sequence, write down first term and common difference.
+*/
 
-    var optdict = {};
-    for (var i = 0; i < this.options.length; i++) {
-	optdict[this.options[i].name] = i;
-    }
+SeqArithSeq = new QuestionGenerator(
+    "Sequences",
+    "Sequence",
+    "seq3",
+    "SeqArithSeq",
+    ["0:0"]
+);
 
-    this.setOptions = function() {
-	for (var i = 0; i < this.options.length; i++) {
-	    if (this.options[i].type == "integer") {
-		this.options[i].value = makeInt(this.options[i].element.val(),this.options[i].default);
-	    } else if (this.options[i].type == "boolean") {
-		this.options[i].value = this.options[i].element.is(':checked');
-	    } else {
-		if (this.options[i].element.val() == '') {
-		    this.options[i].value = this.options[i].default;
-		} else {
-		    this.options[i].value = this.options[i].element.val();
-		}
-	    }
-	    this[this.options[i].name] = this.options[i].value;
-	    localStorage.setItem(this.storage + ':' + this.options[i].shortcut, this.options[i].value);
-	}
-	if (this.seed == '') {
-	    this.seed = Math.abs(seedgen.int32()).toString();
-	    this.options[optdict.seed].value = this.seed;
-	    localStorage.removeItem(this.storage + ':' + this.options[optdict.seed].shortcut);
-	}
-	this.prng = new Math.seedrandom(this.seed);
-	
-    }
+SeqArithSeq.explanation = function() {
+    return 'For each sequence, write down the first term (' + tomml('a')[0].outerHTML +  ') and the common difference (' + tomml('d')[0].outerHTML + ').';
+}
 
-    this.reset = function() {
-	this.qn = 0;
-	this.seqs = {"0:0": true};
-    }
+SeqArithSeq.shortexp = function() {
+    return 'Write down the first term (' + tomml('a')[0].outerHTML +  ') and the common difference (' + tomml('d')[0].outerHTML + ') of ';
+}
+
+SeqArithSeq.addOption("terms","Number of given terms","t","integer",4);
+SeqArithSeq.addOption("a","Range for first term","a","string","1:10");
+SeqArithSeq.addOption("d","Range for common difference","d","string","1:10");
     
-    this.makeQuestion = function(force) {
-	if (this.qn >= this.size && !force) return false;
-
-	var a = 0,d = 0;
-	var qdiv,adiv,p,sep,qtex,atex;
-	var nqn = 0;
-
-	while (this.seqs[ a + ":" + d]) {
-	    a = randomFromRange(this.a,this.prng());
-	    d = randomFromRange(this.d,this.prng());
-	    nqn++;
-	    if (nqn > 10) {
-		this.seqs = {"0:0": true};
-		nqn = 0;
-	    }
+SeqArithSeq.createQuestion = function(question) {
+    var a,d;
+    var p,sep;
+    var nqn = 0;
+    do {
+	a = randomFromRange(this.a,this.prng());
+	d = randomFromRange(this.d,this.prng());
+	nqn++;
+	if (nqn > 10) {
+	    this.resetSaved();
+	    nqn = 0;
 	}
-	this.seqs[ a + ":" + d] = true;
-	
-	qdiv = $('<div>').addClass('question');
-	adiv = $('<div>').addClass('answer');
-	qtex = '';
-	atex = '';
+    } while (this.checkQn([ a, d]))
 
-	adiv.append(
-	    $('<span>').append(
-		mmlelt('math').attr('display','inline').append(
-		    tommlelt('a')
-		).append(
-		    tommlelt('=')
-		).append(
-		    tommlelt(a)
-		)
-	    ).append(", ")
-	);
+    this.registerQn([ a, d]);
 
-	adiv.append(
-	    $('<span>').append(
-		mmlelt('math').attr('display','inline').append(
-		    tommlelt('d')
-		).append(
-		    tommlelt('=')
-		).append(
-		    tommlelt(d)
-		)
-	    ).append(". ")
-	);
-	atex = texwrap('a = ' + texnum(a)) + ', ' + texwrap('d = ' + texnum(d)) + '.';
+    question.adiv.append(
+	$('<span>').append(
+	    mmlelt('math').attr('display','inline').append(
+		tommlelt('a')
+	    ).append(
+		tommlelt('=')
+	    ).append(
+		tommlelt(a)
+	    )
+	).append(", ")
+    );
 
-	p = a;
-	qtex = '';
-	for (var j = 0; j < this.terms; j++) {
-	    qdiv.append(tomml(p));
-	    qtex += totex(p) + ", ";
-	    p = math.add(p,d);
-	    qdiv.append($('<span>').addClass("separator").html(", "));
-	    qdiv.append($('<span>').addClass("linebreak").html(""));
-	}
-	qtex += totex('\\dotsc');
-	qdiv.append($('<span>').addClass("dots").html("..."));
+    question.adiv.append(
+	$('<span>').append(
+	    mmlelt('math').attr('display','inline').append(
+		tommlelt('d')
+	    ).append(
+		tommlelt('=')
+	    ).append(
+		tommlelt(d)
+	    )
+	).append(". ")
+    );
+    question.atex = texwrap('a = ' + texnum(a)) + ', ' + texwrap('d = ' + texnum(d)) + '.';
 
-	this.qn++;
-	return [qdiv, adiv, qtex, atex];
+    p = a;
+    question.qtex = '';
+    for (var j = 0; j < this.terms; j++) {
+	question.qdiv.append(tomml(p));
+	question.qtex += totex(p) + ", ";
+	p = math.add(p,d);
+	question.qdiv.append($('<span>').addClass("separator").html(", "));
+	question.qdiv.append($('<span>').addClass("linebreak").html(""));
     }
-    
+    question.qtex += totex('\\dotsc');
+    question.qdiv.append($('<span>').addClass("dots").html("..."));
 
     return this;
 }
-
-/*
-Question Type: Sequences unknown term from known terms
-*/
-
-/*
-Given two terms of a linear sequence, find another term
-*/
 
