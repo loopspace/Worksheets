@@ -68,6 +68,11 @@ function init() {
 	e.preventDefault();
 	cleanDisplay();
     });
+
+    worksheet = new Worksheet(
+	$('#wkexlist'),$('#wksollist'),$('#wkextex'),$('#wksoltex')
+    );
+    
     $('#wkcpyqns').click(function() {
 	copyToClipboard($('#wkextex')[0]);
     });
@@ -76,25 +81,6 @@ function init() {
 	copyToClipboard($('#wksoltex')[0]);
     });
 
-// From https://stackoverflow.com/questions/20668560/using-jquery-ui-sortable-to-sort-2-list-at-once
-    var pre;
-    var lists = ['wksollist', 'wkextex', 'wksoltex'];
-    $('#wkexlist').sortable({
-	start:function(event, ui){
-            pre = ui.item.index();
-	},
-	stop: function(event, ui) {
-            post = ui.item.index();
-	    for (var i = 0; i < 3; i++ ){
-            //Use insertBefore if moving UP, or insertAfter if moving DOWN
-		if (post > pre) {
-		    $('#'+ lists[i] + ' li:eq(' +pre+ ')').insertAfter('#'+ lists[i] + ' li:eq(' +post+ ')');
-		}else{
-		    $('#'+ lists[i] + ' li:eq(' +pre+ ')').insertBefore('#'+ lists[i] + ' li:eq(' +post+ ')');
-		}
-	    }
-	}
-    });
 }
 
 function setOptions (formdiv,workdiv,ansdiv,obj,params) {
@@ -154,6 +140,32 @@ function generateQuestions(obj,workdiv,ansdiv) {
     ansdiv.append(hdr[1]);
     ansdiv.append($('<div>').addClass('columns').addClass('answers').append(sollist));
     ansdiv.append(hdr[3]);
+
+    // make them sortable
+    var lists = ['sollist', 'extex', 'soltex'];
+    var elts = ['li', 'div', 'div'];
+    var pre;
+    exlist.sortable({
+	start:function(event, ui){
+            pre = ui.item.index();
+	},
+	stop: function(event, ui) {
+            var post = ui.item.index();
+	    for (var i = 0; i < 3; i++ ){
+            //Use insertBefore if moving UP, or insertAfter if moving DOWN
+		if (post > pre) {
+		    $('#'+ lists[i] + ' ' + elts[i] + ':eq(' +pre+ ')').insertAfter('#'+ lists[i] + ' ' + elts[i] + ':eq(' +post+ ')');
+		}else{
+		    $('#'+ lists[i] + ' ' + elts[i] + ':eq(' +pre+ ')').insertBefore('#'+ lists[i] + ' ' + elts[i] + ':eq(' +post+ ')');
+		}
+	    }
+	}
+    });
+
+}
+
+function addToWorksheet(qn) {
+    worksheet.addQuestion(qn);
 }
 
 function addQuestionToWorksheet(e,obj) {

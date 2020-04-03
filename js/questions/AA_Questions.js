@@ -217,7 +217,7 @@ class QuestionGenerator {
     generateQuestions(exlist, sollist, extex, soltex) {
 	var qn = this.makeQuestion(false);
 	do {
-	    qn.addToLists(exlist, sollist, extex, soltex);
+	    qn.addToLists(exlist, sollist, extex, soltex, false);
 	    qn = this.makeQuestion(false);
 	} while (qn);
     }
@@ -257,34 +257,60 @@ class Question {
 	return this;
     }
 
-    createDivs() {
+    clone() {
+	var q = new Question(this.generator);
+	q.qdiv = this.qdiv.clone(true,true);
+	q.adiv = this.adiv.clone(true,true);
+	q.qtex = this.qtex;
+	q.atex = this.atex;
+	return q;
+    }
+
+    createDivs(wks) {
 	var qd, ad, qt, at;
 	var reload = $('<div>').text('⟳').addClass('reload');
 	var self = this;
 	var reloadfn = function(e) {
-	    MathJaxOrNot(function() {self.replace();})
+	    MathJaxOrNot(function() {self.replace(wks);})
 	};
 	reload.click(reloadfn);
 
-	var addtowks = $('<div>').text('+').addClass('reload');
-	var addtowksfn;
-	addtowksfn = function(e) {
-	    MathJaxOrNot(function() {this.addToWorksheet();});
-	};
-	addtowks.click(addtowksfn);
+	var action;
+	var self = this;
+
+	if (wks) {
+	    action = $('<div>').text('-').addClass('reload');
+	    var actionfn = function(e) {
+		MathJaxOrNot(function() {self.remove();});
+	    };
+	} else {
+	    action = $('<div>').text('+').addClass('reload');
+	    var actionfn = function(e) {
+		MathJaxOrNot(function() {
+		    $(qd).addClass('fadeOutIn').one("animationend webkitAnimationEnd oAnimationEnd MSAnimationEnd", function(){ $(qd).removeClass('fadeOutIn') });
+
+		    addToWorksheet(self);
+		});
+	    };
+	}
+	action.click(actionfn);
 	
 	qd = this.qdiv.clone(true, true)
 	    .append(reload.clone(true,true))
-	    .append(addtowks.clone(true,true));
+	    .append(action.clone(true,true));
 	ad = this.adiv.clone(true,true);
-	qt = $('<div>').text('\n\\item ' + this.qtex);
+	if (wks) {
+	    qt = $('<div>').text('\n\\item ' + this.generator.shortexp() + this.qtex);
+	} else {
+	    qt = $('<div>').text('\n\\item ' + this.qtex);
+	}
 	at = $('<div>').text('\n\\item ' + this.atex);
 	this.location = [qd,ad,qt,at];
 	return [qd,ad,qt,at];
     }
     
-    addToLists(exlist, sollist, extex, soltex) {
-	var divs = this.createDivs();
+    addToLists(exlist, sollist, extex, soltex, wks) {
+	var divs = this.createDivs(wks);
 	
 	var shextxt = $('<span>').addClass('shortexplanation');
 	shextxt.html(this.generator.shortexp());
@@ -301,13 +327,20 @@ class Question {
 	return this;
     }
 
-    replace() {
+    replace(wks) {
 	var q = this.generator.makeQuestion(true);
-	var ndivs = q.createDivs();
+	var ndivs = q.createDivs(wks);
 	for (var j = 0; j < 4; j++) {
 	    this.location[j].replaceWith(ndivs[j]);
 	}
 	return q;
+    }
+
+    remove() {
+	for (var j = 0; j < 4; j++) {
+	    this.location[j].remove();
+	}
+	return this;
     }
 }
 
@@ -322,28 +355,43 @@ class Worksheet {
     anselt;
     questions = [];
     
-    constructor(qnselt,anselt) {
-	this.qnselt = qnselt;
-	this.anselt = anselt;
+    constructor(qdiv,adiv,qtex,atex) {
+	this.qdiv = qdiv;
+	this.adiv = adiv;
+	this.qtex = qtex;
+	this.atex = atex;
+	// From https://stackoverflow.com/questions/20668560/using-jquery-ui-sortable-to-sort-2-list-at-once
+	// make them sortable
+	var lists = [adiv, qtex, atex];
+	var elts = ['li', 'div', 'div'];
+	var pre;
+	qdiv.sortable({
+	    start:function(event, ui){
+		pre = ui.item.index();
+	    },
+	    stop: function(event, ui) {
+		var post = ui.item.index();
+		for (var i = 0; i < 3; i++ ){
+		    //Use insertBefore if moving UP, or insertAfter if moving DOWN
+		    var preelt = lists[i].children(elts[i] + ':eq(' + pre + ')')[0];
+		    var postelt = lists[i].children(elts[i] + ':eq(' + post + ')')[0];
+		    if (post > pre) {
+			$(preelt).insertAfter(postelt);
+		    } else {
+			$(preelt).insertBefore(postelt);
+		    }
+		}
+	    }
+	});
+	
 	return this;
     }
 
     addQuestion(qn) {
-	questions.push(qn);
+	var q = qn.clone();
+	q.addToLists(this.qdiv, this.adiv, this.qtex, this.atex, true);
 	return this;
     }
 
-    removeQuestion(qn) {
-	var n;
-	for (var i = 0; i < this.questions.length; i++) {
-	    if (this.questions[i] == qn) {
-		n = i;
-	    }
-	}
-	if (n) {
-	    this.questions.splice(n,1);
-	}
-	return this;
-    }
     
 }
