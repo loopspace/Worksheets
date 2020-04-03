@@ -168,67 +168,6 @@ function addToWorksheet(qn) {
     worksheet.addQuestion(qn);
 }
 
-function addQuestionToWorksheet(e,obj) {
-    $(e.target).addClass('fadeOutIn').one("animationend webkitAnimationEnd oAnimationEnd MSAnimationEnd", function(){ $(e.target).removeClass('fadeOutIn') });
-    var item = e.target.parentElement.parentElement;
-    var list = item.parentElement;
-    var shextxt = $('<span>').addClass('shortexplanation');
-    shextxt.html(obj.shortexp);
-
-    var rmfromwks = $('<div>').text('-').addClass('remove');
-    var rmfromwksfn;
-    rmfromksfn = function(e) {
-	MathJaxOrNot(function() {removeQuestionFromWorksheet(e,obj);});
-    };
-    rmfromwks.click(rmfromwksfn);
-    
-    var n;
-    for (var i = 0; i < list.childNodes.length; i++) {
-	if (list.childNodes[i] == item) {
-	    n = i;
-	}
-    }
-    n++;
-    var qn = questions[n];
-    worksheet.push(qn);
-
-    $('#wkexlist').append(
-	    $('<li>').append(
-		shextxt.clone(true,true)
-	    ).append(
-		qn[0].clone().append(rmfromwks.clone(true,true))
-	    )
-    );
-
-    $('#wksollist').append(
-	$('<li>').append(qn[1].clone(true,true))
-    );
-
-    $('#wkextex').append(
-	$('<div>').text('\n\\item ' + qn[2])
-    );
-
-    $('#wksoltex').append(
-	$('<div>').text('\n\\item ' + qn[3])	
-    );
-}
-
-function removeQuestionFromWorksheet(e,obj) {
-    var item = e.target.parentElement.parentElement;
-    var list = item.parentElement;
-    var n;
-    for (var i = 0; i < list.childNodes.length; i++) {
-	if (list.childNodes[i] == item) {
-	    n = i;
-	}
-    }
-    worksheet.splice(n,1);
-    $(item).remove();
-    $('#wksollist').find('li:nth-child(' + n + ')').remove();
-    $('#wkextex').find('div:nth-child(' + n + ')').remove();
-    $('#wksoltex').find('div:nth-child(' + n + ')').remove();
-}
-
 function cleanDisplay() {
     var b;
     if ($('body').hasClass('printable')) {
