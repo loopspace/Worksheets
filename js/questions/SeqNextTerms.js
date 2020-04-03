@@ -19,7 +19,7 @@ SeqNextTerms.explanation = function() {
 }
 
 SeqNextTerms.shortexp = function() {
-    return 'For each sequence, write down the rule and the next ' + (this.terms == 1 ? 'term' :  int_to_words(this.terms) + ' terms') + '.';
+    return 'Write down the rule and the next ' + (this.terms == 1 ? 'term' :  int_to_words(this.terms) + ' terms') + ' for the sequnce ';
 }
 
 SeqNextTerms.addOption("length", "Number of given terms", "n", "integer", 4);
