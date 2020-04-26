@@ -214,10 +214,10 @@ class QuestionGenerator {
 	return [exhdr, solhdr, extxt, soltxt, solurl];
     }
 
-    generateQuestions(exlist, sollist, extex, soltex) {
+    generateQuestions(exlist, sollist, extex, soltex, exmkd, solmkd) {
 	var qn = this.makeQuestion(false);
 	do {
-	    qn.addToLists(exlist, sollist, extex, soltex, false);
+	    qn.addToLists(exlist, sollist, extex, soltex, exmkd, solmkd, false);
 	    qn = this.makeQuestion(false);
 	} while (qn);
     }
@@ -234,6 +234,8 @@ qdiv - a div containing the question
 adiv - a div containing the answer
 qtex - a string containing a LaTeX representation of the question
 atex - a string containing a LaTeX representation of the answer
+qmkd - a string containing a Markdown representation of the question
+amkd - a string containing a Markdown representation of the answer
 
 It also knows where it is on the webpage, so that if it is asked to be
 replaced then it can provide a list of all of its locations.
@@ -244,6 +246,8 @@ class Question {
     adiv;
     qtex;
     atex;
+    qmkd;
+    amkd;
     generator;
     location;
     
@@ -252,6 +256,8 @@ class Question {
 	this.adiv = $('<div>').addClass('answer');
 	this.qtex = '';
 	this.atex = '';
+	this.qmkd = '';
+	this.amkd = '';
 	
 	this.generator = generator;
 	return this;
@@ -263,11 +269,13 @@ class Question {
 	q.adiv = this.adiv.clone(true,true);
 	q.qtex = this.qtex;
 	q.atex = this.atex;
+	q.qmkd = this.qmkd;
+	q.amkd = this.amkd;
 	return q;
     }
 
     createDivs(wks) {
-	var qd, ad, qt, at;
+	var qd, ad, qt, at, qm, am;
 	var reload = $('<div>').text('⟳').addClass('reload');
 	var self = this;
 	var reloadfn = function(e) {
@@ -301,15 +309,18 @@ class Question {
 	ad = this.adiv.clone(true,true);
 	if (wks) {
 	    qt = $('<div>').text('\n\\item ' + this.generator.shortexp() + this.qtex);
+	    qm = $('<div>').text('\n* ' + this.generator.shortexp() + this.qmkd);
 	} else {
 	    qt = $('<div>').text('\n\\item ' + this.qtex);
+	    qm = $('<div>').text('\n* ' + this.qmkd);
 	}
 	at = $('<div>').text('\n\\item ' + this.atex);
-	this.location = [qd,ad,qt,at];
-	return [qd,ad,qt,at];
+	am = $('<div>').text('\n* ' + this.amkd);
+	this.location = [qd,ad,qt,at,qm,am];
+	return [qd,ad,qt,at,qm,am];
     }
     
-    addToLists(exlist, sollist, extex, soltex, wks) {
+    addToLists(exlist, sollist, extex, soltex, exmkd, solmkd, wks) {
 	var divs = this.createDivs(wks);
 	
 	var shextxt = $('<span>').addClass('shortexplanation');
@@ -323,6 +334,8 @@ class Question {
 	);
 	extex.append(divs[2]);
 	soltex.append(divs[3]);
+	exmkd.append(divs[4]);
+	solmkd.append(divs[5]);
 
 	return this;
     }
@@ -330,14 +343,14 @@ class Question {
     replace(wks) {
 	var q = this.generator.makeQuestion(true);
 	var ndivs = q.createDivs(wks);
-	for (var j = 0; j < 4; j++) {
+	for (var j = 0; j < this.location.length; j++) {
 	    this.location[j].replaceWith(ndivs[j]);
 	}
 	return q;
     }
 
     remove() {
-	for (var j = 0; j < 4; j++) {
+	for (var j = 0; j < this.location.length; j++) {
 	    this.location[j].remove();
 	}
 	return this;
