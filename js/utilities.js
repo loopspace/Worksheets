@@ -193,6 +193,21 @@ function addSignedNumber(p,tex,mml) {
     }
 }
 
+function addPower(b,p,tex,mml) {
+    var bmml = tommlelt(b);
+    var pmml = tommlelt(p);
+    tex.push("{" + b + "}^{" + p + "}");
+    var mrow = mmlelt('mrow');
+    var msup = mmlelt('msup');
+    msup.append(bmml);
+    msup.append(pmml);
+    mrow.append(msup);
+    mml.append(mrow);
+    return true;
+}
+
+
+
 function hasSquareRoot(a) {
     if (a.isFraction) {
 	var b = math.sqrt(a.n);
@@ -580,3 +595,16 @@ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects
   }
 })();
 
+
+
+// https://stackoverflow.com/a/40330930/315213
+var nextLetter = letter => {
+    let charCode = letter.charCodeAt(0);
+    let isCapital = letter == letter.toUpperCase();
+
+    if (isCapital == true) {
+        return String.fromCharCode((charCode - 64) % 26 + 65)
+    } else {
+        return String.fromCharCode((charCode - 96) % 26 + 97)
+    }
+}
