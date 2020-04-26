@@ -60,8 +60,12 @@ body.printable {
     display: none;
 }
 
+.Markdown {
+    display: none;
+}
+
 .LaTeXbtn {
-    display: block;
+    display: inline;
 }
 
 .configuration {

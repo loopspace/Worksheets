@@ -111,6 +111,10 @@
  		  <option value="graph0">Drawing Straight Line Graphs</option>
  		  <option value="graph1">Equations of Straight Line Graphs</option>
  		</optgroup>
+		<optgroup label="Calculus">
+		  <option value="calc0">Differentiate an
+		    expression</option>
+		</optgroup>
 	      </select>
 	    </form>
 	  </div>
@@ -137,13 +141,24 @@
 	    </div>
 	    <div id='wkextex' class='LaTeX'></div>
 	    <div id='wksoltex' class='LaTeX'></div>
+	    <div id='wkexmkd' class='Markdown'></div>
+	    <div id='wksolmkd' class='Markdown'></div>
 	    <div class='configuration'>
 	      <form>
-		<button id="wkcpyqns" type="button" class="LaTeXbtn">
-		  Copy questions to clipboard as LaTeX.
+		<span>Copy questions to clipboard as </span>
+		<button id="wkcpyqnstex" type="button" class="LaTeXbtn">
+		  LaTeX
 		</button>
-		<button id="wkcpysol" type="button" class="LaTeXbtn">
-		  Copy answers to clipboard as LaTeX.
+		<button id="wkcpyqnsmkd" type="button" class="LaTeXbtn">
+		  Markdown
+		</button>.
+		<br>
+		<span>Copy answers to clipboard as </span>
+		<button id="wkcpysoltex" type="button" class="LaTeXbtn">
+		  LaTeX
+		</button>
+		<button id="wkcpysolmkd" type="button" class="LaTeXbtn">
+		  Markdown
 		</button>
 	      </form>
 	    </div>

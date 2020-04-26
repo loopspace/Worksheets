@@ -70,15 +70,28 @@ function init() {
     });
 
     worksheet = new Worksheet(
-	$('#wkexlist'),$('#wksollist'),$('#wkextex'),$('#wksoltex')
+	$('#wkexlist'),
+	$('#wksollist'),
+	$('#wkextex'),
+	$('#wksoltex'),
+	$('#wkexmkd'),
+	$('#wksolmkd')
     );
     
-    $('#wkcpyqns').click(function() {
+    $('#wkcpyqnstex').click(function() {
 	copyToClipboard($('#wkextex')[0]);
     });
 
-    $('#wkcpysol').click(function() {
+    $('#wkcpysoltex').click(function() {
 	copyToClipboard($('#wksoltex')[0]);
+    });
+
+    $('#wkcpyqnsmkd').click(function() {
+	copyToClipboard($('#wkexmkd')[0]);
+    });
+
+    $('#wkcpysolmkd').click(function() {
+	copyToClipboard($('#wksolmkd')[0]);
     });
 
 }
@@ -107,28 +120,65 @@ function generateQuestions(obj,workdiv,ansdiv) {
     var soltex = $('<div>').addClass('LaTeX').attr('id','soltex');
     var extex = $('<div>').addClass('LaTeX').attr('id','extex');
 
+    // Create the Markdown segments
+    var solmkd = $('<div>').addClass('Markdown').attr('id','solmkd');
+    var exmkd = $('<div>').addClass('Markdown').attr('id','exmkd');
+
     // Create the copying buttons
     var cpyform = $('<form>');
-    var cpysolbtn = $('<button>').attr('type','button').addClass('LaTeXbtn');
-    var cpyexbtn = $('<button>').attr('type','button').addClass('LaTeXbtn');
+    var cpysolbtn = $('<button>')
+	.attr('type','button')
+	.addClass('LaTeXbtn')
+	.html('LaTeX')
+	.click(function() {
+	    copyToClipboard(soltex[0]);
+	});
+
+    
+    var cpyexbtn = $('<button>')
+	.attr('type','button')
+	.addClass('LaTeXbtn')
+	.html('LaTeX')
+	.click(function() {
+	    copyToClipboard(extex[0]);
+	});
+
+    var cpysolmbtn = $('<button>')
+	.attr('type','button')
+	.addClass('LaTeXbtn')
+	.html('Markdown')
+	.click(function() {
+	    copyToClipboard(solmkd[0]);
+	});
+
+    var cpyexmbtn = $('<button>')
+	.attr('type','button')
+	.addClass('LaTeXbtn')
+	.html('Markdown')
+	.click(function() {
+	    copyToClipboard(exmkd[0]);
+	});
+
+
+    cpyform.append($('<span>').html('Copy questions to clipboard as '));
     cpyform.append(cpyexbtn);
+    cpyform.append(cpyexmbtn);
+    cpyform.append($('<br>'));
+    cpyform.append($('<span>').html('Copy answers to clipboard as '));
     cpyform.append(cpysolbtn);
-    cpysolbtn.html('Copy answers to clipboard as LaTeX');
-    cpysolbtn.click(function() {
-	copyToClipboard(soltex[0]);
-    });
-    cpyexbtn.html('Copy questions to clipboard as LaTeX');
-    cpyexbtn.click(function() {
-	copyToClipboard(extex[0]);
-    });
+    cpyform.append(cpysolmbtn);
+    
 
     // Put the copying &c stuff together
     hdr[3].append(extex);
     hdr[3].append(soltex);
+    hdr[3].append(exmkd);
+    hdr[3].append(solmkd);
     hdr[3].append(cpyform);
     hdr[3].append($('<a>').attr('href',hdr[4]).text(hdr[4]).addClass('srcURL'));
 
-    obj.generateQuestions(exlist, sollist, extex, soltex);
+    obj.resetAll();
+    obj.generateQuestions(exlist, sollist, extex, soltex, exmkd, solmkd);
     
     workdiv.html('');
 
@@ -142,7 +192,7 @@ function generateQuestions(obj,workdiv,ansdiv) {
     ansdiv.append(hdr[3]);
 
     // make them sortable
-    var lists = ['sollist', 'extex', 'soltex'];
+    var lists = ['sollist', 'extex', 'soltex', 'exmkd', 'solmkd'];
     var elts = ['li', 'div', 'div'];
     var pre;
     exlist.sortable({
