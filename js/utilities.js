@@ -103,7 +103,7 @@ function addSignedCoefficient(p,tex,mml) {
 	if (p < 0 ) {
 	    tex.push(' - ');
 	    mml.append(tommlelt('-'));
-	    p = - p;
+	    p = math.unaryMinus(p);
 	} else {
 	    tex.push(' + ');
 	    mml.append(tommlelt('+'));
@@ -136,7 +136,7 @@ function addSignofCoefficient(p,tex,mml) {
 function addUnsignedCoefficient(p,tex,mml) {
     if (p != 0) {
 	if (p < 0 ) {
-	    p = - p;
+	    p = math.unaryMinus(p);
 	}
 	if (p != 1) {
 	    tex.push(texnum(p));
@@ -153,7 +153,7 @@ function addCoefficient(p,tex,mml) {
 	if (p < 0 ) {
 	    tex.push(' - ');
 	    mml.append(tommlelt('-'));
-	    p = - p;
+	    p = math.unaryMinus(p);
 	}
 	if (p != 1) {
 	    tex.push( texnum(p));
@@ -206,7 +206,71 @@ function addPower(b,p,tex,mml) {
     return true;
 }
 
+function addMonomial(q, tex, mml, v, fractions) {
+    var n,d;
+    if (q[1] == 0) {
+	addNumber(q[0], tex, mml);
+    } else {
+	if (fractions && q[1] < 0) {
+	    if (q[0] < 0) {
+		tex.push(' - ');
+		mml.append(tommlelt('-'));
+		n = math.unaryMinus(q[0]);
+	    } else {
+		n = q[0];
+	    }
+	    if (n.isFraction) {
+		d = n.d;
+		n = n.n;
+	    } else {
+		d = 1;
+	    }
+	    var qfrac = mmlelt('mfrac');
+	    var qrow = mmlelt('mrow');
+	    qrow.append(tommlelt(n));
+	    qfrac.append(qrow);
+	    qrow = mmlelt('mrow');
+	    tex.push('\\frac{');
+	    tex.push(n);
+	    tex.push('}{');
+	    addCoefficient(d,tex,qrow);
+	    if (q[1] == -1) {
+		qrow.append(tommlelt(v));
+		tex.push(v);
+	    } else {
+		addPower(v,-q[1],tex,qrow);
+	    }
+	    qfrac.append(qrow);
+	    mml.append(qfrac);
+	    tex.push('}');
+	} else {
+	    addCoefficient(q[0], tex, mml);
+	    if (q[1] == 1) {
+		mml.append(tommlelt(v));
+		tex.push(v);
+	    } else {
+		addPower(v, q[1], tex, mml);
+	    }
+	}
+    }
+    return true;
+}
 
+function addSignedMonomial(q, tex, mml, v, fractions) {
+    if (q[0] > 0) {
+	tex.push(" + ");
+	mml.append(tommlelt("+"));
+    }
+    addMonomial(q, tex, mml, v, fractions);
+}
+
+function addPolynomial(q, tex, mml, v, fractions) {
+    addMonomial(q[0], tex, mml, v, fractions);
+    for (var i = 1; i < q.length; i++) {
+	addSignedMonomial(q[i], tex, mml, v, fractions);
+    }
+    return true;
+}
 
 function hasSquareRoot(a) {
     if (a.isFraction) {
@@ -393,8 +457,10 @@ function randomFromRange(s,p) {
     var sel = s.split(',');
     var len = [];
     var ranges = [];
+    var denominators = [];
     var total = 0;
     var range;
+    var divider;
     var mult;
     var matches;
     var start;
@@ -409,6 +475,13 @@ function randomFromRange(s,p) {
 	    range = sel[i];
 	    mult = 1;
 	}
+	if (range.search('\/') !== -1) {
+	    matches = sel[i].match(/(.*)\/\s*(\d+)/);
+	    range = matches[1];
+	    divider = parseInt(matches[2]);
+	} else {
+	    divider = 1;
+	}
 	if (range.search(':') !== -1) {
 	    matches = range.match(/(-?\d+)\s*:\s*(-?\d+)/);
 	    start = parseInt(matches[1],10);
@@ -418,6 +491,7 @@ function randomFromRange(s,p) {
 	    end = parseInt(range,10);
 	}
 	ranges.push([start,end - start + 1,mult]);
+	denominators.push(divider);
 	total += (end - start + 1)*mult;
 	len.push(total);
     }
@@ -434,7 +508,7 @@ function randomFromRange(s,p) {
     p = p%ranges[chosen][1];
     p += ranges[chosen][0];
 
-    return p;
+    return math.fraction(math.divide(p,denominators[chosen]));
 }
 
 function randomLetterFromRange(s,p) {
