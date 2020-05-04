@@ -22,6 +22,7 @@ DiffExp.shortexp = function() {
 DiffExp.addOption("n","Range for number of terms","n","string","3:5");
 DiffExp.addOption("a","Range for coefficients of terms","a","string","1:9");
 DiffExp.addOption("p","Range for powers in terms","p","string","0:7");
+DiffExp.addOption("f","Use fractions for negative powers","f","boolean",false);
 DiffExp.addOption("v","Range for letters used for variable in expression","v","string","x");
 DiffExp.addOption("u","Range for letters used for name of expression","u","string","y");
 
@@ -121,33 +122,8 @@ DiffExp.createQuestion = function(question) {
     qmml.append(tommlelt(u)).append(tommlelt('='));
     qtexa.push(u);
     qtexa.push('=');
-    
-    if (q[0][1] == 0) {
-	addNumber(q[0][0], qtexa, qmml);
-    } else {
-	addCoefficient(q[0][0], qtexa, qmml);
-	if (q[0][1] == 1) {
-	    qmml.append(tommlelt(v));
-	    qtexa.push(v);
-	} else {
-	    addPower(v, q[0][1], qtexa, qmml);
-	}
-    }
-    
-    for (var i = 1; i < n; i++) {
-	if (q[i][1] == 0) {
-	    addSignedNumber(q[i][0], qtexa, qmml);
-	} else {
-	    addSignedCoefficient(q[i][0], qtexa, qmml);
-	    if (q[i][1] == 1) {
-		qmml.append(tommlelt(v));
-		qtexa.push(v);
-	    } else {
-		addPower(v, q[i][1], qtexa, qmml);
-	    }
-	}
-    }
-    
+
+    addPolynomial(q,qtexa,qmml,v,this.f);
     question.qdiv.append(qmml);
     
     var amml = mmlelt('math').attr('display','inline');
@@ -158,44 +134,17 @@ DiffExp.createQuestion = function(question) {
     var a = [];
     for (var i = 0; i < n; i++) {
 	if (q[i][1] != 0) {
-	    a.push([q[i][1] * q[i][0], q[i][1] - 1]);
+	    a.push([math.multiply(q[i][1], q[i][0]), math.subtract(q[i][1], 1)]);
 	}
     }
 
     if (a.length == 0) {
-	a.push([0,0]);
-    }
-    
-    if (a[0][1] == 0) {
-	if (a.length == 1) {
-	    atexa.push(texnum(a[0][0]));
-	    amml.append(tommlelt(a[0][0]));
-	} else {
-	    addNumber(a[0][0], atexa, amml);
-	}
+	atexa.push(texnum(0));
+	amml.append(tommlelt(0));
     } else {
-	addCoefficient(a[0][0], atexa, amml);
-	if (a[0][1] == 1) {
-	    amml.append(tommlelt(v));
-	    atexa.push(v);
-	} else {
-	    addPower(v, a[0][1], atexa, amml);
-	}
+	addPolynomial(a,atexa,amml,v,this.f);
     }
-    
-    for (var i = 1; i < a.length; i++) {
-	if (a[i][1] == 0) {
-	    addSignedNumber(a[i][0], atexa, amml);
-	} else {
-	    addSignedCoefficient(a[i][0], atexa, amml);
-	    if (a[i][1] == 1) {
-		amml.append(tommlelt(v));
-		atexa.push(v);
-	    } else {
-		addPower(v, a[i][1], atexa, amml);
-	    }
-	}
-    }
+
     
     question.adiv.append(amml);
     
