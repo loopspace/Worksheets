@@ -64,8 +64,10 @@ SeqNextTerms.createQuestion = function(question) {
 
     question.qdiv.append(tomml(a));
     question.qtex += totex(a);
+    question.qmkd += tomkd(a);
     question.qdiv.append($('<span>').addClass("separator").html(", "));
     question.qtex += ', ';
+    question.qmkd += ', ';
     question.qdiv.append($('<span>').addClass("linebreak").html(""));
     p = a;
     
@@ -73,37 +75,46 @@ SeqNextTerms.createQuestion = function(question) {
 	p = op.op(p,d);
 	question.qdiv.append(tomml(p));
 	question.qtex += totex(p);
+	question.qmkd += tomkd(p);
 	question.qdiv.append($('<span>').addClass("separator").html(", "));
 	question.qtex += ', ';
+	question.qmkd += ', ';
 	question.qdiv.append($('<span>').addClass("linebreak").html(""));
     }
     question.qdiv.append($('<span>').addClass("dots").html("..."));
     question.qtex += totex('\\dots');
+    question.qmkd += tomkd('\\dots');
 
     sep = ",";
     if (op.type == "Add ") {
 	if (d > 0) {
 	    question.atex = 'Add ' + totex(d);
+	    question.amkd = 'Add ' + tomkd(d);
 	    question.adiv.append( $('<span>').html("Add " + d + ":").addClass('rule'));
 	} else {
 	    question.atex = 'Subtract ' + totex(-d);
+	    question.amkd = 'Subtract ' + tomkd(-d);
 	    question.adiv.append( $('<span>').html("Subtract " + (-d) + ":").addClass('rule'));
 	}
     } else {
 	question.atex = op.type + totex(d);
+	question.amkd = op.type + tomkd(d);
 	question.adiv.append( $('<span>').html(op.type + d + ":").addClass('rule'));
     }
     question.adiv.append($('<span>').addClass("linebreak").html("&nbsp;"));
     question.atex += ': ';
+    question.amkd += ': ';
     for (var j = 0; j < this.terms; j++) {
 	question.adiv.append(tomml(op.op(p,d)));
 	p = op.op(p,d);
 	question.atex += totex(p);
+	question.amkd += tomkd(p);
 	
 	if (j == this.terms - 1) sep = ".";
 	question.adiv.append($('<span>').addClass("separator").html(sep));
 	question.adiv.append($('<span>').addClass("linebreak").html("&nbsp;"));
 	question.atex += sep + ' ';
+	question.amkd += sep + ' ';
     }
     
     return this;

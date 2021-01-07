@@ -214,10 +214,10 @@ class QuestionGenerator {
 	return [exhdr, solhdr, extxt, soltxt, solurl];
     }
 
-    generateQuestions(exlist, sollist, extex, soltex, exmkd, solmkd) {
+    generateQuestions(exlist, sollist, extex, soltex, bothtex, exmkd, solmkd, bothmkd) {
 	var qn = this.makeQuestion(false);
 	do {
-	    qn.addToLists(exlist, sollist, extex, soltex, exmkd, solmkd, false);
+	    qn.addToLists(exlist, sollist, extex, soltex, bothtex, exmkd, solmkd, bothmkd, false);
 	    qn = this.makeQuestion(false);
 	} while (qn);
     }
@@ -275,7 +275,7 @@ class Question {
     }
 
     createDivs(wks) {
-	var qd, ad, qt, at, qm, am;
+	var qd, ad, qt, at, bt, qm, am, bm;
 	var reload = $('<div>').text('⟳').addClass('reload');
 	var self = this;
 	var reloadfn = function(e) {
@@ -316,11 +316,16 @@ class Question {
 	}
 	at = $('<div>').text('\n\\item ' + this.atex);
 	am = $('<div>').text('\n* ' + this.amkd);
-	this.location = [qd,ad,qt,at,qm,am];
-	return [qd,ad,qt,at,qm,am];
+
+	bt = $('<div>').append(qt.clone(true,true))
+	    .append(at.clone(true,true))
+	bm = $('<div>').append(qm.clone(true,true))
+	    .append(am.clone(true,true))
+	this.location = [qd,ad,qt,at,bt,qm,am,bm];
+	return [qd,ad,qt,at,bt,qm,am,bm];
     }
     
-    addToLists(exlist, sollist, extex, soltex, exmkd, solmkd, wks) {
+    addToLists(exlist, sollist, extex, soltex, bothtex, exmkd, solmkd, bothmkd, wks) {
 	var divs = this.createDivs(wks);
 	
 	var shextxt = $('<span>').addClass('shortexplanation');
@@ -334,8 +339,10 @@ class Question {
 	);
 	extex.append(divs[2]);
 	soltex.append(divs[3]);
-	exmkd.append(divs[4]);
-	solmkd.append(divs[5]);
+	bothtex.append(divs[4]);
+	exmkd.append(divs[5]);
+	solmkd.append(divs[6]);
+	bothmkd.append(divs[7]);
 
 	return this;
     }
@@ -368,14 +375,19 @@ class Worksheet {
     anselt;
     questions = [];
     
-    constructor(qdiv,adiv,qtex,atex) {
+    constructor(qdiv,adiv,qtex,atex,btex,qmkd,amkd,bmkd) {
 	this.qdiv = qdiv;
 	this.adiv = adiv;
 	this.qtex = qtex;
 	this.atex = atex;
+	this.btex = btex;
+	this.qmkd = qmkd;
+	this.amkd = amkd;
+	this.bmkd = bmkd;
+	
 	// From https://stackoverflow.com/questions/20668560/using-jquery-ui-sortable-to-sort-2-list-at-once
 	// make them sortable
-	var lists = [adiv, qtex, atex];
+	var lists = [adiv, qtex, atex, btex, qmkd, amkd, bmkd];
 	var elts = ['li', 'div', 'div'];
 	var pre;
 	qdiv.sortable({
@@ -402,7 +414,7 @@ class Worksheet {
 
     addQuestion(qn) {
 	var q = qn.clone();
-	q.addToLists(this.qdiv, this.adiv, this.qtex, this.atex, true);
+	q.addToLists(this.qdiv, this.adiv, this.qtex, this.atex, this.btex, this.qmkd, this.amkd, this.bmkd, true);
 	return this;
     }
 

@@ -55,7 +55,7 @@ QuadSolveFact.createQuestion = function(question) {
 	    this.resetSaved();
 	    nqn = 0;
 	}
-    } while (math.gcd(a,b,c,d) != 1 || a == 0 || c == 0 || b*d == 0 || this.checkQn([ a, b, c, d]))
+    } while (!math.equal(commonTerms(a,b,c,d),1) || a == 0 || c == 0 || b*d == 0 || this.checkQn([ a, b, c, d]))
     
     this.registerQn([ a, b, c, d]);
     

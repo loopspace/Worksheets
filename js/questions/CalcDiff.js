@@ -23,12 +23,13 @@ DiffExp.addOption("n","Range for number of terms","n","string","3:5");
 DiffExp.addOption("a","Range for coefficients of terms","a","string","1:9");
 DiffExp.addOption("p","Range for powers in terms","p","string","0:7");
 DiffExp.addOption("f","Use fractions for negative powers","f","boolean",false);
+DiffExp.addOption("r","Use roots for fractional powers","r","boolean",false);
 DiffExp.addOption("v","Range for letters used for variable in expression","v","string","x");
 DiffExp.addOption("u","Range for letters used for name of expression","u","string","y");
 
 DiffExp.createQuestion = function(question) {
     var a,p,u,v;
-    var sep,qtexa,atexa,coeffn,numbfn;
+    var qtexa,atexa;
     var nqn = 0;
     var q, qs, ps;
     var n = 0;
@@ -60,9 +61,9 @@ DiffExp.createQuestion = function(question) {
 	    do {
 		p = randomFromRange(this.p,this.prng());
 		nqa++;
-	    } while (nqa <= 10 && ps.indexOf(p) != -1);
+	    } while (nqa <= 10 && ps.indexOf(p.toString()) != -1);
 	    q.push([a,p]);
-	    ps.push(p);
+	    ps.push(p.toString());
 	}
 	nqn++;
 	if (nqn > 10) {
@@ -73,7 +74,7 @@ DiffExp.createQuestion = function(question) {
 	for (var j = 0; j < q.length; j++) {
 	    qs.push(q[j].join(","));
 	}
-    } while ( a == 0 || this.checkQn(qs))
+    } while (this.checkQn(qs))
 
     this.registerQn(qs);
 
@@ -123,7 +124,7 @@ DiffExp.createQuestion = function(question) {
     qtexa.push(u);
     qtexa.push('=');
 
-    addPolynomial(q,qtexa,qmml,v,this.f);
+    addPolynomial(q,qtexa,qmml,v,this.f,this.r);
     question.qdiv.append(qmml);
     
     var amml = mmlelt('math').attr('display','inline');
@@ -142,7 +143,7 @@ DiffExp.createQuestion = function(question) {
 	atexa.push(texnum(0));
 	amml.append(tommlelt(0));
     } else {
-	addPolynomial(a,atexa,amml,v,this.f);
+	addPolynomial(a,atexa,amml,v,this.f,this.r);
     }
 
     

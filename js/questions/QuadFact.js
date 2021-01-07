@@ -55,9 +55,19 @@ QuadFact.createQuestion = function(question) {
 	    this.resetSaved();
 	    nqn = 0;
 	}
-    } while (math.gcd(a,b,c,d) != 1 || a * c == 0 || b**2 + d**2 == 0 || this.checkQn([ a, b, c, d]))
+    } while (!math.equal(commonTerms(a,b,c,d),1) || a * c == 0 || b**2 + d**2 == 0 || this.checkQn([ a, b, c, d]))
 
     this.registerQn([ a, b, c, d]);
+
+    if (math.equal(d,0)) {
+	tmp = a;
+	a = c;
+	c = tmp;
+	
+	tmp = b;
+	b = d;
+	d = tmp;
+    }
     
     qtexa = ['\\('];
     atexa = [];
@@ -65,7 +75,7 @@ QuadFact.createQuestion = function(question) {
     numbfn = addNumber;
 
     var qmml = mmlelt('math').attr('display','inline');
-
+    
     if (coeffn(a * c,qtexa,qmml)) {
 	qmml.append(
 	    mmlelt('msup').append(

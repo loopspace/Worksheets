@@ -4,18 +4,29 @@
     <meta charset="utf-8">
     <title>Make a Worksheet</title>
     <link rel="stylesheet" type="text/css" href="css/style.css">
+
+
+
     <script src="https://code.jquery.com/jquery-3.1.1.min.js"
     integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
 	    crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
     integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
 	    crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/seedrandom/2.4.0/seedrandom.min.js">
-    </script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=MML_HTMLorMML"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/seedrandom/2.4.0/seedrandom.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.0.5/es5/mml-chtml.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/7.0.1/math.min.js"></script>
 
-    <script type="text/javascript" src="js/math.min.js"></script>
+<!--
+      <script src="js/lib/jquery-3.5.1.min.js"></script>
+      <script src="js/lib/jquery-ui-1.12.1/jquery-ui.min.js"></script>
+      <script src="js/lib/seedrandom.min.js"></script>
+      <script src="js/lib/mathjax/mml-chtml.js" id="MathJax-script" async></script>
+      <script type="text/javascript" src="js/lib/math.min.js"></script>
+-->
+
     <script type="text/javascript" src="js/axes.js"></script>
+    <script type="text/javascript" src="js/triangle.js"></script>
     <script type="text/javascript" src="js/utilities.js"></script>
     <script type="text/javascript" src="js/questions.js"></script>
     <script type="text/javascript" src="js/main.js"></script>
@@ -106,6 +117,8 @@
 		  <option value="eq0">Solving one-sided Equations</option>
 		  <option value="eq1">Solving two-sided Equations</option>
 		  <option value="eq2">Solving Simultaneous Equations</option>
+		  <option value="alg0">Multiplying Brackets</option>
+		  <option value="alg1">Rewriting Expressions with Indices</option>
 		</optgroup>
 		<optgroup label="Graphs">
  		  <option value="graph0">Drawing Straight Line Graphs</option>
@@ -114,6 +127,8 @@
 		<optgroup label="Calculus">
 		  <option value="calc0">Differentiate an
 		    expression</option>
+		  <option value="calc1">Differentiate an
+		    expression with brackets</option>
 		</optgroup>
 	      </select>
 	    </form>
@@ -141,8 +156,10 @@
 	    </div>
 	    <div id='wkextex' class='LaTeX'></div>
 	    <div id='wksoltex' class='LaTeX'></div>
+	    <div id='wkbothtex' class='LaTeX'></div>
 	    <div id='wkexmkd' class='Markdown'></div>
 	    <div id='wksolmkd' class='Markdown'></div>
+	    <div id='wkbothmkd' class='Markdown'></div>
 	    <div class='configuration'>
 	      <form>
 		<span>Copy questions to clipboard as </span>
@@ -158,6 +175,14 @@
 		  LaTeX
 		</button>
 		<button id="wkcpysolmkd" type="button" class="LaTeXbtn">
+		  Markdown
+		</button>
+		<br>
+		<span>Copy both to clipboard as </span>
+		<button id="wkcpybothtex" type="button" class="LaTeXbtn">
+		  LaTeX
+		</button>
+		<button id="wkcpybothmkd" type="button" class="LaTeXbtn">
 		  Markdown
 		</button>
 	      </form>

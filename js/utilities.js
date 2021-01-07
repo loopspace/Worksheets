@@ -16,11 +16,9 @@ function cm2px(cm) {
 }
 
 function MathJaxOrNot(f) {
+    f();
     if (typeof MathJax !== 'undefined') {
-        MathJax.Hub.Queue(f);
-        MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
-    } else {
-	f();
+        MathJax.typesetPromise();
     }
 }
 
@@ -81,6 +79,32 @@ function texwrap(s) {
     return '\\(' + s + '\\)';
 }
 
+function tomkd(s) {
+    return mkdwrap(texnum(s));
+}
+
+function mkdwrap(s) {
+    return '[m]' + s + '[/m]';
+}
+
+function textomkda(a) {
+    var qmkda = [];
+    for (var i = 0; i < a.length; i++) {
+	if (a[i] == '\\(') {
+	    qmkda.push('[m]');
+	} else if (a[i] == '\\)') {
+	    qmkda.push('[/m]');
+	} else {
+	    qmkda.push(a[i]);
+	}
+    }
+    return qmkda
+}
+
+function textomkds(s) {
+    return s.replaceAll('\\(', '[m]').replaceAll('\\)', '[/m]');
+}
+
 function texnum(s) {
     var tex = '';
     if (s.isFraction) {
@@ -99,8 +123,8 @@ function texnum(s) {
 }
 
 function addSignedCoefficient(p,tex,mml) {
-    if (p != 0) {
-	if (p < 0 ) {
+    if (!math.equal(p, 0)) {
+	if (math.compare(p, 0) == -1 ) {
 	    tex.push(' - ');
 	    mml.append(tommlelt('-'));
 	    p = math.unaryMinus(p);
@@ -108,7 +132,7 @@ function addSignedCoefficient(p,tex,mml) {
 	    tex.push(' + ');
 	    mml.append(tommlelt('+'));
 	}
-	if (p != 1) {
+	if (!math.equal(p, 1)) {
 	    tex.push(texnum(p));
 	    mml.append(tommlelt(p));
 	}
@@ -119,8 +143,8 @@ function addSignedCoefficient(p,tex,mml) {
 }
 
 function addSignofCoefficient(p,tex,mml) {
-    if (p != 0) {
-	if (p < 0 ) {
+    if (!math.equal(p, 0)) {
+	if (math.compare(p, 0) == -1 ) {
 	    tex.push(' - ');
 	    mml.append(tommlelt('-'));
 	} else {
@@ -134,11 +158,11 @@ function addSignofCoefficient(p,tex,mml) {
 }
 
 function addUnsignedCoefficient(p,tex,mml) {
-    if (p != 0) {
-	if (p < 0 ) {
+    if (!math.equal(p, 0)) {
+	if (math.compare(p, 0) == -1 ) {
 	    p = math.unaryMinus(p);
 	}
-	if (p != 1) {
+	if (!math.equal(p, 1)) {
 	    tex.push(texnum(p));
 	    mml.append(tommlelt(p));
 	}
@@ -149,13 +173,13 @@ function addUnsignedCoefficient(p,tex,mml) {
 }
 
 function addCoefficient(p,tex,mml) {
-    if (p != 0) {
-	if (p < 0 ) {
+    if (!math.equal(p, 0)) {
+	if (math.compare(p, 0) == -1 ) {
 	    tex.push(' - ');
 	    mml.append(tommlelt('-'));
 	    p = math.unaryMinus(p);
 	}
-	if (p != 1) {
+	if (!math.equal(p, 1)) {
 	    tex.push( texnum(p));
 	    mml.append(tommlelt(p));
 	}
@@ -166,7 +190,7 @@ function addCoefficient(p,tex,mml) {
 }
 
 function addNumber(p,tex,mml) {
-    if (p != 0) {
+    if (!math.equal(p, 0)) {
 	tex.push(texnum(p));
 	mml.append(tommlelt(p));
 	return true;
@@ -176,8 +200,8 @@ function addNumber(p,tex,mml) {
 }
 
 function addSignedNumber(p,tex,mml) {
-    if (p != 0) {
-	if (p < 0 ) {
+    if (!math.equal(p, 0)) {
+	if (math.compare(p, 0) == -1 ) {
 	    tex.push(' - ');
 	    mml.append(tommlelt('-'));
 	    p = math.unaryMinus(p);
@@ -193,26 +217,58 @@ function addSignedNumber(p,tex,mml) {
     }
 }
 
-function addPower(b,p,tex,mml) {
-    var bmml = tommlelt(b);
-    var pmml = tommlelt(p);
-    tex.push("{" + b + "}^{" + p + "}");
-    var mrow = mmlelt('mrow');
-    var msup = mmlelt('msup');
-    msup.append(bmml);
-    msup.append(pmml);
-    mrow.append(msup);
-    mml.append(mrow);
+function addPower(b,p,tex,mml,roots) {
+    var d,n;
+    if (roots && p.isFraction && !math.equal(p.d,1)) {
+	d = p.d;
+	n = p.n;
+	tex.push("\\sqrt")
+	if (!math.equal(d,2)) {
+	    tex.push("[" + d + "]");
+	}
+	tex.push("{");
+    } else {
+	n = p;
+    }
+    if (!math.equal(n,1)) {
+	var bmml = tommlelt(b);
+	var pmml = tommlelt(n);
+	tex.push("{" + b + "}^{" + texnum(n) + "}");
+	var mrow = mmlelt('mrow');
+	var msup = mmlelt('msup');
+	msup.append(bmml);
+	msup.append(pmml);
+	mrow.append(msup);
+    } else {
+	var mrow = tommlelt(b);
+	tex.push("{" + b + "}");
+    }
+    if (roots && p.isFraction && !math.equal(p.d,1)) {
+	tex.push("}");
+	var mroot;
+	if (math.equal(d,2)) {
+	    mroot = mmlelt("msqrt");
+	} else {
+	    mroot = mmlelt("mroot");
+	}
+	mroot.append(mrow);
+	if (!math.equal(d,2)) {
+	    mroot.append(tommlelt(d));
+	}
+	mml.append(mroot);
+    } else {
+	mml.append(mrow);
+    }
     return true;
 }
 
-function addMonomial(q, tex, mml, v, fractions) {
+function addMonomial(q, tex, mml, v, fractions, roots) {
     var n,d;
-    if (q[1] == 0) {
+    if (math.equal(q[1],0)) {
 	addNumber(q[0], tex, mml);
     } else {
-	if (fractions && q[1] < 0) {
-	    if (q[0] < 0) {
+	if (fractions && math.compare(q[1], 0) == -1) {
+	    if (math.compare(q[0], 0) == -1) {
 		tex.push(' - ');
 		mml.append(tommlelt('-'));
 		n = math.unaryMinus(q[0]);
@@ -234,40 +290,57 @@ function addMonomial(q, tex, mml, v, fractions) {
 	    tex.push(n);
 	    tex.push('}{');
 	    addCoefficient(d,tex,qrow);
-	    if (q[1] == -1) {
+	    if (math.equal(q[1], -1)) {
 		qrow.append(tommlelt(v));
 		tex.push(v);
 	    } else {
-		addPower(v,-q[1],tex,qrow);
+		addPower(v,math.unaryMinus(q[1]),tex,qrow,roots);
 	    }
 	    qfrac.append(qrow);
 	    mml.append(qfrac);
 	    tex.push('}');
 	} else {
 	    addCoefficient(q[0], tex, mml);
-	    if (q[1] == 1) {
+	    if (math.equal(q[1], 1)) {
 		mml.append(tommlelt(v));
 		tex.push(v);
 	    } else {
-		addPower(v, q[1], tex, mml);
+		addPower(v, q[1], tex, mml, roots);
 	    }
 	}
     }
     return true;
 }
 
-function addSignedMonomial(q, tex, mml, v, fractions) {
-    if (q[0] > 0) {
+function addSignedMonomial(q, tex, mml, v, fractions, roots) {
+    if (math.equal(q[0], 0)) {
+	return;
+    }
+    var c = q[0];
+    if (math.compare(q[0], 0) == 1) {
 	tex.push(" + ");
 	mml.append(tommlelt("+"));
     }
-    addMonomial(q, tex, mml, v, fractions);
+    if (math.compare(q[0], 0) == -1) {
+	tex.push(" - ");
+	mml.append(tommlelt("-"));
+	c = math.unaryMinus(q[0]);
+    }
+    addMonomial([c, q[1] ], tex, mml, v, fractions, roots);
 }
 
-function addPolynomial(q, tex, mml, v, fractions) {
-    addMonomial(q[0], tex, mml, v, fractions);
-    for (var i = 1; i < q.length; i++) {
-	addSignedMonomial(q[i], tex, mml, v, fractions);
+function addPolynomial(q, tex, mml, v, fractions, roots) {
+    var st = true;
+    
+    for (var i = 0; i < q.length; i++) {
+	if (!math.equal(q[i][0], 0)) {
+	    if (st) {
+		addMonomial(q[i], tex, mml, v, fractions, roots);
+		st = false;
+	    } else {
+		addSignedMonomial(q[i], tex, mml, v, fractions, roots);
+	    }
+	}
     }
     return true;
 }
@@ -307,6 +380,29 @@ function primeDecomposition(n) {
 	}
     }
     return p;
+}
+
+function commonTerms() {
+    var numerators = [];
+    var denominators = [];
+    var n,d;
+    
+    for (var i = 0; i < arguments.length; i++) {
+	if (arguments[i].isFraction) {
+	    numerators.push(arguments[i].n);
+	    denominators.push(arguments[i].d);
+	} else {
+	    numerators.push(arguments[i]);
+	}
+    }
+    n = math.gcd(...numerators);
+    if (denominators.length > 0) {
+	d = math.gcd(...denominators);
+    } else {
+	d = 1;
+    }
+    return math.fraction(math.divide(n,d));
+	
 }
 
 function powerOfTen(n) {
@@ -510,6 +606,115 @@ function randomFromRange(s,p) {
 
     return math.fraction(math.divide(p,denominators[chosen]));
 }
+
+function* generateFromRange(s) {
+    var sel = s.split(',');
+    var len = [];
+    var ranges = [];
+    var denominators = [];
+    var total = 0;
+    var range;
+    var divider;
+    var mult;
+    var matches;
+    var start;
+    var end;
+    var chosen;
+    for (var i = 0; i < sel.length; i++) {
+	if (sel[i].search('x') != -1) {
+	    matches = sel[i].match(/(.*)x\s*(\d+)/);
+	    range = matches[1];
+	    mult = parseInt(matches[2]);
+	} else {
+	    range = sel[i];
+	    mult = 1;
+	}
+	if (range.search('\/') !== -1) {
+	    matches = sel[i].match(/(.*)\/\s*(\d+)/);
+	    range = matches[1];
+	    divider = parseInt(matches[2]);
+	} else {
+	    divider = 1;
+	}
+	if (range.search(':') !== -1) {
+	    matches = range.match(/(-?\d+)\s*:\s*(-?\d+)/);
+	    start = parseInt(matches[1],10);
+	    end = parseInt(matches[2],10);
+	} else {
+	    start = parseInt(range,10);
+	    end = parseInt(range,10);
+	}
+	ranges.push([start,end - start + 1,mult]);
+	denominators.push(divider);
+	total += (end - start + 1)*mult;
+	len.push(total);
+    }
+
+    var p;
+    for (var j = 0; j < total; j++) {
+	p = j+1;
+
+	for (var i = 0; i < len.length; i++) {
+	    if (len[i] >= p) {
+		chosen = i;
+		break;
+	    }
+	}
+
+	p -= len[chosen-1] || 0;
+	p = p%ranges[chosen][1];
+	p += ranges[chosen][0];
+
+	yield math.fraction(math.divide(p,denominators[chosen]));
+    }
+}
+
+function lengthOfRange(s) {
+    var sel = s.split(',');
+    var len = [];
+    var ranges = [];
+    var denominators = [];
+    var total = 0;
+    var range;
+    var divider;
+    var mult;
+    var matches;
+    var start;
+    var end;
+    var chosen;
+    for (var i = 0; i < sel.length; i++) {
+	if (sel[i].search('x') != -1) {
+	    matches = sel[i].match(/(.*)x\s*(\d+)/);
+	    range = matches[1];
+	    mult = parseInt(matches[2]);
+	} else {
+	    range = sel[i];
+	    mult = 1;
+	}
+	if (range.search('\/') !== -1) {
+	    matches = sel[i].match(/(.*)\/\s*(\d+)/);
+	    range = matches[1];
+	    divider = parseInt(matches[2]);
+	} else {
+	    divider = 1;
+	}
+	if (range.search(':') !== -1) {
+	    matches = range.match(/(-?\d+)\s*:\s*(-?\d+)/);
+	    start = parseInt(matches[1],10);
+	    end = parseInt(matches[2],10);
+	} else {
+	    start = parseInt(range,10);
+	    end = parseInt(range,10);
+	}
+	ranges.push([start,end - start + 1,mult]);
+	denominators.push(divider);
+	total += (end - start + 1)*mult;
+	len.push(total);
+    }
+
+    return total;
+}
+
 
 function randomLetterFromRange(s,p) {
     var sel = s.split(',');

@@ -97,6 +97,8 @@ SineRule.createQuestion = function(question) {
     a[4] *= m/p;
     a[5] *= m/p;
 
+    var triangle = makeTriangle(a);
+    
     for (var i = 0; i < 6; i++) {
 	a[i] = Math.roundsf(a[i],this.d);
     }
@@ -131,7 +133,7 @@ SineRule.createQuestion = function(question) {
 
     question.qdiv = $('<div>').addClass('question');
     question.adiv = $('<div>').addClass('answer');
-    qtexa = ['Find ','\\(',labels[find], '\\), ', 'where '];
+    qtexa = ['Find ','\\(',labels[find], '\\)', ', ', 'where '];
     atexa = [];
 
     question.qdiv.append(
@@ -141,6 +143,7 @@ SineRule.createQuestion = function(question) {
     ).append(
 	$('<span>').append(', where ')
     );
+//    question.qdiv.append(triangle);
     
     var qmml,amml;
 
@@ -234,8 +237,9 @@ SineRule.createQuestion = function(question) {
 	    }
 	}
     }
-    
-    
+
+    question.qmkd = textomkda(qtexa).join('');
+    question.amkd = textomkda(atexa).join('');
 
     question.qtex = qtexa.join('');
     question.atex = atexa.join('');
