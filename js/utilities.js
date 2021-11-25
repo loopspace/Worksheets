@@ -29,6 +29,10 @@ function tomml(s) {
     return mml;
 }
 
+var moelts = [
+    'le', 'lt', 'ge', 'gt', 'plusmn'
+];
+
 function tommlelt(s) {
     var melt;
     if (typeof(s) == "number") {
@@ -62,7 +66,12 @@ function tommlelt(s) {
 	    melt.append(mselt);
 	}
     } else if (s.search(/^&?[a-zA-Z]+;?$/) != -1) {
-	melt = mmlelt('mi');
+	var entity = s.match(/^&?([a-zA-Z]+);?$/);
+	if (moelts.includes(entity[1])) {
+	    melt = mmlelt('mo');
+	} else {
+	    melt = mmlelt('mi');
+	}
 	melt.html(s);
     } else {
 	melt = mmlelt('mo');
@@ -220,6 +229,10 @@ function addSignedNumber(p,tex,mml) {
 function addPower(b,p,tex,mml,roots) {
     var d,n;
     if (roots && p.isFraction && !math.equal(p.d,1)) {
+	if (math.compare(p,1) == 1 || math.compare(p,0) == -1) {
+	    addPower(b,math.floor(p),tex,mml,roots);
+	    p = math.subtract(p, math.floor(p));
+	}
 	d = p.d;
 	n = p.n;
 	tex.push("\\sqrt")
@@ -331,9 +344,11 @@ function addSignedMonomial(q, tex, mml, v, fractions, roots) {
 
 function addPolynomial(q, tex, mml, v, fractions, roots) {
     var st = true;
+    var nz = false;
     
     for (var i = 0; i < q.length; i++) {
 	if (!math.equal(q[i][0], 0)) {
+	    nz = true;
 	    if (st) {
 		addMonomial(q[i], tex, mml, v, fractions, roots);
 		st = false;
@@ -342,7 +357,7 @@ function addPolynomial(q, tex, mml, v, fractions, roots) {
 	    }
 	}
     }
-    return true;
+    return nz;
 }
 
 function hasSquareRoot(a) {
@@ -353,6 +368,17 @@ function hasSquareRoot(a) {
     } else {
 	var b = math.sqrt(a);
 	return math.floor(b) == b;
+    }
+}
+
+function squareRoot(a) {
+    if (a.isFraction) {
+	var b = math.sqrt(a.n);
+	var c = math.sqrt(a.d);
+	return math.fraction(math.divide(b,c));
+    } else {
+	var b = math.sqrt(a);
+	return b;
     }
 }
 
@@ -554,29 +580,38 @@ function randomFromRange(s,p) {
     var len = [];
     var ranges = [];
     var denominators = [];
+    var numerators = [];
     var total = 0;
     var range;
     var divider;
+    var multiplier;
     var mult;
     var matches;
     var start;
     var end;
     var chosen;
     for (var i = 0; i < sel.length; i++) {
-	if (sel[i].search('x') != -1) {
-	    matches = sel[i].match(/(.*)x\s*(\d+)/);
-	    range = matches[1];
-	    mult = parseInt(matches[2]);
+	if (sel[i].search(/x\s*\d+/) != -1) {
+	    matches = sel[i].match(/x\s*(\d+)/);
+	    mult = parseInt(matches[1]);
+	    range = sel[i].replace(/x\s*(\d+)/,'');
 	} else {
 	    range = sel[i];
 	    mult = 1;
 	}
-	if (range.search('\/') !== -1) {
-	    matches = sel[i].match(/(.*)\/\s*(\d+)/);
-	    range = matches[1];
-	    divider = parseInt(matches[2]);
+	if (range.search(/\/\s*\d+/) !== -1) {
+	    matches = range.match(/\/\s*(\d+)/);
+	    divider = parseInt(matches[1]);
+	    range = range.replace(/\/\s*(\d+)/,'');
 	} else {
 	    divider = 1;
+	}
+	if (range.search(/\*\s*\d+/) !== -1) {
+	    matches = range.match(/\*\s*(\d+)/);
+	    multiplier = parseInt(matches[1]);
+	    range = range.replace(/\*\s*(\d+)/,'');
+	} else {
+	    multiplier = 1;
 	}
 	if (range.search(':') !== -1) {
 	    matches = range.match(/(-?\d+)\s*:\s*(-?\d+)/);
@@ -588,6 +623,7 @@ function randomFromRange(s,p) {
 	}
 	ranges.push([start,end - start + 1,mult]);
 	denominators.push(divider);
+	numerators.push(multiplier);
 	total += (end - start + 1)*mult;
 	len.push(total);
     }
@@ -604,7 +640,15 @@ function randomFromRange(s,p) {
     p = p%ranges[chosen][1];
     p += ranges[chosen][0];
 
-    return math.fraction(math.divide(p,denominators[chosen]));
+    return math.fraction(
+	math.divide(
+	    math.multiply(
+		p,
+		numerators[chosen]
+	    ),
+	    denominators[chosen]
+	)
+    );
 }
 
 function* generateFromRange(s) {
@@ -612,29 +656,38 @@ function* generateFromRange(s) {
     var len = [];
     var ranges = [];
     var denominators = [];
+    var numerators = [];
     var total = 0;
     var range;
     var divider;
+    var multiplier;
     var mult;
     var matches;
     var start;
     var end;
     var chosen;
     for (var i = 0; i < sel.length; i++) {
-	if (sel[i].search('x') != -1) {
-	    matches = sel[i].match(/(.*)x\s*(\d+)/);
-	    range = matches[1];
-	    mult = parseInt(matches[2]);
+	if (sel[i].search(/x\s*\d+/) != -1) {
+	    matches = sel[i].match(/x\s*(\d+)/);
+	    mult = parseInt(matches[1]);
+	    range = sel[i].replace(/x\s*(\d+)/,'');
 	} else {
 	    range = sel[i];
 	    mult = 1;
 	}
-	if (range.search('\/') !== -1) {
-	    matches = sel[i].match(/(.*)\/\s*(\d+)/);
-	    range = matches[1];
-	    divider = parseInt(matches[2]);
+	if (range.search(/\/\s*\d+/) !== -1) {
+	    matches = range.match(/\/\s*(\d+)/);
+	    divider = parseInt(matches[1]);
+	    range = range.replace(/\/\s*(\d+)/,'');
 	} else {
 	    divider = 1;
+	}
+	if (range.search(/\*\s*\d+/) !== -1) {
+	    matches = range.match(/\*\s*(\d+)/);
+	    multiplier = parseInt(matches[1]);
+	    range = range.replace(/\*\s*(\d+)/,'');
+	} else {
+	    multiplier = 1;
 	}
 	if (range.search(':') !== -1) {
 	    matches = range.match(/(-?\d+)\s*:\s*(-?\d+)/);
@@ -646,6 +699,7 @@ function* generateFromRange(s) {
 	}
 	ranges.push([start,end - start + 1,mult]);
 	denominators.push(divider);
+	numerators.push(multiplier);
 	total += (end - start + 1)*mult;
 	len.push(total);
     }
@@ -665,7 +719,15 @@ function* generateFromRange(s) {
 	p = p%ranges[chosen][1];
 	p += ranges[chosen][0];
 
-	yield math.fraction(math.divide(p,denominators[chosen]));
+	yield math.fraction(
+	    math.divide(
+		math.multiply(
+		    p,
+		    numerators[chosen]
+		),
+		denominators[chosen]
+	    )
+	);
     }
 }
 
@@ -683,20 +745,27 @@ function lengthOfRange(s) {
     var end;
     var chosen;
     for (var i = 0; i < sel.length; i++) {
-	if (sel[i].search('x') != -1) {
-	    matches = sel[i].match(/(.*)x\s*(\d+)/);
-	    range = matches[1];
-	    mult = parseInt(matches[2]);
+	if (sel[i].search(/x\s*\d+/) != -1) {
+	    matches = sel[i].match(/x\s*(\d+)/);
+	    mult = parseInt(matches[1]);
+	    range = sel[i].replace(/x\s*(\d+)/,'');
 	} else {
 	    range = sel[i];
 	    mult = 1;
 	}
-	if (range.search('\/') !== -1) {
-	    matches = sel[i].match(/(.*)\/\s*(\d+)/);
-	    range = matches[1];
-	    divider = parseInt(matches[2]);
+	if (range.search(/\/\s*\d+/) !== -1) {
+	    matches = range.match(/\/\s*(\d+)/);
+	    divider = parseInt(matches[1]);
+	    range = range.replace(/\/\s*(\d+)/,'');
 	} else {
 	    divider = 1;
+	}
+	if (range.search(/\*\s*\d+/) !== -1) {
+	    matches = range.match(/\*\s*(\d+)/);
+	    multiplier = parseInt(matches[1]);
+	    range = range.replace(/\*\s*(\d+)/,'');
+	} else {
+	    multiplier = 1;
 	}
 	if (range.search(':') !== -1) {
 	    matches = range.match(/(-?\d+)\s*:\s*(-?\d+)/);
@@ -742,11 +811,15 @@ function randomLetterFromRange(s,p) {
 	mult = 1;
 	if (range.search(':') !== -1) {
 	    matches = range.match(/(-?\w+)\s*:\s*(-?\w+)/);
-	    start = matches[1].charCodeAt(0);
-	    end = matches[2].charCodeAt(0);
+//	    start = matches[1].charCodeAt(0);
+//	    end = matches[2].charCodeAt(0);
+	    start = matches[1].codePointAt(0);
+	    end = matches[2].codePointAt(0);
 	} else {
-	    start = range.charCodeAt(0);
-	    end = range.charCodeAt(0);
+//	    start = range.charCodeAt(0);
+	    //	    end = range.charCodeAt(0);
+	    start = range.codePointAt(0);
+	    end = range.codePointAt(0);
 	}
 	ranges.push([start,end - start + 1,mult]);
 	total += (end - start + 1)*mult;
@@ -765,7 +838,7 @@ function randomLetterFromRange(s,p) {
     p = p%ranges[chosen][1];
     p += ranges[chosen][0];
 
-    return String.fromCharCode(p);
+    return String.fromCodePoint(p);
 }
 
 /*
@@ -877,13 +950,19 @@ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects
 
 
 // https://stackoverflow.com/a/40330930/315213
-var nextLetter = letter => {
-    let charCode = letter.charCodeAt(0);
-    let isCapital = letter == letter.toUpperCase();
+function nextletter(l) {
+    if (l == "Z") return "A";
+    if (l == "z") return "a";
+    
+    let codePoint = l.codePointAt(0);
+/*
+    if (
+	(64 < codePoint && codePoint < 90)
+	    ||
+	    (97 < codePoint && codePoint < 122)
+    ) {
+*/
+	return String.fromCodePoint(codePoint + 1);
+//    }
 
-    if (isCapital == true) {
-        return String.fromCharCode((charCode - 64) % 26 + 65)
-    } else {
-        return String.fromCharCode((charCode - 96) % 26 + 97)
-    }
 }
