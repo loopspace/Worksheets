@@ -21,9 +21,11 @@ QuadFormula.shortexp = function() {
 QuadFormula.addOption("a","Range for <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>a</mi></math> in <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>a</mi><msup><mi>x</mi> <mn>2</mn></msup><mo>+</mo><mi>b</mi><mi>x</mi><mo>+</mo><mi>c</mi></math>","a","string","1");
 QuadFormula.addOption("b","Range for <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>b</mi></math> in <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>a</mi><msup><mi>x</mi> <mn>2</mn></msup><mo>+</mo><mi>b</mi><mi>x</mi><mo>+</mo><mi>c</mi></math>","b","string","-5:5");
 QuadFormula.addOption("c","Range for <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>c</mi></math> in <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>a</mi><msup><mi>x</mi> <mn>2</mn></msup><mo>+</mo><mi>b</mi><mi>x</mi><mo>+</mo><mi>c</mi></math>","c","string","-5:5");
+QuadFormula.addOption("l","Allow non-zero terms on right-hand side", "l", "boolean", "false"); 
+QuadFormula.addOption("v","Range for letters used for variables","v","string","x");
 
 QuadFormula.createQuestion = function(question) {
-    var a,b,c;
+    var a,b,c,v;
     var p,q,sep,qtexa,atexa,coeffn,numbfn;
     var nqn = 0;
 
@@ -39,49 +41,51 @@ QuadFormula.createQuestion = function(question) {
     } while (a == 0 || this.checkQn([ a, b, c]))
 
     this.registerQn([ a, b,  c]);
+
+    v = randomLetterFromRange(this.v, this.prng());
     
+    var lhs = [ [a,2], [b,1], [c,0] ];
+    var rhs = [];
+
+    var l;
+    if (this.l) {
+	l = Math.floor(Math.random()*3);
+	rhs = lhs.slice(3-l);
+	lhs = lhs.slice(0,3-l);
+	for (var i = 0; i < rhs.length; i++) {
+	    rhs[i][0] *= -1;
+	}
+    }
+
     qtexa = ['\\('];
     atexa = [];
-
-    coeffn = addCoefficient;
-    numbfn = addNumber;
-
-    var qmml = mmlelt('math').attr('display','inline');
-    if (coeffn(a,qtexa,qmml)) {
-	qmml.append(
-	    mmlelt('msup').append(
-		tommlelt('x')
-	    ).append(
-		tommlelt('2')
-	    )
-	);
-	qtexa.push('x^2');
-
-	coeffn = addSignedCoefficient;
-	numbfn = addSignedNumber;
-    }
-
-    if (coeffn(b,qtexa,qmml)) {
-	qtexa.push(' x ');
-	qmml.append(tommlelt('x'));
-
-	coeffn = addSignedCoefficient;
-	numbfn = addSignedNumber;
-    }
-
-    numbfn(c,qtexa,qmml);
-
-    qmml.append(tommlelt('='));
-    qmml.append(tommlelt('0'));
     
+    var qmml = mmlelt('math').attr('display','inline');
+    
+    addPolynomial(lhs, qtexa, qmml, v);
+
+    qtexa.push(' = ');
+    qmml.append(tommlelt('='));
+    
+    if (rhs.length > 0) {
+	if (!addPolynomial(rhs, qtexa, qmml, v)) {
+	    qtexa.push(texnum(0));
+	    qmml.append(tommlelt(0));
+	};
+    } else {
+	qtexa.push(texnum(0));
+	qmml.append(tommlelt(0));
+    }
+
     question.qdiv.append(qmml);
-    qtexa.push('= 0 \\)');
+    qtexa.push('\\)');
 
     var amml;
     numbfn = addNumber;
     coeffn = addCoefficient;
 
-    p = b**2 - 4*a*c;
+    p = math.subtract(math.multiply(b,b),
+		      math.multiply(4, math.multiply(a,c)));
 
     if (p < 0) {
 	question.adiv.append($('<span>').html("No solution: "));
@@ -104,9 +108,9 @@ QuadFormula.createQuestion = function(question) {
 	atexa.push('No solution: \\(b^2 - 4 a c = ' + texnum(p) + '\\).');
     } else {
 	amml = mmlelt('math').attr('display','inline');
-	amml.append(tommlelt('x'));
+	amml.append(tommlelt(v));
 	amml.append(tommlelt('='));
-	atexa.push('\\( x = ');
+	atexa.push('\\( ' + v + ' = ');
 
 	if (p != 0) {
 
@@ -133,12 +137,12 @@ QuadFormula.createQuestion = function(question) {
 		atexa.push(texnum(q));
 
 
-		atexa.push('\\), \\(x = ');
+		atexa.push('\\), \\(' + v + ' = ');
 		question.adiv.append(amml);
 		question.adiv.append($('<span>').addClass("separator").html(", "));
 		
 		amml = mmlelt('math').attr('display','inline');
-		amml.append(tommlelt('x'));
+		amml.append(tommlelt(v));
 		amml.append(tommlelt('='));
 		
 		q = math.fraction(math.divide(-b - nsq,2*a));

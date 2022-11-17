@@ -23,11 +23,13 @@ QuadFact.addOption("a","Range for <math xmlns='http://www.w3.org/1998/Math/MathM
 QuadFact.addOption("b","Range for <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>b</mi></math> in <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mo stretchy=\"false\">(</mo><mi>a</mi><mi>x</mi><mo>+</mo><mi>b</mi><mo stretchy=\"false\">)</mo></math>","b","string","-5:5");
 QuadFact.addOption("c","Range for <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>c</mi></math> in <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mo stretchy=\"false\">(</mo><mi>c</mi><mi>x</mi><mo>+</mo><mi>d</mi><mo stretchy=\"false\">)</mo></math>","c","string","1");
 QuadFact.addOption("d","Range for <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>d</mi></math> in <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mo stretchy=\"false\">(</mo><mi>c</mi><mi>x</mi><mo>+</mo><mi>d</mi><mo stretchy=\"false\">)</mo></math>","d","string","-5:5");
+QuadFact.addOption("v","Range for letters used for variables","v","string","x");
 
 
 QuadFact.createQuestion = function(question) {
-    var a,b,c,d;
-    var p,sep,coeffn,numbfn, qtexa, atexa;
+    var a,b,c,d,v;
+    var p,q,r;
+    var sep,coeffn,numbfn, qtexa, atexa;
     var nqn = 0;
     var tmp;
 
@@ -55,9 +57,11 @@ QuadFact.createQuestion = function(question) {
 	    this.resetSaved();
 	    nqn = 0;
 	}
-    } while (!math.equal(commonTerms(a,b,c,d),1) || a * c == 0 || b**2 + d**2 == 0 || this.checkQn([ a, b, c, d]))
+    } while (!math.equal(commonTerms(a,b),1) ||!math.equal(commonTerms(c,d),1) || a * c == 0 || b**2 + d**2 == 0 || this.checkQn([ a, b, c, d]))
 
     this.registerQn([ a, b, c, d]);
+
+    v = randomLetterFromRange(this.v, this.prng());
 
     if (math.equal(d,0)) {
 	tmp = a;
@@ -69,42 +73,26 @@ QuadFact.createQuestion = function(question) {
 	d = tmp;
     }
     
+    p = math.multiply(a,c);
+    q = math.add( math.multiply(a,d), math.multiply(b,c));
+    r = math.multiply(b,d);
+
     qtexa = ['\\('];
     atexa = [];
-    coeffn = addCoefficient;
-    numbfn = addNumber;
-
     var qmml = mmlelt('math').attr('display','inline');
     
-    if (coeffn(a * c,qtexa,qmml)) {
-	qmml.append(
-	    mmlelt('msup').append(
-		tommlelt('x')
-	    ).append(
-		tommlelt('2')
-	    )
-	);
-	qtexa.push('x^2');
-	coeffn = addSignedCoefficient;
-	numbfn = addSignedNumber;
-    }
+    var lhs = [ [p,2], [q,1], [r,0] ];
+    addPolynomial(lhs, qtexa, qmml, v);
 
-    if (coeffn(a * d + c * b,qtexa,qmml)) {
-	qtexa.push(' x ');
-	qmml.append(tommlelt('x'));
-	coeffn = addSignedCoefficient;
-	numbfn = addSignedNumber;
-    }
-
-    numbfn(b * d,qtexa,qmml);
     question.qdiv.append(qmml);
     qtexa.push('\\)');
-    
+
     var amml = mmlelt('math').attr('display','inline');
     atexa.push('\\(');
 
     coeffn = addCoefficient;
     numbfn = addNumber;
+
 
     if (b != 0) {
 	atexa.push("(");
@@ -112,8 +100,8 @@ QuadFact.createQuestion = function(question) {
     }
     
     if (coeffn(a,atexa,amml)) {
-	atexa.push(" x ");
-	amml.append(tommlelt('x'));
+	atexa.push(v);
+	amml.append(tommlelt(v));
 	numbfn = addSignedNumber;
     }
 
@@ -130,8 +118,8 @@ QuadFact.createQuestion = function(question) {
     }
     
     if (coeffn(c,atexa,amml)) {
-	atexa.push(" x ");
-	amml.append(tommlelt('x'));
+	atexa.push(v);
+	amml.append(tommlelt(v));
 	numbfn = addSignedNumber;
     }
 

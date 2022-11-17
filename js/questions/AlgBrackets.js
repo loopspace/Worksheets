@@ -50,6 +50,10 @@ AlgBrackets.createQuestion = function(question) {
 	degs.push(d);
     }
 
+    if (degs.length < 2) {
+	return false;
+    }
+    
     var a,f,s,l;
     do {
 	q = [];
@@ -84,7 +88,6 @@ AlgBrackets.createQuestion = function(question) {
 	    }
 	    qs.push(ps.join(","));
 	}
-
 	nqn++;
 	if (nqn > 10) {
 	    this.resetSaved();

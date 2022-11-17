@@ -63,7 +63,7 @@ ArithSums.createQuestion = function(question) {
     qtexa.push('\\)');
     var s = 0;
     for (var i = 0; i < a.length; i++) {
-	s += a[i];
+	s = math.add(s,a[i]);
     }
 
     question.qdiv.append(qmml);

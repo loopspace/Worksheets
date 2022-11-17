@@ -106,7 +106,7 @@ SeqnthTerm.createQuestion = function(question) {
     question.qtex += totex('n') + 'th term is: ' + texwrap(quadtex);
     
     for (var j = 0; j < this.terms; j++) {
-	p = math.eval('a*(n+1)^2 + b*(n+1) + c',{a: a, b: b, c: c, n: j});
+	p = a*(j+1)^2 + b*(j+1) + c;
 	question.adiv.append(tomml(p));
 	question.atex += totex(p);
 	if (j != this.terms - 1) {

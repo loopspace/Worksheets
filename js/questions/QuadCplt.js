@@ -22,11 +22,14 @@ QuadCplt.shortexp = function() {
 QuadCplt.addOption("p","Range for <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>p</mi></math> in <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>p</mi><mo stretchy=\"false\">(</mo><mi>x</mi><mo>+</mo><mi>q</mi><msup><mo stretchy=\"false\">)</mo> <mn>2</mn></msup><mo>+</mo><mi>r</mi></math>","p","string","1");
 QuadCplt.addOption("q","Range for <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>q</mi></math> in <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>p</mi><mo stretchy=\"false\">(</mo><mi>x</mi><mo>+</mo><mi>q</mi><msup><mo stretchy=\"false\">)</mo> <mn>2</mn></msup><mo>+</mo><mi>r</mi></math>","q","string","-5:5");
 QuadCplt.addOption("r","Range for <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>r</mi></math> in <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>p</mi><mo stretchy=\"false\">(</mo><mi>x</mi><mo>+</mo><mi>q</mi><msup><mo stretchy=\"false\">)</mo> <mn>2</mn></msup><mo>+</mo><mi>r</mi></math>","r","string","-5:5");
+QuadCplt.addOption("v","Range for letters used for variables","v","string","x");
 
 
 QuadCplt.createQuestion = function(question) {
 
     var p = 0,q = 0, r = 0;
+    var a,b,c;
+    var v;
     var qdiv,adiv,a,sep,qtexa,atexa,coeffn,numbfn;
     var nqn = 0;
 
@@ -41,6 +44,14 @@ QuadCplt.createQuestion = function(question) {
 	}
     } while (p == 0 || this.checkQn([p, q, r]))
     this.registerQn([ p, q, r]);
+
+    v = randomLetterFromRange(this.v, this.prng());
+
+    a = p;
+    b = math.multiply(2, math.multiply(p,q))
+    c = math.add(math.multiply(p, math.multiply(q,q)), r);
+
+    var lhs = [[a,2], [b,1], [c,0]];
     
     qtexa = ['\\('];
     atexa = [];
@@ -48,29 +59,9 @@ QuadCplt.createQuestion = function(question) {
     numbfn = addNumber;
 
     var qmml = mmlelt('math').attr('display','inline');
-    if (coeffn(p,qtexa,qmml)) {
-	qmml.append(
-	    mmlelt('msup').append(
-		tommlelt('x')
-	    ).append(
-		tommlelt('2')
-	    )
-	);
-	qtexa.push('x^2');
 
-	coeffn = addSignedCoefficient;
-	numbfn = addSignedNumber;
-    }
-
-    if (coeffn(2 * p * q,qtexa,qmml)) {
-	qtexa.push(' x ');
-	qmml.append(tommlelt('x'));
-
-	coeffn = addSignedCoefficient;
-	numbfn = addSignedNumber;
-    }
-
-    numbfn(p * q**2 + r,qtexa,qmml);
+    addPolynomial(lhs, qtexa, qmml, v);
+    
     question.qdiv.append(qmml);
     qtexa.push('\\)');
     
@@ -88,8 +79,8 @@ QuadCplt.createQuestion = function(question) {
 	gmml.append(tommlelt('('));
     }
 
-    atexa.push('x');
-    gmml.append(tommlelt('x'));
+    atexa.push(v);
+    gmml.append(tommlelt(v));
 
     if (addSignedNumber(q,atexa,gmml)) {
 	atexa.push(')');

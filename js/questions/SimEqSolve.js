@@ -26,6 +26,7 @@ SimEqSolve.createQuestion = function(question) {
     var e, f;
     var p,sep,qtexa,atexa,coeffn,numbfn;
     var nqn = 0;
+    var bail = false;
 
     do {
 	a = randomFromRange(this.a,this.prng());
@@ -36,21 +37,47 @@ SimEqSolve.createQuestion = function(question) {
 	y = randomFromRange(this.x,this.prng());
 	nqn++;
 	if (nqn > 10) {
+	    if (bail) { return false; }
 	    this.resetSaved();
 	    nqn = 0;
+	    bail = true;
 	}
-    } while ( a*b*c*d == 0 || a*d - b*c == 0 || this.checkQn([ a, b, c, d, x, y ]))
+    } while (
+	math.equal(math.multiply(a,b,c,d),0)
+	    || math.equal(math.multiply(a,d), math.multiply(b,c))
+	    || this.checkQn([ a, b, c, d, x, y ])
+    )
     
     this.registerQn([ a, b, c, d, x, y ])
 
     u = randomLetterFromRange(this.v, this.prng());
     v = u;
 
+    nqn = 0;
+    do {
+	v = randomLetterFromRange(this.v,this.prng());
+	nqn++;
+	if (u == v && nqn > 10) {
+	    u = nextletter(v);
+	}
+    } while (u == v);
+
+
     while (v == u) {
 	v = randomLetterFromRange(this.v, this.prng());
+	nqn++;
+	if (nqn > 10) {
+	    return false;
+	}
     }
-    e = a * x + b * y;
-    f = c * x + d * y;
+    e = math.add(
+	math.multiply(a, x),
+	math.multiply(b, y)
+    );
+    f = math.add(
+	math.multiply(c, x),
+	math.multiply(d, y)
+    );
     
     question.qdiv = $('<div>').addClass('question');
     question.adiv = $('<div>').addClass('answer');

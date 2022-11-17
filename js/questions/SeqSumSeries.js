@@ -64,7 +64,7 @@ SeqSumSeries.createQuestion = function(question) {
     question.qtex += ' to ' + totex(n) + ' terms.';
     question.qdiv.append($('<span>').html(" to " + n + " terms."));
 
-    p = math.eval('n*(2*a + (n-1)*d)/2', {a: a, d: d, n: n});
+    p = n*(2*a + (n-1)*d)/2;
     question.adiv.append(tomml(p));
     question.atex = totex(p);
     

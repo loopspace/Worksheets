@@ -37,7 +37,7 @@ QuadSolveCplt.createQuestion = function(question) {
 	    this.resetSaved();
 	    nqn = 0;
 	}
-    } while (p == 0 || this.checkQn([ p, q, r]))
+    } while (p == 0 || !math.equal(commonTerms(p,r),1) || this.checkQn([ p, q, r]))
 
     this.registerQn([ p, q,r ]);
     
@@ -95,6 +95,7 @@ QuadSolveCplt.createQuestion = function(question) {
 
 	var a = math.fraction(math.divide(r,p));
 	if (hasSquareRoot(a)) {
+	    a = squareRoot(a);
 	    var b = math.fraction(math.add(q,a));
 	    amml.append(tommlelt(b));
 	    atexa.push(texnum(b));

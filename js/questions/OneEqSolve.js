@@ -39,7 +39,7 @@ OneEqSolve.createQuestion = function(question) {
 	    this.resetSaved();
 	    nqn = 0;
 	}
-    } while ( a == 0 || this.checkQn([ a, b, x ]))
+    } while ( math.equal(a, 0) || this.checkQn([ a, b, x ]))
 
     this.registerQn([ a, b, x ]);
 
@@ -60,8 +60,8 @@ OneEqSolve.createQuestion = function(question) {
     qmml.append(tommlelt('='));
     qtexa.push('=');
     
-    qmml.append(tommlelt(a*x+b));
-    qtexa.push(a*x+b);
+    qmml.append(tommlelt(math.add(math.multiply(a,x),b)));
+    qtexa.push(math.add(math.multiply(a,x),b));
     
     question.qdiv.append(qmml);
     qtexa.push('\\)');

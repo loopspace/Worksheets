@@ -39,15 +39,23 @@ TwoEqSolve.createQuestion = function(question) {
 	    this.resetSaved();
 	    nqn = 0;
 	}
-    } while ( a*c == 0 || a == c || this.checkQn([ a, c, b, x ]))
-    
+    } while ( math.equal(math.multiply(a,c),0) || math.equal(a, c) || this.checkQn([ a, c, b, x ]))
+
     this.registerQn([ a, c,  b,  x ]);
 
     v = randomLetterFromRange(this.v, this.prng());
     
-    d = a*x - c*x + b;
-    d = math.sign(d)*math.floor(math.abs(d)/2);
-    b = c*x + d - a*x;
+    d = math.add(
+	math.subtract(
+	    math.multiply(a,x),
+	    math.multiply(c,x)
+	),b);
+    d = math.multiply(math.sign(d),math.floor(math.divide(math.abs(d),2)));
+    b = math.add(
+	math.subtract(
+	    math.multiply(c,x),
+	    math.multiply(a,x)
+	),d);
     
     question.qdiv = $('<div>').addClass('question');
     question.adiv = $('<div>').addClass('answer');

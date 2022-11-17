@@ -1,8 +1,9 @@
 /*
-  Question Type: Calculus
+  Question Type: Rewrite Indices
 */
 
-//  Differentiate an Expression
+// Rewrite an expression using indices
+
 
 AlgIndices = new QuestionGenerator(
     "Algebra",
