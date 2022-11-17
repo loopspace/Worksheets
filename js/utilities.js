@@ -280,7 +280,7 @@ function addMonomial(q, tex, mml, v, fractions, roots) {
     if (math.equal(q[1],0)) {
 	addNumber(q[0], tex, mml);
     } else {
-	if (fractions && math.compare(q[1], 0) == -1) {
+	if (fractions) {
 	    if (math.compare(q[0], 0) == -1) {
 		tex.push(' - ');
 		mml.append(tommlelt('-'));
@@ -288,30 +288,39 @@ function addMonomial(q, tex, mml, v, fractions, roots) {
 	    } else {
 		n = q[0];
 	    }
-	    if (n.isFraction) {
-		d = n.d;
-		n = n.n;
+	    if (math.compare(q[1], 0) == -1 || n.isFraction) {
+		if (n.isFraction) {
+		    d = n.d;
+		    n = n.n;
+		} else {
+		    d = 1;
+		}
+		var qfrac = mmlelt('mfrac');
+		var qrow = mmlelt('mrow');
+		qfrac.append(qrow);
+		tex.push('\\frac{');
+
+		if (math.compare(q[1], 0) == 1) {
+		    addCoefficient(n,tex,qrow);
+		    addPower(v,q[1],tex,qrow,roots);
+		} else {
+		    addNumber(n,tex,qrow);
+		}
+		tex.push('}{');
+		qrow = mmlelt('mrow');
+		if (math.compare(q[1], 0) == -1) {
+		    addCoefficient(d,tex,qrow);
+		    addPower(v,math.unaryMinus(q[1]),tex,qrow,roots);
+		} else {
+		    addNumber(d,tex,qrow);
+		}
+		qfrac.append(qrow);
+		mml.append(qfrac);
+		tex.push('}');
 	    } else {
-		d = 1;
+		addCoefficient(q[0], tex, mml);
+		addPower(v, q[1], tex, mml, roots);
 	    }
-	    var qfrac = mmlelt('mfrac');
-	    var qrow = mmlelt('mrow');
-	    qrow.append(tommlelt(n));
-	    qfrac.append(qrow);
-	    qrow = mmlelt('mrow');
-	    tex.push('\\frac{');
-	    tex.push(n);
-	    tex.push('}{');
-	    addCoefficient(d,tex,qrow);
-	    if (math.equal(q[1], -1)) {
-		qrow.append(tommlelt(v));
-		tex.push(v);
-	    } else {
-		addPower(v,math.unaryMinus(q[1]),tex,qrow,roots);
-	    }
-	    qfrac.append(qrow);
-	    mml.append(qfrac);
-	    tex.push('}');
 	} else {
 	    addCoefficient(q[0], tex, mml);
 	    if (math.equal(q[1], 1)) {
