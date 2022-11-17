@@ -288,7 +288,7 @@ function addMonomial(q, tex, mml, v, fractions, roots) {
 	    } else {
 		n = q[0];
 	    }
-	    if (math.compare(q[1], 0) == -1 || n.isFraction) {
+	    if (math.compare(q[1], 0) == -1 || (n.isFraction && n.d != 1)) {
 		if (n.isFraction) {
 		    d = n.d;
 		    n = n.n;
