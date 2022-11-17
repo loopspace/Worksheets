@@ -185,7 +185,8 @@ class QuestionGenerator {
 
 	// Initialise containers (can be overwritten)
 	var qn = new Question(this);
-	this.createQuestion(qn);
+	var rt = this.createQuestion(qn);
+	if (!rt) return false;
 	this.qn++;
 	
 	return qn;
@@ -216,10 +217,10 @@ class QuestionGenerator {
 
     generateQuestions(exlist, sollist, extex, soltex, bothtex, exmkd, solmkd, bothmkd) {
 	var qn = this.makeQuestion(false);
-	do {
+	while (qn) {
 	    qn.addToLists(exlist, sollist, extex, soltex, bothtex, exmkd, solmkd, bothmkd, false);
 	    qn = this.makeQuestion(false);
-	} while (qn);
+	};
     }
 
 }
