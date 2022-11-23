@@ -23,6 +23,7 @@ AlgBrackets.shortexp = function() {
 AlgBrackets.addOption("n","Range for number of brackets","n","string","2");
 AlgBrackets.addOption("d","Range for degrees of terms in brackets","d","string","1");
 AlgBrackets.addOption("f","Use fractions for negative powers","f","boolean",false);
+AlgBrackets.addOption("l","Avoid all-negative polynomials","l","boolean",false);
 AlgBrackets.addOption("a","Range for coefficients of first term in brackets","a","string","-5:5");
 AlgBrackets.addOption("b","Range for coefficients of other terms in brackets","b","string","-5:5");
 AlgBrackets.addOption("v","Range for letters used for variables","v","string","x");
@@ -54,7 +55,7 @@ AlgBrackets.createQuestion = function(question) {
 	return false;
     }
     
-    var a,f,s,l;
+    var a,f,s,l,ng;
     do {
 	q = [];
 	qs = [];
@@ -66,6 +67,7 @@ AlgBrackets.createQuestion = function(question) {
 		p = [];
 		ps = [];
 		f = false;
+		ng = true;
 		l = 0;
 		
 		for (var d = 0; d < degs.length; d++) {
@@ -76,10 +78,11 @@ AlgBrackets.createQuestion = function(question) {
 			if (!math.equal(a, 0)) f = true;
 		    }
 		    if (!math.equal(a, 0)) l++;
+		    if (math.compare(a,0) == 1) ng = false;
 		    ps.push(a);
 		    p.push([a,degs[d]]);
 		}
-	    } while ( l < s || qs.indexOf(ps.join(",")) != -1);
+	    } while ( l < s || qs.indexOf(ps.join(",")) != -1 || (this.l && ng));
 	    if (l == 1) {
 		s = 2;
 		q.unshift(p);
@@ -108,12 +111,20 @@ AlgBrackets.createQuestion = function(question) {
     var qmml = mmlelt('math').attr('display','inline');
 
     var l;
+    var k;
     for (var i = 0; i < q.length; i++ ) {
 	l = 0;
+	k = -1;
 	for (var j = 0; j < q[i].length; j++) {
 	    if (!math.equal(q[i][j][0],0)) {
 		l++;
 	    }
+	    if ((k == -1) && (math.compare(q[i][j][0],0) == 1)) {
+		k = j;
+	    }
+	}
+	if (k > -1) {
+	    [q[i][0], q[i][k]] = [q[i][k], q[i][0]];
 	}
 	if (l > 1) {
 	    qtexa.push('\\left(');
