@@ -28,7 +28,7 @@ SeqArithTermFromTerms.addOption("d","Range for common difference","d","string","
     
 SeqArithTermFromTerms.createQuestion = function(question) {
     var a,d;
-    var f = 1, l = 1, q = 1;
+    var f,l,q;
     var p,sep;
     var nqn = 0;
 
@@ -44,10 +44,14 @@ SeqArithTermFromTerms.createQuestion = function(question) {
 
     this.registerQn([ a, d]);
 
-    while (f == l || l == q || q == f) {
+    do {
 	f = randomFromRange(this.gvnterms, this.prng());
 	l = randomFromRange(this.gvnterms, this.prng());
 	q = randomFromRange(this.reqterm, this.prng());
+    } while (math.compare(f,l) == 0 || math.compare(l,q) == 0 || math.compare(q,f) == 0);
+
+    if (math.compare(f,l) == 1) {
+	[l,f] = [f,l];
     }
 
     var fst, lst, qth;
