@@ -1,3 +1,5 @@
+var precision = 4;
+
 // Based on http://stackoverflow.com/a/21059677
 
 var px_per_cm;
@@ -35,18 +37,19 @@ var moelts = [
 
 function tommlelt(s) {
     var melt;
+    var mselt;
     if (typeof(s) == "number") {
 	if (s < 0) {
 	    melt = mmlelt('mrow');
-	    var mselt = mmlelt('mo').attr('lspace',"verythinmathspace").attr('rspace',"0em");
+	    mselt = mmlelt('mo').attr('lspace',"verythinmathspace").attr('rspace',"0em");
 	    mselt.html('&minus;');
 	    melt.append(mselt)
 	    mselt = mmlelt('mn');
-	    mselt.html(-s);
+	    mselt.html(math.format(-s,precision));
 	    melt.append(mselt);
 	} else {
 	    melt = mmlelt('mn');
-	    melt.html(s);
+	    melt.html(math.format(s,precision));
 	}
     } else if (s.isFraction) {
 	if (s.d == 1) {
@@ -54,7 +57,6 @@ function tommlelt(s) {
 	    melt.html(s.s * s.n);
 	} else {
 	    melt = mmlelt('mrow');
-	    var mselt;
 	    if (s.s == -1) {
 		mselt = mmlelt('mo').attr('lspace',"verythinmathspace").attr('rspace',"0em");
 		mselt.html('&minus;');
@@ -65,7 +67,19 @@ function tommlelt(s) {
 	    mselt.append(mmlelt('mn').html(s.d));
 	    melt.append(mselt);
 	}
-    } else if (s.search(/^&?[a-zA-Z]+;?$/) != -1) {
+    } else if (s.isComplex) {
+	melt = mmlelt('mrow');
+	if (s.re != 0) {
+	    melt.append(mmlelt('mn').html(math.format(s.re,precision)));
+	    if (s.im > 0) {
+		melt.append(mmlelt('mo').html('&plus;'));
+	    }
+	}
+	if (s.im != 0) {
+	    melt.append(mmlelt('mn').html(math.format(s.im,precision)));
+	    melt.append(mmlelt('mn').html('i'));
+	}
+    } else if (typeof(s) == "string" && s.search(/^&?[a-zA-Z]+;?$/) != -1) {
 	var entity = s.match(/^&?([a-zA-Z]+);?$/);
 	if (moelts.includes(entity[1])) {
 	    melt = mmlelt('mo');
@@ -367,6 +381,37 @@ function addPolynomial(q, tex, mml, v, fractions, roots) {
 	}
     }
     return nz;
+}
+
+function evaluatePolynomial(q, x) {
+    var useFractions = true;
+    for (var i = 0; i < q.length; i++) {
+	if (q[i][1].d > 1) {
+	    useFractions = false;
+	    break;
+	}
+    }
+
+    var convert;
+
+    var t = 0;
+    
+    if (!useFractions) {
+	convert = math.number
+    } else {
+	convert = function(y) {return y};
+    }
+    x = convert(x);
+
+    for (var i = 0; i < q.length; i++) {
+	t = math.add(t,
+		     math.multiply(
+			 convert(q[i][0]),
+			 math.pow(x,convert(q[i][1]))
+		     )
+		    );
+    }
+    return t;
 }
 
 function hasSquareRoot(a) {
