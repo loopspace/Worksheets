@@ -57,14 +57,21 @@ SeqSumSeries.createQuestion = function(question) {
 	question.qtex += texnum(p);
     }
     qmml.append(tommlelt('+'));
-    qmml.append(tommlelt('&hellip;'));
+    qmml.append(tommlelt('&ctdot;'));
     question.qtex += ' + \\dots';
     question.qdiv.append(qmml);
     question.qtex = texwrap(question.qtex);
     question.qtex += ' to ' + totex(n) + ' terms.';
     question.qdiv.append($('<span>').html(" to " + n + " terms."));
 
-    p = n*(2*a + (n-1)*d)/2;
+    p = math.multiply(n,
+		      math.divide(
+			  math.add(
+			      math.multiply(2,a),
+			      math.multiply(n-1,d)
+			  ),
+			  2)
+		     );
     question.adiv.append(tomml(p));
     question.atex = totex(p);
     
