@@ -32,7 +32,7 @@ function tomml(s) {
 }
 
 var moelts = [
-    'le', 'lt', 'ge', 'gt', 'plusmn'
+    'le', 'lt', 'ge', 'gt', 'plusmn', 'colon', 'map'
 ];
 
 function tommlelt(s) {
@@ -41,7 +41,7 @@ function tommlelt(s) {
     if (typeof(s) == "number") {
 	if (s < 0) {
 	    melt = mmlelt('mrow');
-	    mselt = mmlelt('mo').attr('lspace',"verythinmathspace").attr('rspace',"0em");
+	    mselt = mmlelt('mo').attr('lspace',"0.1111111111111111em").attr('rspace',"0em");
 	    mselt.html('&minus;');
 	    melt.append(mselt)
 	    mselt = mmlelt('mn');
@@ -58,7 +58,7 @@ function tommlelt(s) {
 	} else {
 	    melt = mmlelt('mrow');
 	    if (s.s == -1) {
-		mselt = mmlelt('mo').attr('lspace',"verythinmathspace").attr('rspace',"0em");
+		mselt = mmlelt('mo').attr('lspace',"0.1111111111111111em").attr('rspace',"0em");
 		mselt.html('&minus;');
 		melt.append(mselt);
 	    }
