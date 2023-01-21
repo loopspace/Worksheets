@@ -149,7 +149,6 @@ IntExp.createQuestion = function(question) {
     qmml.append(tommlelt('d').attr('mathvariant', 'normal'));
     qmml.append(tommlelt(v));
     
-    question.qdiv.append(qmml);
     
     var amml = mmlelt('math').attr('display','inline');
 
@@ -160,6 +159,7 @@ IntExp.createQuestion = function(question) {
     atexa.push(area);
     amml.append(tommlelt(area));
     
+    question.qdiv.append(qmml);
     question.adiv.append(amml);
     
     question.qtex =
