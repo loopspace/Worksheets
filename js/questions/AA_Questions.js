@@ -33,6 +33,7 @@ class QuestionGenerator {
 	this.storage = storage;
 	this.group = group;
 	this.alias = alias;
+	this.qnsReset = qnsReset;
 	
 	for (const k of qnsReset) {
 	    this.registerQn(k);
@@ -146,6 +147,7 @@ class QuestionGenerator {
     }
 
     resetSaved() {
+	this.qns = {};
 	for (const k of Object.keys(this.qnsReset)) {
 	    this.registerQn(k);
 	}
