@@ -90,7 +90,7 @@ QuadInverse.createQuestion = function(question) {
 	atexa.push(' + ');
 	mrow.append(tommlelt('+'));
     }
-p
+
     var msqrt = mmlelt('msqrt');
     var msqrtrow = mmlelt('mrow');
     atexa.push('\\sqrt{');
@@ -106,14 +106,53 @@ p
 
     amml.append(mrow);
 
-//    console.log(amml);
-    question.qdiv.append(qmml);
-    question.adiv.append(amml);
+    var qdom = mmlelt('math').attr('display','inline');
+    var qtdom = [];
+
+    qdom.append(tommlelt('\{'))
+	.append(tommlelt(v))
+	.append(tommlelt(':'))
+	.append(tommlelt(v))
+	.append(tommlelt('&ge;'))
+	.append(tommlelt(r))
+	.append(tommlelt('\}'));
+    qtdom.push('\\{',v,':',v,'\\ge ',r,'\\}');
+
+    var adom = mmlelt('math').attr('display','inline');
+    var atdom = [];
+
+    var cmp;
+    if (math.isPositive(q)) {
+	cmp = 'ge';
+    } else {
+	cmp = 'le';
+    }
     
+    adom.append(tommlelt('\{'))
+	.append(tommlelt(v))
+	.append(tommlelt(':'))
+	.append(tommlelt(v))
+	.append(tommlelt('&' + cmp + ';'))
+	.append(tommlelt(math.unaryMinus(math.divide(p,q))))
+	.append(tommlelt('\}'));
+    atdom.push('\\{',v,':',v,'\\', cmp,
+	       texnum(math.unaryMinus(math.divide(p,q))),'\\}');
+
+    question.qdiv.append(qmml);
+    question.qdiv.append($('<span>').append(' with domain '));
+    question.qdiv.append(qdom);
+    question.adiv.append(amml);
+    question.adiv.append($('<span>').append(' with domain '));
+    question.adiv.append(adom);
+
     question.qtex =
 	'Find the inverse of \\('
 	+
 	qtexa.join('')
+	+
+	'\\) with domain \\('
+	+
+	qtdom.join('')
 	+
 	'\\)';
     question.atex =
@@ -121,17 +160,29 @@ p
 	+
 	atexa.join('')
 	+
+	'\\) with domain \\('
+	+
+	atdom.join('')
+	+
 	'\\)';
     question.qmkd =
 	'Find [m]'
 	+
 	qtexa.join('')
 	+
+	'[/m] with domain [m]'
+	+
+	qtdom.join('')
+	+
 	'[/m]';
     question.amkd =
 	'[m]'
 	+
 	atexa.join('')
+	+
+	'[/m] with domain [m]'
+	+
+	atdom.join('')
 	+
 	'[/m]';
 
