@@ -23,7 +23,7 @@ RatInverse.addOption("f","Range for letters used for functions","f","string","f"
 
 RatInverse.createQuestion = function(question) {
     var a,b,c,d,v,f;
-    var det, sgn, cf;
+    var det, sgn, cf, ndom;
     var qtexa,atexa;
     var nqn = 0;
     var num,den;
@@ -48,6 +48,7 @@ RatInverse.createQuestion = function(question) {
 	    [a,b,c,d] = [a,b,c,d].map(x => math.number(x));
 	    cf = math.gcd(a,b,c,d);
 	    [a,b,c,d] = [a,b,c,d].map(x => math.divide(x,cf));
+	    [a,b,c,d] = [a,b,c,d].map(x => math.fraction(x));
 	}
 	det = math.subtract( math.multiply(a,d), math.multiply(b,c));
     } while (math.isZero(det) || this.checkQn([ a, b, c, d]))
@@ -98,7 +99,7 @@ RatInverse.createQuestion = function(question) {
 
     var mfrac, mrow;
     
-    if (math.isZero(c) && math.isEqual(d,1)) {
+    if (math.isZero(c) && math.equal(d,1)) {
 	addPolynomial(num, qtexa, qmml, v);
     } else {
 	mfrac = mmlelt('mfrac');
@@ -118,6 +119,29 @@ RatInverse.createQuestion = function(question) {
 	qmml.append(mfrac);
     }    
 
+    var qdom = mmlelt('math').attr('display','inline');
+    var qtdom = [];
+
+    if (math.isZero(c)) {
+	qdom.append(tommlelt('{'))
+	    .append(tommlelt(v))
+	    .append(tommlelt('&Element;'))
+	    .append(tommlelt('&Ropf;'))
+	    .append(tommlelt('\}'));
+	qtdom.push('\\{',v,'\\in \\mathbb{R} \\}');
+    } else {
+    
+	qdom.append(tommlelt('\{'))
+	    .append(tommlelt(v))
+	    .append(tommlelt(':'))
+	    .append(tommlelt(v))
+	    .append(tommlelt('&ne;'))
+	    .append(tommlelt(math.unaryMinus(math.divide(d,c))))
+	    .append(tommlelt('\}'));
+	qtdom.push('\\{',v,':',v,'\\ne ',
+		   texnum(math.unaryMinus(math.divide(d,c))),'\\}');
+    }
+    
     if (sgn == 1) {
 	b = math.unaryMinus(b);
     } else {
@@ -175,8 +199,8 @@ RatInverse.createQuestion = function(question) {
 	amml.append(tommlelt('-'));
     }
     
-    if (math.isZero(c) && math.isEqual(a,1)) {
-	addPolynomial(den, atexa, amml, v);
+    if (math.isZero(c) && math.equal(a,1)) {
+	addPolynomial(num, atexa, amml, v);
     } else {
 	mfrac = mmlelt('mfrac');
 	mrow = mmlelt('mrow');
@@ -195,13 +219,44 @@ RatInverse.createQuestion = function(question) {
 	amml.append(mfrac);
     }    
     
+    var adom = mmlelt('math').attr('display','inline');
+    var atdom = [];
+
+    if (math.isZero(c)) {
+	adom.append(tommlelt('\{'))
+	    .append(tommlelt(v))
+	    .append(tommlelt('&Element;'))
+	    .append(tommlelt('&Ropf;'))
+	    .append(tommlelt('\}'));
+	atdom.push('\\{',v,'\\in \\mathbb{R} \\}');
+    } else {
+    
+	adom.append(tommlelt('\{'))
+	    .append(tommlelt(v))
+	    .append(tommlelt(':'))
+	    .append(tommlelt(v))
+	    .append(tommlelt('&ne;'))
+	    .append(tommlelt(math.unaryMinus(math.divide(a,c))))
+	    .append(tommlelt('\}'));
+	atdom.push('\\{',v,':',v,'\\ne ',
+		   texnum(math.unaryMinus(math.divide(a,c))),'\\}');
+    }
+
     question.qdiv.append(qmml);
+    question.qdiv.append($('<span>').append(' with domain '));
+    question.qdiv.append(qdom);
     question.adiv.append(amml);
+    question.adiv.append($('<span>').append(' with domain '));
+    question.adiv.append(adom);
 
     question.qtex =
 	'Find the inverse of \\('
 	+
 	qtexa.join('')
+	+
+	'\\) with domain \\('
+	+
+	qtdom.join('')
 	+
 	'\\)';
     question.atex =
@@ -209,17 +264,29 @@ RatInverse.createQuestion = function(question) {
 	+
 	atexa.join('')
 	+
+	'\\) with domain \\('
+	+
+	atdom.join('')
+	+
 	'\\)';
     question.qmkd =
 	'Find [m]'
 	+
 	qtexa.join('')
 	+
+	'[/m] with domain [m]'
+	+
+	qtdom.join('')
+	+
 	'[/m]';
     question.amkd =
 	'[m]'
 	+
 	atexa.join('')
+	+
+	'[/m] with domain [m]'
+	+
+	atdom.join('')
 	+
 	'[/m]';
 
