@@ -32,7 +32,7 @@ function tomml(s) {
 }
 
 var moelts = [
-    'le', 'lt', 'ge', 'gt', 'plusmn', 'colon', 'map'
+    'le', 'lt', 'ge', 'gt', 'plusmn', 'colon', 'map', 'Element', 'ne'
 ];
 
 function tommlelt(s) {
