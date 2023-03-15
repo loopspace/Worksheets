@@ -13,6 +13,10 @@ is).
 Once it is configured, its main purpose is to generate Question objects.
 */
 
+const HTML = 0;
+const TEX = 1;
+const MKDWN = 2;
+
 generators = {};
 
 class QuestionGenerator {
@@ -201,7 +205,7 @@ class QuestionGenerator {
 	var exhdr = $('<h1>').html(this.title + ' Questions');
 	var solhdr = $('<h1>').html(this.title + ' Answers');
 	var extxt = $('<div>').addClass('explanation');
-	extxt.html(this.explanation());
+	extxt.html(this.explanation(HTML));
 
 	// Create the URL &c
 	var soltxt = $('<div>').addClass('configuration');
@@ -311,8 +315,8 @@ class Question {
 	    .append(action.clone(true,true));
 	ad = this.adiv.clone(true,true);
 	if (wks) {
-	    qt = $('<div>').text('\n\\item ' + this.generator.shortexp() + this.qtex);
-	    qm = $('<div>').text('\n* ' + this.generator.shortexp() + this.qmkd);
+	    qt = $('<div>').text('\n\\item ' + this.generator.shortexp(TEX) + this.qtex);
+	    qm = $('<div>').text('\n* ' + this.generator.shortexp(MKDWN) + this.qmkd);
 	} else {
 	    qt = $('<div>').text('\n\\item ' + this.qtex);
 	    qm = $('<div>').text('\n* ' + this.qmkd);
@@ -332,7 +336,7 @@ class Question {
 	var divs = this.createDivs(wks);
 	
 	var shextxt = $('<span>').addClass('shortexplanation');
-	shextxt.html(this.generator.shortexp());
+	shextxt.html(this.generator.shortexp(HTML));
 	
 	exlist.append(
 	    $('<li>').append(shextxt).append(divs[0])
