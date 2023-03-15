@@ -18,7 +18,7 @@ PercentAmount.explanation = function() {
     return 'Calculate the following percentages.';
 }
 PercentAmount.shortexp = function() {
-    return 'Calculate ';
+    return '';
 }
 
 PercentAmount.addOption("a","Range for initial amount","a","string","1:100*10");

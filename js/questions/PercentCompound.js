@@ -18,7 +18,7 @@ PercentComp.explanation = function() {
     return 'Calculate the final amount after the following percentage changes.';
 }
 PercentComp.shortexp = function() {
-    return 'Calculate ';
+    return '';
 }
 
 PercentComp.addOption("a","Range for initial amount","a","string","1:100*10");
