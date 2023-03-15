@@ -181,7 +181,7 @@ RatInverse.createQuestion = function(question) {
     
     var amml = mmlelt('math').attr('display','inline');
     
-    atexa.push(f + '^{-1} \colon ' + v + ' \mapsto ');
+    atexa.push(f + '^{-1} \\colon ' + v + ' \\mapsto ');
 
     var mrow = mmlelt('mrow');
     var msup = mmlelt('msup');
