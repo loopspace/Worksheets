@@ -6,7 +6,7 @@ Question Type: Sequences Sum of Arithmetic Series
 Given a linear sequence, sum to a given term
 */
 
-SeqSumSeries = new QuestionGenerator(
+SeqSumSeriesToTerm = new QuestionGenerator(
     "Sequences",
     "Sequence",
     "seq7",
@@ -14,19 +14,19 @@ SeqSumSeries = new QuestionGenerator(
     ["0:0"]
 );
 
-SeqSumSeries.explanation = function() {
+SeqSumSeriesToTerm.explanation = function() {
     return 'For each sequence, write down its sum to the given term.';
 }
-SeqSumSeries.shortexp = function() {
+SeqSumSeriesToTerm.shortexp = function() {
     return 'Write down the sum of ';
 }
 
-SeqSumSeries.addOption("terms","Range for asked for terms","t","string","10:20");
-SeqSumSeries.addOption("length","Number of shown terms","l","integer",4);
-SeqSumSeries.addOption("a","Range for first term","a","string","1:10");
-SeqSumSeries.addOption("d","Range for common difference","d","string","1:10");
+SeqSumSeriesToTerm.addOption("terms","Range for asked for terms","t","string","10:20");
+SeqSumSeriesToTerm.addOption("length","Number of shown terms","l","integer",4);
+SeqSumSeriesToTerm.addOption("a","Range for first term","a","string","1:10");
+SeqSumSeriesToTerm.addOption("d","Range for common difference","d","string","1:10");
     
-SeqSumSeries.createQuestion = function(question) {
+SeqSumSeriesToTerm.createQuestion = function(question) {
     var a,d,n,b;
     var p,sep;
     var nqn = 0;

@@ -18,8 +18,14 @@ SeqArithSeq.explanation = function() {
     return 'For each sequence, write down the first term (' + tomml('a')[0].outerHTML +  ') and the common difference (' + tomml('d')[0].outerHTML + ').';
 }
 
-SeqArithSeq.shortexp = function() {
-    return 'Write down the first term (' + tomml('a')[0].outerHTML +  ') and the common difference (' + tomml('d')[0].outerHTML + ') of ';
+SeqArithSeq.shortexp = function(type) {
+    if (type == HTML) {
+	return 'Write down the first term (' + tomml('a')[0].outerHTML +  ') and the common difference (' + tomml('d')[0].outerHTML + ') of ';
+    } else if (type == TEX) {
+	return 'Write down the first term (\\(a\\)) and the common difference (\\(d\\)) of ';
+    } else if (type == MKDWN) {
+	return 'Write down the first term ([m]a[/m]) and the common difference ([m]d[/m]) of ';
+    }
 }
 
 SeqArithSeq.addOption("terms","Number of given terms","t","integer",4);

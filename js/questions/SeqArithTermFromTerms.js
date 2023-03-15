@@ -18,7 +18,7 @@ SeqArithTermFromTerms.explanation = function() {
     return 'For each linear sequence, find the requested term.';
 }
 SeqArithTermFromTerms.shortexp = function () {
-    return 'Write down the requested term of the linear sequence ';
+    return 'For the following linear sequence, write down the ';
 }
 
 SeqArithTermFromTerms.addOption("gvnterms","Range of given terms","g","string","1:20");
@@ -70,7 +70,7 @@ SeqArithTermFromTerms.createQuestion = function(question) {
     question.atex = totex(qth);
 
     p = a;
-    question.qtex = 'Find the ' + q + ordinal_suffix_of(q) + ' term, where the '
+    question.qtex =  q + ordinal_suffix_of(q) + ' term, where the '
 	+ totex(f) + ordinal_suffix_of(f) + ' term is ' + totex(fst)
 	+ " and the "
 	+ totex(l) + ordinal_suffix_of(l) + ' term is ' + totex(lst)

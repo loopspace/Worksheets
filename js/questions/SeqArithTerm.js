@@ -19,7 +19,7 @@ SeqArithTerm.explanation = function() {
 }
 
 SeqArithTerm.shortexp = function() {
-    'Write down the formula for the nth term and the given term of ';
+    return 'Write down the formula for the nth term and the ';
 }
 
 SeqArithTerm.addOption("terms","Number of given terms","t","integer",4);
@@ -44,15 +44,8 @@ SeqArithTerm.createQuestion = function(question) {
     } while (this.checkQn([ a, d ]) )
     this.registerQn([ a, d ]);
 
-    var op,dif,term;
-    if (a - d > 0) {
-	op = tommlelt('+');
-	dif = tommlelt(a - d);
-    } else if (a - d < 0) {
-	op = tommlelt('-');
-	dif = tommlelt(d - a);
-    }
-    term = a + d*(k-1);
+    var term;
+    term = math.add(a,math.multiply(d,math.subtract(k,1)));
 
     var nthterm = mmlelt('math').attr('display','inline');
     question.atex = '';
@@ -68,16 +61,16 @@ SeqArithTerm.createQuestion = function(question) {
     nthterm.append(tommlelt("n"));
     question.atex += 'n';
 
-    if (a - d > 0) {
+    if (math.compare(a, d) == 1) {
 	nthterm.append(tommlelt("+"));
-	nthterm.append(tommlelt(a - d));
+	nthterm.append(tommlelt(math.subtract(a, d)));
 	question.atex += '+';
-	question.atex += a - d;
-    } else if (a - d < 0) {
+	question.atex += math.subtract(a, d);
+    } else if (math.compare(a, d) == -1) {
 	nthterm.append(tommlelt("-"));
-	nthterm.append(tommlelt(d - a));
+	nthterm.append(tommlelt(math.subtract(d, a)));
 	question.atex += '-';
-	question.atex += d - a;
+	question.atex += math.subtract(d, a);
     }
     
     
@@ -96,6 +89,13 @@ SeqArithTerm.createQuestion = function(question) {
 
     p = a;
     question.qtex = '';
+
+    question.qdiv.append(
+	tomml(k)
+    ).append(
+	ordinal_suffix_of(k) + " term of "
+    );
+    question.qtex = totex(k) +  ordinal_suffix_of(k) + ' term of ';
     for (var j = 0; j < this.terms; j++) {
 	question.qdiv.append(tomml(p));
 	question.qtex += totex(p) + ", ";
@@ -105,14 +105,6 @@ SeqArithTerm.createQuestion = function(question) {
     }
     question.qtex += totex('\\dotsc');
     question.qdiv.append($('<span>').addClass("dots").html("..."));
-    question.qdiv.append($('<span>').append(
-	";&nbsp;"
-    ).append(
-	tomml(k)
-    ).append(
-	ordinal_suffix_of(k) + " term"
-    ));
-    question.qtex += '; ' + totex(k) +  ordinal_suffix_of(k) + ' term.';
 
     return this;
 }

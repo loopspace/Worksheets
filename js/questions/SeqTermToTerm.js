@@ -20,7 +20,7 @@ SeqTermToTerm.explanation = function() {
 
 
 SeqTermToTerm.shortexp = function() {
-    return 'Write down the first ' + (this.terms == 1 ? 'term' :  int_to_words(this.terms) + ' terms') + ' of ';
+    return 'Write down the first ' + (this.terms == 1 ? 'term' :  int_to_words(this.terms) + ' terms') + ' of the sequence with ';
 }
 
 SeqTermToTerm.addOption("terms", "Number of asked for terms", "t", "integer", 4);
@@ -36,11 +36,11 @@ SeqTermToTerm.mkop = function(n) {
 	n = Math.floor(3*this.prng());
     }
     if (n == 0) {
-	return {op: function(u,v) { return math.add(u,v) }, type: "Add "};
+	return {op: function(u,v) { return math.add(u,v) }, type: "add "};
     } else if (n == 1) {
-	return {op: function(u,v) { return math.multiply(u,v) }, type: "Multiply by "};
+	return {op: function(u,v) { return math.multiply(u,v) }, type: "multiply by "};
     } else {
-	return {op: function(u,v) { return math.fraction(math.divide(u,v)) }, type: "Divide by " };
+	return {op: function(u,v) { return math.fraction(math.divide(u,v)) }, type: "divide by " };
     }
 };
 
@@ -62,15 +62,15 @@ SeqTermToTerm.createQuestion = function(question) {
 
     this.registerQn([ a, d, op.type]);
     
-    question.qdiv.append( $('<span>').append("First term: ").append(tomml(a)).append(", "));
-    question.qtex += "First term: " + totex(a) + ", ";
-    if (op.type == "Add ") {
+    question.qdiv.append( $('<span>').append("first term: ").append(tomml(a)).append(", "));
+    question.qtex += "first term: " + totex(a) + ", ";
+    if (op.type == "add ") {
 	if (d > 0) {
-	    question.qdiv.append( $('<span>').append("rule: Add ").append(tomml(d)).append("."));
-	    question.qtex += 'rule: Add ' + totex(d) + ".";
+	    question.qdiv.append( $('<span>').append("rule: add ").append(tomml(d)).append("."));
+	    question.qtex += 'rule: add ' + totex(d) + ".";
 	} else {
-	    question.qdiv.append( $('<span>').append("rule: Subtract ").append(tomml(-d)).append("."));
-	    question.qtex += 'rule: Subtract ' + totex(-d) + ".";
+	    question.qdiv.append( $('<span>').append("rule: subtract ").append(tomml(-d)).append("."));
+	    question.qtex += 'rule: subtract ' + totex(-d) + ".";
 	}
     } else {
 	question.qdiv.append( $('<span>').append("rule: " + op.type).append(tomml(d)).append("."));
