@@ -152,7 +152,7 @@ class QuestionGenerator {
 
     resetSaved() {
 	this.qns = {};
-	for (const k of Object.keys(this.qnsReset)) {
+	for (const k of this.qnsReset) {
 	    this.registerQn(k);
 	}
 	return this;
@@ -204,7 +204,7 @@ class QuestionGenerator {
 	// Create the headers
 	var exhdr = $('<h1>').html(this.title + ' Questions');
 	var solhdr = $('<h1>').html(this.title + ' Answers');
-	var extxt = $('<div>').addClass('explanation');
+	var extxt = $('<div>').addClass('explanation').attr('contenteditable','true');
 	extxt.html(this.explanation(HTML));
 
 	// Create the URL &c
@@ -314,6 +314,12 @@ class Question {
 	    .append(reload.clone(true,true))
 	    .append(action.clone(true,true));
 	ad = this.adiv.clone(true,true);
+	if (this.qmkd == '') {
+	    this.qmkd = textomkds(this.qtex);
+	}
+	if (this.amkd == '') {
+	    this.amkd = textomkds(this.atex);
+	}
 	if (wks) {
 	    qt = $('<div>').text('\n\\item ' + this.generator.shortexp(TEX) + this.qtex);
 	    qm = $('<div>').text('\n* ' + this.generator.shortexp(MKDWN) + this.qmkd);
