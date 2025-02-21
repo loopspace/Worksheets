@@ -172,12 +172,17 @@
 	  </div>
 	  <div id="options">
 	  </div>
-	  <div id="qns">
+	  <div id="qnpage">
+	    <div id="qns">
+	    </div>
 	  </div>
-	  <div id="ans">
+	  <div id="anspage">
+	    <div id="ans">
+	    </div>
 	  </div>
 	</div>
 	<div id="worksheet">
+	  <div id="wkqnpage">
 	  <div id="wkqns">
 	    <h1>Questions</h1>
 	    <div class='columns questions'>
@@ -185,45 +190,48 @@
 	      </ol>
 	    </div>
 	  </div>
-	  <div id="wkans">
-	    <h1>Answers</h1>
-	    <div class='columns answers'>
-	      <ol id="wksollist" class='sollist'>
-	      </ol>
+	  </div>
+	  <div id="wkanspage">
+	    <div id="wkans">
+	      <h1>Answers</h1>
+	      <div class='columns answers'>
+		<ol id="wksollist" class='sollist'>
+		</ol>
+	      </div>
 	    </div>
-	    <div id='wkextex' class='LaTeX'></div>
-	    <div id='wksoltex' class='LaTeX'></div>
-	    <div id='wkbothtex' class='LaTeX'></div>
-	    <div id='wkexmkd' class='Markdown'></div>
-	    <div id='wksolmkd' class='Markdown'></div>
-	    <div id='wkbothmkd' class='Markdown'></div>
-	    <div class='configuration'>
-	      <form>
-		<span>Copy questions to clipboard as </span>
-		<button id="wkcpyqnstex" type="button" class="LaTeXbtn">
-		  LaTeX
-		</button>
-		<button id="wkcpyqnsmkd" type="button" class="LaTeXbtn">
-		  Markdown
-		</button>.
-		<br>
-		<span>Copy answers to clipboard as </span>
-		<button id="wkcpysoltex" type="button" class="LaTeXbtn">
-		  LaTeX
-		</button>
-		<button id="wkcpysolmkd" type="button" class="LaTeXbtn">
-		  Markdown
-		</button>
-		<br>
-		<span>Copy both to clipboard as </span>
-		<button id="wkcpybothtex" type="button" class="LaTeXbtn">
-		  LaTeX
-		</button>
-		<button id="wkcpybothmkd" type="button" class="LaTeXbtn">
-		  Markdown
-		</button>
-	      </form>
-	    </div>
+	  </div>
+	  <div id='wkextex' class='LaTeX'></div>
+	  <div id='wksoltex' class='LaTeX'></div>
+	  <div id='wkbothtex' class='LaTeX'></div>
+	  <div id='wkexmkd' class='Markdown'></div>
+	  <div id='wksolmkd' class='Markdown'></div>
+	  <div id='wkbothmkd' class='Markdown'></div>
+	  <div class='configuration'>
+	    <form>
+	      <span>Copy questions to clipboard as </span>
+	      <button id="wkcpyqnstex" type="button" class="LaTeXbtn">
+		LaTeX
+	      </button>
+	      <button id="wkcpyqnsmkd" type="button" class="LaTeXbtn">
+		Markdown
+	      </button>.
+	      <br>
+	      <span>Copy answers to clipboard as </span>
+	      <button id="wkcpysoltex" type="button" class="LaTeXbtn">
+		LaTeX
+	      </button>
+	      <button id="wkcpysolmkd" type="button" class="LaTeXbtn">
+		Markdown
+	      </button>
+	      <br>
+	      <span>Copy both to clipboard as </span>
+	      <button id="wkcpybothtex" type="button" class="LaTeXbtn">
+		LaTeX
+	      </button>
+	      <button id="wkcpybothmkd" type="button" class="LaTeXbtn">
+		Markdown
+	      </button>
+	    </form>
 	  </div>
 	</div>
 	<div id="help">
@@ -308,7 +316,10 @@
 	      showing only the questions and answers. It also repeats
 	      the questions so that they fill a page, pushing the
 	      answers onto the next page, making it easier to print a
-	      set without wasting paper.
+	      set without wasting paper. This is not 100% guaranteed
+	      to put the page break in the right place, but usually
+	      changing the scale of the print by a couple of percent
+	      can fix this without visually changing the layout.
 	    <li>LaTeX and Markdown export: these export the
 	      questions, answers, and both interleaved, suitable for
 	      pasting into a LaTeX or Markdown document. Note that

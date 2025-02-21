@@ -202,8 +202,8 @@ class QuestionGenerator {
     	this.setOptions();
 
 	// Create the headers
-	var exhdr = $('<h1>').html(this.title + ' Questions');
-	var solhdr = $('<h1>').html(this.title + ' Answers');
+	var exhdr = $('<h1>').html(this.title + ' Questions').attr('contenteditable','true');
+	var solhdr = $('<h1>').html(this.title + ' Answers').attr('contenteditable','true');
 	var extxt = $('<div>').addClass('explanation').attr('contenteditable','true');
 	extxt.html(this.explanation(HTML));
 
@@ -341,7 +341,7 @@ class Question {
     addToLists(exlist, sollist, extex, soltex, bothtex, exmkd, solmkd, bothmkd, wks) {
 	var divs = this.createDivs(wks);
 	
-	var shextxt = $('<span>').addClass('shortexplanation');
+	var shextxt = $('<span>').addClass('shortexplanation').attr('contenteditable','true');
 	shextxt.html(this.generator.shortexp(HTML));
 	
 	exlist.append(

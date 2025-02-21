@@ -324,18 +324,26 @@ function cleanDisplay() {
     }
 
     if (b) {
-	var qdiv = $('#qns');
-	var wdiv = $('#questions');
-	var lq;
-	while (wdiv.outerHeight(true) < cm2px(29.7)) {
-	    lq = qdiv.clone().addClass('removeable');
-	    qdiv.after(lq);
-	}
-	if (lq) {
-	    lq.remove();
+	if ($('#swtoqns').hasClass('current')) {
+	    fillPage( $('#qns'), $('#qnpage'));
+	    fillPage( $('#ans'), $('#anspage'));
+	} else if ($('#swtowks').hasClass('current')) {
+	    fillPage( $('#wkqns'), $('#wkqnpage'));
+	    fillPage( $('#wkans'), $('#wkanspage'));
 	}
     } else {
 	$('.removeable').remove();
+    }
+}
+
+function fillPage(qdiv, wdiv) {
+    var lq;
+    while (wdiv.outerHeight(true) < cm2px(29.7)) {
+	lq = qdiv.clone().addClass('removeable');
+	qdiv.after(lq);
+    }
+    if (lq) {
+	lq.remove();
     }
 }
 
