@@ -32,7 +32,7 @@ function tomml(s) {
 }
 
 var moelts = [
-    'le', 'lt', 'ge', 'gt', 'plusmn', 'colon', 'map', 'Element', 'ne', 'times'
+    'le', 'lt', 'ge', 'gt', 'plusmn', 'colon', 'map', 'Element', 'ne', 'times', 'Integral'
 ];
 
 function tommlelt(s) {
@@ -297,6 +297,11 @@ function addPower(b,p,tex,mml,roots) {
     return true;
 }
 
+
+/*
+  Monomial structure is a 2-element array:
+  [ coefficent , power ]
+ */
 function addMonomial(q, tex, mml, v, fractions, roots) {
     var n,d;
     if (math.isNumeric(q[1]) && math.equal(q[1],0)) {
@@ -438,6 +443,45 @@ function evaluatePolynomial(q, x) {
     return t;
 }
 
+// is there a term that has non-zero coefficient and non-zero degree?
+function isConstantPolynomial(q) {
+    for (var i = 0; i < q.length; i++) {
+	if (q[i][0] != 0 && q[i][0] != 0) {
+	    return false;
+	}
+    }
+    return true;
+}
+
+// is there a term that has non-zero coefficient?
+function isZeroPolynomial(q) {
+    for (var i = 0; i < q.length; i++) {
+	if (q[i][0] != 0) {
+	    return false;
+	}
+    }
+    return true;
+}
+
+// looking for constant terms with coefficient 1
+function isOnePolynomial(q) {
+    var constant = 0;
+    for (var i = 0; i < q.length; i++) {
+	// constant term, running total of the constants
+	if ( q[i][1] == 0) {
+	    constant += q[i][0];
+	}
+	// non-constant term, non-zero coefficent
+	if (q[i][1] != 0 && q[i][0] != 0) {
+	    return false;
+	}
+    }
+    if (constant == 1) {
+	return true;
+    }
+    return false;
+}
+
 function hasSquareRoot(a) {
     if (a.isFraction) {
 	var b = math.sqrt(a.n);
@@ -510,39 +554,32 @@ function commonTerms() {
 }
 
 function powerOfTen(n) {
-    switch (n) {
-    case 1:
-	return "ten";
-	break;
-    case 2:
-	return "hundred";
-	break;
-    case 3:
-	return "thousand";
-	break;
-    case 4:
-	return "ten thousand";
-	break;
-    case 5:
-	return "hundred thousand";
-	break;
-    case 6:
-	return "million";
-	break;
-    case 7:
-	return "ten million";
-	break;
-    case 8:
-	return "hundred million";
-	break;
-    case 9:
-	return "billion";
-	break;
-    default:
-	return "1" + "0".repeat(n);
-	break;
+    if (typeof(n) != "number") {
+	n = n.s * n.n/n.d;
     }
-    return "";
+    var out = [];
+    while (n > 0) {
+	if (n >= 12) {
+	    out.unshift("trillion");
+	    n -= 12;
+	} else if (n >= 9) {
+	    out.unshift("billion");
+	    n -= 9;
+	} else if (n >= 6) {
+	    out.unshift("million");
+	    n -= 6;
+	} else if (n >= 3) {
+	    out.unshift("thousand");
+	    n -= 3;
+	} else if (n >= 2) {
+	    out.unshift("hundred");
+	    n -= 2;
+	} else if (n >= 1) {
+	    out.unshift("ten");
+	    n -= 1;
+	}
+    }
+    return out.join(" ");
 }
 
 // From http://stackoverflow.com/q/13621545
@@ -1043,4 +1080,17 @@ function nextletter(l) {
 	return String.fromCodePoint(codePoint + 1);
 //    }
 
+}
+
+// Shuffle an array in place
+function shuffle(a,p) {
+    var j;
+    const n = a.length;
+    for (var i = 0; i < n; i++) {
+	j = Math.floor( p() * (n-i) ) + i;
+	if (i != j) {
+	    [a[i], a[j]] = [a[j], a[i]];
+	}
+    }
+    return a;
 }
