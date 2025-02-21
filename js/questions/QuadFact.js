@@ -38,7 +38,6 @@ QuadFact.createQuestion = function(question) {
 	b = randomFromRange(this.b,this.prng());
 	c = randomFromRange(this.c,this.prng());
 	d = randomFromRange(this.d,this.prng());
-	nqn++;
 
 	if (a > c) {
 	    tmp = a;
@@ -53,9 +52,12 @@ QuadFact.createQuestion = function(question) {
 	    b = d;
 	    d = tmp;
 	}
-	if (nqn > 10) {
+	nqn++;
+	if (nqn == 10) {
 	    this.resetSaved();
-	    nqn = 0;
+	}
+	if (nqn == 20) {
+	    return false;
 	}
     } while (!math.equal(commonTerms(a,b),1) ||!math.equal(commonTerms(c,d),1) || a * c == 0 || b**2 + d**2 == 0 || this.checkQn([ a, b, c, d]))
 

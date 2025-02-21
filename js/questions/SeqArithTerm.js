@@ -37,9 +37,11 @@ SeqArithTerm.createQuestion = function(question) {
 	d = randomFromRange(this.d,this.prng());
 	k = randomFromRange(this.k,this.prng());
 	nqn++;
-	if (nqn > 10) {
+	if (nqn == 10) {
 	    this.resetSaved();
-	    nqn = 0;
+	}
+	if (nqn == 20) {
+	    return false;
 	}
     } while (this.checkQn([ a, d ]) )
     this.registerQn([ a, d ]);

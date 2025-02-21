@@ -34,9 +34,11 @@ PercentFrom.createQuestion = function(question) {
 	b = randomFromRange(this.b, this.prng());
     
 	nqn++;
-	if (nqn > 10) {
+	if (nqn == 10) {
 	    this.resetSaved();
-	    nqn = 0;
+	}
+	if (nqn == 20) {
+	    return false;
 	}
     } while (a == 0 || this.checkQn([a,b]))
 

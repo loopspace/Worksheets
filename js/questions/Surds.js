@@ -61,9 +61,11 @@ Surds.createQuestion = function(question) {
 	    q.push([a,b,c]);
 	}
 	nqn++;
-	if (nqn > 10) {
+	if (nqn == 10) {
 	    this.resetSaved();
-	    nqn = 0;
+	}
+	if (nqn == 20) {
+	    return false;
 	}
     } while (this.checkQn(q));
     

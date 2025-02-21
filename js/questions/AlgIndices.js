@@ -64,9 +64,11 @@ AlgIndices.createQuestion = function(question) {
 	    ps.push(p.toString());
 	}
 	nqn++;
-	if (nqn > 10) {
+	if (nqn == 10) {
 	    this.resetSaved();
-	    nqn = 0;
+	}
+	if (nqn == 20) {
+	    return false;
 	}
 	q.sort(function(a,b) { return b[1] - a[1] });
 	for (var j = 0; j < q.length; j++) {

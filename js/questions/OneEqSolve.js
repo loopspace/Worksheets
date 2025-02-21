@@ -35,9 +35,11 @@ OneEqSolve.createQuestion = function(question) {
 	b = randomFromRange(this.b,this.prng());
 	x = randomFromRange(this.x,this.prng());
 	nqn++;
-	if (nqn > 10) {
+	if (nqn == 10) {
 	    this.resetSaved();
-	    nqn = 0;
+	}
+	if (nqn == 20) {
+	    return false;
 	}
     } while ( math.equal(a, 0) || this.checkQn([ a, b, x ]))
 

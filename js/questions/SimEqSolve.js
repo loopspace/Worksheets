@@ -26,7 +26,6 @@ SimEqSolve.createQuestion = function(question) {
     var e, f;
     var p,sep,qtexa,atexa,coeffn,numbfn;
     var nqn = 0;
-    var bail = false;
 
     do {
 	a = randomFromRange(this.a,this.prng());
@@ -36,11 +35,11 @@ SimEqSolve.createQuestion = function(question) {
 	x = randomFromRange(this.x,this.prng());
 	y = randomFromRange(this.x,this.prng());
 	nqn++;
-	if (nqn > 10) {
-	    if (bail) { return false; }
+	if (nqn == 10) {
 	    this.resetSaved();
-	    nqn = 0;
-	    bail = true;
+	}
+	if (nqn == 20) {
+	    return false;
 	}
     } while (
 	math.equal(math.multiply(a,b,c,d),0)

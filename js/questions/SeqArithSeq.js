@@ -40,9 +40,11 @@ SeqArithSeq.createQuestion = function(question) {
 	a = randomFromRange(this.a,this.prng());
 	d = randomFromRange(this.d,this.prng());
 	nqn++;
-	if (nqn > 10) {
+	if (nqn == 10) {
 	    this.resetSaved();
-	    nqn = 0;
+	}
+	if (nqn == 20) {
+	    return false;
 	}
     } while (this.checkQn([ a, d]))
 

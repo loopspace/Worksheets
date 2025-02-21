@@ -46,9 +46,11 @@ PercentComp.createQuestion = function(question) {
 	    p.push(b);
 	}
 	nqn++;
-	if (nqn > 10) {
+	if (nqn == 10) {
 	    this.resetSaved();
-	    nqn = 0;
+	}
+	if (nqn == 20) {
+	    return false;
 	}
     } while (this.checkQn(Array.prototype.concat(a, p.slice().sort())))
 

@@ -23,7 +23,7 @@ FromStdForm.createQuestion = function(question) {
     var a = [];
     var qtexa,atexa;
     var nqn = 0;
-
+    
     var n = 0,e = 0;
 
     do {
@@ -39,9 +39,11 @@ FromStdForm.createQuestion = function(question) {
 	}
 	a.push(randomFromRange("1:9",this.prng()));
 	nqn++;
-	if (nqn > 10) {
+	if (nqn == 10) {
 	    this.resetSaved();
-	    nqn = 0;
+	}
+	if (nqn == 20) {
+	    return false;
 	}
     } while (this.checkQn(a.join(':') + ':' + e))
 

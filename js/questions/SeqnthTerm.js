@@ -37,9 +37,11 @@ SeqnthTerm.createQuestion = function(question) {
 	b = randomFromRange(this.b,this.prng());
 	c = randomFromRange(this.c,this.prng());
 	nqn++;
-	if (nqn > 10) {
+	if (nqn == 10) {
 	    this.resetSaved();
-	    nqn = 0;
+	}
+	if (nqn == 20) {
+	    return false;
 	}
     } while (this.checkQn([ a, b, c ]));
     this.registerQn([ a, b , c ]);

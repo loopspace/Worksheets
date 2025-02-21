@@ -87,9 +87,11 @@ CalcBrackets.createQuestion = function(question) {
 	}
 
 	nqn++;
-	if (nqn > 10) {
+	if (nqn == 10) {
 	    this.resetSaved();
-	    nqn = 0;
+	}
+	if (nqn == 20) {
+	    return false;
 	}
 	qs.sort();
     } while ( this.checkQn(qs) )

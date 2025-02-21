@@ -34,9 +34,11 @@ OneStepSolve.createQuestion = function(question) {
 	x = randomFromRange(this.x,this.prng());
 	op = Math.floor(this.prng()*4);
 	nqn++;
-	if (nqn > 10) {
+	if (nqn == 10) {
 	    this.resetSaved();
-	    nqn = 0;
+	}
+	if (nqn == 20) {
+	    return false;
 	}
     } while (
 	math.equal(a, 0)

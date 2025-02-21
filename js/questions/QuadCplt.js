@@ -38,9 +38,11 @@ QuadCplt.createQuestion = function(question) {
 	q = randomFromRange(this.q,this.prng());
 	r = randomFromRange(this.r,this.prng());
 	nqn++;
-	if (nqn > 10) {
+	if (nqn == 10) {
 	    this.resetSaved();
-	    nqn = 0;
+	}
+	if (nqn == 20) {
+	    return false;
 	}
     } while (p == 0 || this.checkQn([p, q, r]))
     this.registerQn([ p, q, r]);

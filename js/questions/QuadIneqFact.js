@@ -37,7 +37,6 @@ QuadIneqFact.createQuestion = function(question) {
 	b = randomFromRange(this.b,this.prng());
 	c = randomFromRange(this.c,this.prng());
 	d = randomFromRange(this.d,this.prng());
-	nqn++;
 
 	if (a > c) {
 	    tmp = a;
@@ -53,9 +52,12 @@ QuadIneqFact.createQuestion = function(question) {
 	    d = tmp;
 	}
 
-	if (nqn > 10) {
+	nqn++;
+	if (nqn == 10) {
 	    this.resetSaved();
-	    nqn = 0;
+	}
+	if (nqn == 20) {
+	    return false;
 	}
     } while (!math.equal(commonTerms(a,b),1) || !math.equal(commonTerms(c,d),1) || a == 0 || c == 0 || b*d == 0 || this.checkQn([ a, b, c, d]))
 
