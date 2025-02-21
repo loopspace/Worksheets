@@ -97,7 +97,7 @@ IntExp.createQuestion = function(question) {
     
     var qmml = mmlelt('math').attr('display','inline');
 
-    qmml.append(tommlelt('&Integral;'));
+    qmml.append(tommlelt('&Integral;').attr('displaystyle', 'true'));
     qtexa.push('\\int');
 
     addPolynomial(a,qtexa,qmml,v,this.f,this.r);

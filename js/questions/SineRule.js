@@ -29,12 +29,11 @@ SineRule.createQuestion = function(question) {
     var nqn = 0;
 
     var A,B,C,p,r,s,m,omit,find;
-    p = Math.pow(10,this.d);
+    p = Math.pow(10,this.d - 1);
     r = '1:' + (p-1);
     s = 0;
 
     do {
-
 	A = 0;
 	B = 0;
 
@@ -55,6 +54,7 @@ SineRule.createQuestion = function(question) {
 	    a = [];
 	    continue;
 	}
+
 	omit = randomFromRange('0:2',this.prng());
 	find = randomFromRange('0:3',this.prng());
 	if (!this.ambiguous && find < 2) {
@@ -71,6 +71,7 @@ SineRule.createQuestion = function(question) {
 	    }
 	}
 
+
 	a.push(randomFromRange(r,this.prng()));
 
 	nqn++;
@@ -81,8 +82,13 @@ SineRule.createQuestion = function(question) {
 	}
 
     } while (this.checkQn(a))
-
+    // Register with the angles in order
     this.registerQn(a);
+
+    var tmp = a[3];
+    // shuffle the angles
+    a = shuffle(a.slice(0,3),this.prng);
+    a.push(tmp);
     
     m = randomFromRange(this.m,this.prng());
     
@@ -98,22 +104,17 @@ SineRule.createQuestion = function(question) {
     a[5] *= m/p;
 
     var triangle = makeTriangle(a);
+    $(triangle).css('vertical-align','top');
     
     for (var i = 0; i < 6; i++) {
 	a[i] = Math.roundsf(a[i],this.d);
     }
     
+    const labels = ["A","B","C","a","b","c"];
     a.splice(omit+3,1);
     a.splice(omit,1);
-
-    omit = randomFromRange('0:2',this.prng());
-    var labels = ["C","B","A"];
+    labels.splice(omit+3,1);
     labels.splice(omit,1);
-    if (this.prng() > .5) {
-	labels.sort();
-    }
-    labels.push(labels[0].toLowerCase());
-    labels.push(labels[1].toLowerCase());
 
     var ans;
     if (find == 0) {
@@ -136,6 +137,7 @@ SineRule.createQuestion = function(question) {
     qtexa = ['Find ','\\(',labels[find], '\\)', ', ', 'where '];
     atexa = [];
 
+    question.qdiv.append(triangle);
     question.qdiv.append(
 	$('<span>').append('Find ')
     ).append(
@@ -143,7 +145,6 @@ SineRule.createQuestion = function(question) {
     ).append(
 	$('<span>').append(', where ')
     );
-//    question.qdiv.append(triangle);
     
     var qmml,amml;
 

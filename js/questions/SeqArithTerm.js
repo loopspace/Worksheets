@@ -25,7 +25,7 @@ SeqArithTerm.shortexp = function() {
 SeqArithTerm.addOption("terms","Number of given terms","t","integer",4);
 SeqArithTerm.addOption("a","Range for first term","a","string","1:10");
 SeqArithTerm.addOption("d","Range for common difference","d","string","1:10");
-SeqArithTerm.addOption("k","Range for requested kth term","k","string","20:40");
+SeqArithTerm.addOption("k","Range for requested <math xmlns='http://www.w3.org/1998/Math/MathML' display='inline'><mi>k</mi></math>th term","k","string","20:40");
     
 SeqArithTerm.createQuestion = function(question) {
     var a,d,k;

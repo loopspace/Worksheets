@@ -130,7 +130,9 @@ AlgBrackets.createQuestion = function(question) {
 	    qtexa.push('\\left(');
 	    qmml.append(tommlelt('('));
 	}
-	addPolynomial(q[i],qtexa,qmml,v,this.f);
+	if (!isOnePolynomial(q[i])) {
+	    addPolynomial(q[i],qtexa,qmml,v,this.f);
+	}
 	if (l > 1) {
 	    qtexa.push('\\right)');
 	    qmml.append(tommlelt(')'));

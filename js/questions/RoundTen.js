@@ -71,7 +71,7 @@ RoundTen.createQuestion = function(question) {
     for (var i = 0; i < n; i++) {
 	b.push(0);
     }
-    
+
     var qn = a;
     var ans = b;
 
@@ -82,8 +82,8 @@ RoundTen.createQuestion = function(question) {
 
     var qmml = mmlelt('math').attr('display','inline');
     
-    qmml.append(mmlelt('mi').html(qn));
-    qtexa.push(qn);
+    qmml.append(mmlelt('mi').html(qn.join("")));
+    qtexa.push(qn.join(""));
 
     qtexa.push('\\)');
     question.qdiv.append(qmml);
@@ -94,8 +94,8 @@ RoundTen.createQuestion = function(question) {
     qtexa.push(' to the nearest ' + powerOfTen(n) +  '.');
     
     var amml = mmlelt('math').attr('display','inline');
-    amml.append(mmlelt('mi').html(ans));
-    atexa.push(ans);
+    amml.append(mmlelt('mi').html(ans.join("")));
+    atexa.push(ans.join(""));
     
     question.adiv.append(amml);
     atexa.push('\\)');

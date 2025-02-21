@@ -76,6 +76,9 @@ CosineRule.createQuestion = function(question) {
     a[4] *= m/p;
     a[5] *= m/p;
 
+    const triangle = makeTriangle(a);
+    $(triangle).css('vertical-align','top');
+    
     for (var i = 0; i < 6; i++) {
 	a[i] = Math.roundsf(a[i],this.d);
     }
@@ -110,6 +113,7 @@ CosineRule.createQuestion = function(question) {
     qtexa = ['Find ','\\(',labels[find], '\\), ', 'where '];
     atexa = [];
 
+    question.qdiv.append(triangle);
     question.qdiv.append(
 	$('<span>').append('Find ')
     ).append(

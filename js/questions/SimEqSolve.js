@@ -79,7 +79,7 @@ SimEqSolve.createQuestion = function(question) {
 	math.multiply(d, y)
     );
     
-    question.qdiv = $('<div>').addClass('question');
+    question.qdiv = $('<div>').addClass('question').addClass('extraSpace');
     question.adiv = $('<div>').addClass('answer');
     qtexa = ['\\begin{align*}'];
     atexa = [];

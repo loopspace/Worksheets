@@ -131,7 +131,7 @@ IntExp.createQuestion = function(question) {
 
     var mint = mmlelt('mrow').append(
 	mmlelt('msubsup').append(
-	    tommlelt('&Integral;')
+	    tommlelt('&Integral;').attr('displaystyle', 'true')
 	).append(
 	    tommlelt(lower)
 	).append(
