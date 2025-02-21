@@ -22,13 +22,22 @@ function init() {
     init_px2cm();
 
     var typesel = $('#typeSelect');
+    var topicsel = $('#Topic');
     if (qs.type) {
 	typesel.val(qs.type);
-    } /*else {
-	typesel.val('seq0');
-    } */
-    var opt = typesel.val() || 'seq0';
+    }
+    if (qs.topic) {
+	topicsel.val(qs.topic);
+    }
+    
+    topicsel.on('change', revealOptions);
+    revealOptions_aux( topicsel.val() );
+
+
+    var opt = typesel.val();
+	/*|| 'seq0';
     typesel.val(opt);
+    */
     
     var opts = $('#options');
     var qns = $('#qns');
@@ -51,18 +60,33 @@ function init() {
 	MathJaxOrNot(function() {
 	    $('#worksheet').hide();
 	    $('#questions').show();
+	    $('#help').hide();
 	});
 	$('#swtoqns').addClass('current');
 	$('#swtowks').removeClass('current');
+	$('#swtohelp').removeClass('current');
     });
     $('#swtowks').on('click', function(e) {
 	e.preventDefault();
 	MathJaxOrNot(function() {
-		$('#worksheet').show();
-		$('#questions').hide();
+	    $('#worksheet').show();
+	    $('#questions').hide();
+	    $('#help').hide();
 	});
 	$('#swtowks').addClass('current');
 	$('#swtoqns').removeClass('current');
+	$('#swtohelp').removeClass('current');
+    });
+    $('#swtohelp').on('click', function(e) {
+	e.preventDefault();
+	MathJaxOrNot(function() {
+	    $('#worksheet').hide();
+	    $('#questions').hide();
+	    $('#help').show();
+	});
+	$('#swtohelp').addClass('current');
+	$('#swtoqns').removeClass('current');
+	$('#swtowks').removeClass('current');
     });
 
     $('#togglePrintable').on('click', function(e) {
@@ -105,6 +129,24 @@ function init() {
 	copyToClipboard($('#wkbothmkd')[0]);
     });
 
+}
+
+function revealOptions (evt) {
+    revealOptions_aux($(evt.target).val());
+}
+
+function revealOptions_aux(lbl) {
+    $('#typeSelect optgroup').hide();
+    $('#typeSelect optgroup[label="' + lbl + '"]').show();
+
+    /* if switching to a new optgroup, select the first option */
+    if (
+	$("#typeSelect option:selected").parent().attr("label") != lbl
+    ) {
+	$("#typeSelect option:selected").prop("selected", false);
+	$('#typeSelect optgroup[label="' + lbl + '"] option:first').prop("selected", "selected");
+	$('#typeSelect').trigger('change');
+    }
 }
 
 function setOptions (formdiv,workdiv,ansdiv,obj,params) {

@@ -31,9 +31,15 @@ body.printable {
     -webkit-column-gap: 2em;
     -moz-column-gap: 2em;
     column-gap: 2em;
+    /* Spec says 'balance-all', MDN says not implemented yet */
+    /* 
     -webkit-column-fill: balance-all;
     -moz-column-fill: balance-all;
     column-fill: balance-all;
+   */
+    -webkit-column-fill: balance;
+    -moz-column-fill: balance;
+    column-fill: balance;
 }
 
 .columns li {
@@ -84,7 +90,7 @@ body.printable {
 }
 
 .exlist li, .sollist li {
-    padding-bottom: .5ex;
+    padding-bottom: 1em; /* .5ex; */
     list-style-position: inside;
     text-indent: -4ex;
     padding-left: 4ex;
@@ -214,6 +220,10 @@ button {
     display: none;
 }
 
+#help {
+    display: none;
+}
+
 @keyframes fadeOutIn {
     from {
 	color: #000;
@@ -250,5 +260,4 @@ svg {
 #togglePrintable.printable {
     background: #fff;
 }
-
 
