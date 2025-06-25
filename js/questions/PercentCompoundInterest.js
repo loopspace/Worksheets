@@ -9,13 +9,13 @@
 PercentCompInt = new QuestionGenerator(
     "Arithmetic",
     "Compound Percentage Interest",
-    "arith14",
+    "arith17",
     "PercentCompInt",
     [""]
 );
 
 PercentCompInt.explanation = function() {
-    return 'Calculate the final amount after applying the following percentage changes.';
+    return 'Calculate the step percentage in the following compound percentage changes.';
 }
 PercentCompInt.shortexp = function() {
     return '';
@@ -51,59 +51,59 @@ PercentCompInt.createQuestion = function(question) {
 
     var ch;
     if (p > 0) {
-	ch = "Increase";
+	ch = "increased";
     } else {
-	ch = "Decrease";
+	ch = "decreased";
     }
 
     var pct = Math.abs(p);
+    var s = a * Math.pow(1 + p/100, n);
+
+    s = Math.round10(s, -this.d);
     
     question.qdiv.append(
-	$('<span>').append(ch + " the amount ")
+	$('<span>').append("The amount ")
     ).append(
 	tomml(a)
     ).append(
-	$('<span>').append(" by ")
+	$('<span>').append(" was " + ch + " by a percentage a total of ")
     ).append(
+	tomml(n)
+    ).append(
+	$('<span>').append(" times resulting in ")
+    ).append(
+	tomml(s)
+    ).append(
+	$('<span>').append(". What was the percentage?")
+    );
+
+    question.qtex = 
+	"The amount "
+	+ totex(a)
+	+ "was " + ch +" by a percentage a total of "
+	+ totex(n)
+	+ " times resulting in"
+	+ totex(s)
+	+ ". What was the percentage?";
+
+    question.qmkd =
+	"The amount "
+	+ tomkd(a)
+	+ "was " + ch +" by a percentage a total of "
+	+ tomkd(n)
+	+ " times resulting in"
+	+ tomkd(s)
+	+ ". What was the percentage?";
+
+    question.adiv.append(
 	mmlelt('math').attr('display','inline').append(
 	    tommlelt(pct)
 	).append(
 	    tommlelt("%")
 	)
-    ).append(
-	$('<span>').append(" a total of ")
-    ).append(
-	tomml(n)
-    ).append(
-	$('<span>').append(" times.")
     );
-
-    question.qtex = ch
-	+ " the amount "
-	+ totex(a)
-	+ " by "
-	+ texwrap(texnum(pct) + '\\%')
-	+ " a total of "
-	+ totex(n)
-	+ " times.";
-
-    question.qmkd = ch
-	+ " the amount "
-	+ tomkd(a)
-	+ " by "
-	+ mkdwrap(texnum(pct) + '\\%')
-	+ " a total of "
-	+ tomkd(n)
-	+ " times.";
-
-    var s = a * Math.pow(1 + p/100, n);
-
-    s = Math.round10(s, -this.d);
-    
-    question.adiv.append(tomml(s));
-
-    question.atex = totex(s);
-    question.amkd = tomkd(s);
+    question.atex = texwrap(texnum(pct) + '\\%');
+    question.amkd = mkdwrap(texnum(pct) + '\\%');
 
     return this;
 }
