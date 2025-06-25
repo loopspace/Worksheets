@@ -1,4 +1,6 @@
-var precision = 4;
+const precision = 4;
+const inequalEntities = ["&lt;", "&le;", "&gt;", "&ge;"];
+const inequalTeX = ["<", '\\le ', ">", '\\ge '];
 
 // Based on http://stackoverflow.com/a/21059677
 
