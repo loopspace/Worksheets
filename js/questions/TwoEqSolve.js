@@ -61,7 +61,7 @@ TwoEqSolve.createQuestion = function(question) {
     
     question.qdiv = $('<div>').addClass('question');
     question.adiv = $('<div>').addClass('answer');
-    qtexa = ['\\('];
+    qtexa = [];
     atexa = [];
 
     var qmml = mmlelt('math').attr('display','inline');
@@ -80,10 +80,8 @@ TwoEqSolve.createQuestion = function(question) {
     addSignedNumber(d, qtexa, qmml);
     
     question.qdiv.append(qmml);
-    qtexa.push('\\)');
     
     var amml = mmlelt('math').attr('display','inline');
-    atexa.push('\\(');
 
     amml.append(tommlelt(v));
     atexa.push(v);
@@ -95,10 +93,11 @@ TwoEqSolve.createQuestion = function(question) {
     atexa.push(x);
     
     question.adiv.append(amml);
-    atexa.push('\\)');
     
-    question.qtex = qtexa.join('');
-    question.atex = atexa.join('');
+    question.qtex = '\\(' + qtexa.join('') + '\\)';
+    question.qmkd = '[m]' + qtexa.join('') + '[/m]';
+    question.atex = '\\(' + atexa.join('') + '\\)';
+    question.amkd = '[m]' + atexa.join('') + '[/m]';
     
     return this;
 }
