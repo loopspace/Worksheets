@@ -15,7 +15,7 @@ SeqArithTerm = new QuestionGenerator(
 );
 
 SeqArithTerm.explanation = function() {
-    return 'For each sequence, write down the formula for the nth term and the given term.';
+    return 'For each sequence, write down the formula for the nth term and use it to find the requested term.';
 }
 
 SeqArithTerm.shortexp = function() {

@@ -57,15 +57,13 @@ SeqArithTermFromTerms.createQuestion = function(question) {
     }
 
     var fst, lst, qth;
-    fst = a + (f - 1)*d;
-    lst = a + (l - 1)*d;
-    qth = a + (q - 1)*d;
+    fst = math.add(a, math.multiply(f - 1,d));
+    lst = math.add(a, math.multiply(l - 1,d));
+    qth = math.add(a, math.multiply(q - 1,d));
     
     question.adiv.append(
 	$('<span>').append(
-	    mmlelt('math').attr('display','inline').append(
-		tommlelt(qth)
-	    )
+	    tomml(qth)
 	)
     );
 
